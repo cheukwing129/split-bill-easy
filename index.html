@@ -4,286 +4,228 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>夾錢易</title>
-<style>
-:root{
-  --indigo:#533afd;
-  --indigo-hover:#7389ff;
-  --midnight:#061b31;
-  --slate:#64748d;
-  --steel:#50617a;
-  --success:#18794e;
-  --white:#ffffff;
-  --mist:#f8fafd;
-  --frost:#e5edf5;
-  --lavender:#b9b9f9;
-  --lilac:#d6d9fc;
-  --periwinkle:#e8e9ff;
-  --deep-violet:#182659;
-  --amethyst:#7f71e6;
-  --bg:var(--white);
-  --card:var(--white);
-  --text:var(--midnight);
-  --sub:var(--steel);
-  --line:var(--frost);
-  --accent:var(--indigo);
-  --pos:var(--indigo);
-  --neg:var(--steel);
-  --btn:var(--indigo);
-  --btnText:var(--white);
-  --input:var(--white);
-  --softAccent:var(--periwinkle);
-  --softPos:var(--periwinkle);
-  --softNeg:var(--mist);
-  box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px);
-  padding-bottom:env(safe-area-inset-bottom,0px);
+<style>:root{
+  color-scheme:light;
+  --ink:#202747;--ink-soft:#344166;--muted:#68738f;--muted-light:#8992aa;
+  --accent:#6558e8;--accent-dark:#5144d1;--accent-soft:#efedff;
+  --line:rgba(77,88,134,.13);--mint:#16896c;--mint-soft:#e7f7f1;
+  --amber:#a65c27;--amber-soft:#fff2e6;--surface:rgba(255,255,255,.78);
+  --bg:#f4f5fb;--shadow:0 18px 48px rgba(39,48,92,.09),inset 0 1px 0 rgba(255,255,255,.92);
+  --shadow-small:0 8px 24px rgba(39,48,92,.07),inset 0 1px 0 rgba(255,255,255,.92)
 }
-html{scroll-padding-top:env(safe-area-inset-top,0px);min-height:100%;}
-*{box-sizing:border-box;}
+*{box-sizing:border-box}
+html{min-height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
 body{
-  margin:0;
-  min-height:100%;
-  background:var(--bg);
-  color:var(--text);
-  font-family:"Inter Tight",Inter,-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;
-  font-size:16px;
-  font-weight:400;
-  line-height:1.4;
-  font-feature-settings:"ss01" 1,"tnum" 1;
-  font-variant-numeric:tabular-nums;
+  margin:0;min-height:100vh;color:var(--ink);
+  background:radial-gradient(ellipse at 8% 0%,rgba(180,174,255,.28),transparent 34rem),radial-gradient(ellipse at 96% 18%,rgba(154,223,211,.19),transparent 30rem),linear-gradient(180deg,#f7f8fd 0%,#f1f3fa 100%);
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;
+  font-size:16px;line-height:1.5;font-feature-settings:"tnum" 1;font-variant-numeric:tabular-nums
 }
-#app{width:min(100%,760px);margin:0 auto;padding:clamp(24px,5vw,48px) 24px 64px;}
-h1{color:var(--midnight);font-size:26px;line-height:1.12;letter-spacing:-.01em;margin:0;font-weight:300;}
-h2{color:var(--midnight);font-size:22px;line-height:1.1;letter-spacing:-.01em;margin:32px 0 16px;padding:0;font-weight:300;}
-h2::before{display:none;}
-p.sub{color:var(--slate);font-size:14px;line-height:1.45;margin:8px 0 20px;}
-.card{
-  background:var(--card);
-  border:0;
-  border-bottom:1px solid var(--line);
-  border-radius:4px;
-  padding:24px 0;
-  margin:0 0 24px;
-  box-shadow:none;
+#app{width:min(100%,1040px);margin:0 auto;padding:clamp(18px,4vw,42px) clamp(16px,4vw,34px) 64px}
+h1,h2,h3,p{margin-top:0}
+h1,h2{color:var(--ink);letter-spacing:-.025em}
+h1{font-size:clamp(30px,5vw,42px);line-height:1.12;font-weight:750;margin-bottom:0}
+h2{font-size:22px;line-height:1.2;font-weight:700;margin:0}
+p.sub{color:var(--muted);font-size:14px;line-height:1.55;margin:8px 0 20px}
+.small{font-size:12px;color:var(--muted);line-height:1.5}
+.amt{font-weight:750;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.surface,.card{background:var(--surface);backdrop-filter:blur(18px) saturate(135%);-webkit-backdrop-filter:blur(18px) saturate(135%);border:1px solid rgba(255,255,255,.8);border-radius:20px;box-shadow:var(--shadow-small)}
+.card{padding:22px;margin:0 0 18px}
+button{font-family:inherit;font-size:14px;font-weight:650;line-height:1.2;border:1px solid transparent;border-radius:12px;padding:11px 15px;cursor:pointer;transition:transform .16s ease,background-color .16s ease,border-color .16s ease,color .16s ease,box-shadow .16s ease}
+button:hover:not(:disabled){transform:translateY(-1px)}
+button:active:not(:disabled){transform:translateY(0)}
+button:focus-visible,input:focus-visible{outline:3px solid rgba(101,88,232,.3);outline-offset:2px}
+button:disabled{opacity:.58;cursor:wait}
+.btn-main{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:50px;padding:14px 18px;color:#fff;background:linear-gradient(135deg,#7568f2,#584bd9);box-shadow:0 8px 18px rgba(101,88,232,.24);font-weight:750}
+.btn-main:hover:not(:disabled){background:linear-gradient(135deg,#8176f6,#6255e4);box-shadow:0 10px 22px rgba(101,88,232,.3)}
+.btn-sm{min-height:36px;padding:8px 12px;background:rgba(255,255,255,.68);border:1px solid rgba(89,100,150,.18);color:var(--ink-soft);font-size:13px;font-weight:650;box-shadow:0 2px 8px rgba(44,52,90,.04)}
+.btn-sm:hover:not(:disabled){background:#fff;border-color:rgba(101,88,232,.35);color:var(--accent)}
+.btn-sm.danger{color:#ad5360}
+.btn-ghost{background:transparent;color:var(--accent);font-size:13px;padding:5px 2px;text-decoration:none;border:0;border-radius:8px;font-weight:700}
+.btn-ghost:hover{background:var(--accent-soft);color:var(--accent-dark)}
+input[type=text],input[type=number]{display:block;width:100%;min-height:48px;padding:13px 14px;margin:6px 0 16px;border:1px solid rgba(86,96,143,.18);border-radius:12px;background:rgba(255,255,255,.92);color:var(--ink);font-family:inherit;font-size:16px;font-weight:500;line-height:1.3;transition:border-color .16s ease,box-shadow .16s ease}
+input[type=text]:focus,input[type=number]:focus{border-color:rgba(101,88,232,.65);box-shadow:0 0 0 4px rgba(101,88,232,.09);outline:0}
+input::placeholder{color:#9098ad;opacity:1}
+label{display:block;font-size:13px;font-weight:700;color:var(--ink-soft);margin:9px 0 5px}
+.home-shell{max-width:760px;margin:clamp(12px,4vh,42px) auto 0}
+.home-hero,.meeting-hero{position:relative;isolation:isolate;overflow:hidden;color:#fff;background:linear-gradient(128deg,#1f294d 0%,#3d3b7c 54%,#6657ce 100%);border:1px solid rgba(255,255,255,.32);border-radius:28px;box-shadow:0 24px 62px rgba(48,51,109,.22),inset 0 1px 0 rgba(255,255,255,.18)}
+.home-hero{min-height:340px;padding:clamp(26px,5vw,44px);margin-bottom:18px}
+.home-hero::before,.meeting-hero::before{content:"";position:absolute;z-index:0;width:390px;height:390px;border-radius:50%;right:-110px;top:-178px;background:radial-gradient(circle,rgba(190,184,255,.38),rgba(157,146,255,.08) 54%,transparent 72%);filter:blur(2px);pointer-events:none}
+.home-hero::after,.meeting-hero::after{content:"";position:absolute;z-index:0;width:300px;height:300px;border-radius:50%;right:16%;bottom:-240px;background:radial-gradient(circle,rgba(124,230,204,.18),transparent 68%);pointer-events:none}
+.home-hero>*,.meeting-hero>*{position:relative;z-index:1}
+.home-brand,.meeting-brand{display:flex;align-items:center;gap:10px;font-weight:750;letter-spacing:.01em}
+.brand-mark{display:grid;place-items:center;width:38px;height:38px;border-radius:13px;color:white;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.2);font-size:21px;backdrop-filter:blur(12px)}
+.brand-badge{display:inline-flex;align-items:center;margin-left:4px;padding:5px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.19);background:rgba(255,255,255,.09);color:rgba(255,255,255,.82);font-size:10px;letter-spacing:.12em;font-weight:700}
+.home-hero-copy{max-width:62%;margin-top:34px}
+.brand-eyebrow{font-size:11px;font-weight:750;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.72);margin:0 0 12px}
+.home-title{max-width:540px;color:#fff;font-size:clamp(36px,7vw,58px);line-height:1.06;letter-spacing:-.04em;font-weight:780}
+.home-lead{max-width:42ch;color:rgba(255,255,255,.82);font-size:16px;line-height:1.65;margin:16px 0 0}
+.hero-glass-card{position:absolute!important;right:34px;bottom:34px;width:218px;padding:17px 18px;border-radius:18px;background:linear-gradient(135deg,rgba(255,255,255,.19),rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.24);box-shadow:0 16px 40px rgba(11,17,51,.16),inset 0 1px 0 rgba(255,255,255,.26);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%)}
+.hero-glass-card small{display:block;color:rgba(255,255,255,.8);font-size:11px;margin-bottom:7px}
+.hero-glass-card strong{display:block;color:#fff;font-size:20px;letter-spacing:-.02em}
+.hero-glass-card span{display:inline-flex;align-items:center;gap:6px;margin-top:11px;color:rgba(255,255,255,.86);font-size:12px}
+.hero-glass-card span::before{content:"";width:7px;height:7px;border-radius:50%;background:#7be0be;box-shadow:0 0 12px rgba(123,224,190,.65)}
+.home-card{padding:clamp(20px,4vw,30px);margin-bottom:14px}
+.card-heading{display:flex;align-items:center;gap:13px;margin:0 0 21px}
+.card-heading-icon{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;border:1px solid rgba(101,88,232,.14);border-radius:15px;background:var(--accent-soft);color:var(--accent);font-size:22px}
+.card-heading-copy{display:flex;flex-direction:column;gap:3px}
+.card-heading-copy strong{font-size:19px;font-weight:750;color:var(--ink);letter-spacing:-.02em}
+.card-heading-copy .small{font-size:12px}
+.home-submit{justify-content:space-between;padding-inline:18px}
+.home-submit span:last-child{font-size:20px;line-height:1}
+.home-note{display:flex;align-items:flex-start;gap:10px;padding:13px 4px 0;margin:0;color:var(--muted);line-height:1.55}
+.home-note-icon{display:grid;place-items:center;flex:0 0 22px;width:22px;height:22px;border-radius:8px;background:var(--mint-soft);color:var(--mint);font-size:13px;font-weight:800}
+.meeting-page{max-width:920px;margin:0 auto}
+.meeting-hero{padding:clamp(20px,4vw,34px);margin-bottom:20px}
+.meeting-topline{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.meeting-brand{color:#fff;font-size:14px}
+.meeting-brand small{color:rgba(255,255,255,.75);font-weight:500}
+.meeting-brand .brand-mark{width:34px;height:34px;border-radius:11px;font-size:18px}
+.btn-share{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:9px 12px;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.23);border-radius:11px;font-size:12px;font-weight:700;backdrop-filter:blur(10px)}
+.btn-share:hover:not(:disabled){background:rgba(255,255,255,.2)}
+.meeting-heading-row{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:25px 0 21px}
+.meeting-heading-row h1{color:#fff;font-size:clamp(27px,4.5vw,38px);overflow-wrap:anywhere}
+.meeting-caption{color:rgba(255,255,255,.78);font-size:13px;margin:8px 0 0}
+.meeting-live-tag{flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;padding:8px 11px;border-radius:999px;color:rgba(255,255,255,.94);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.17);font-size:11px;font-weight:700}
+.meeting-live-tag::before{content:"";width:7px;height:7px;border-radius:50%;background:#74dfb8;box-shadow:0 0 12px rgba(116,223,184,.68)}
+.meeting-live-tag.is-archived::before{background:#ffd28a;box-shadow:none}
+.meeting-stats{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:10px}
+.stat-tile{min-width:0;padding:13px 15px;border-radius:16px;border:1px solid rgba(255,255,255,.19);background:linear-gradient(140deg,rgba(255,255,255,.14),rgba(255,255,255,.07));box-shadow:inset 0 1px 0 rgba(255,255,255,.13);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.stat-tile span{display:block;color:rgba(255,255,255,.82);font-size:11px;font-weight:650}
+.stat-tile strong{display:block;color:#fff;font-size:clamp(17px,3vw,24px);line-height:1.25;font-weight:780;letter-spacing:-.025em;margin-top:5px;overflow-wrap:anywhere}
+.stat-tile .stat-hint{color:rgba(255,255,255,.75);font-size:10px;margin-top:3px}
+.warn,.notice{padding:13px 15px;border-radius:14px;background:rgba(255,246,229,.9);border:1px solid rgba(209,153,76,.24);color:#67451f;font-size:13px;line-height:1.5;margin:0 0 16px}
+.tabs{display:flex;gap:5px;width:max-content;max-width:100%;padding:5px;margin:0 0 20px;border:1px solid rgba(255,255,255,.86);border-radius:15px;background:rgba(255,255,255,.63);box-shadow:0 8px 20px rgba(39,48,92,.06);backdrop-filter:blur(16px)}
+.tab{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:10px 17px;border:0;border-radius:11px;background:transparent;color:var(--muted);font-size:14px;font-weight:700;cursor:pointer}
+.tab:hover{background:rgba(255,255,255,.62);color:var(--ink)}
+.tab.active{background:#fff;color:var(--accent-dark);box-shadow:0 3px 10px rgba(49,53,106,.1)}
+.tab-icon{display:inline-flex;width:17px;height:17px;align-items:center;justify-content:center}
+.tab-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.actions-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:0 0 19px;align-items:start}
+.add-section{min-width:0}
+.add-section-toggle{display:flex;align-items:center;justify-content:flex-start;gap:11px;width:100%;min-height:64px;margin:0;padding:13px 16px;border:1px solid rgba(255,255,255,.22);border-radius:17px;color:#fff;background:linear-gradient(135deg,#273253,#464477);text-align:left;font-family:inherit;font-size:15px;font-weight:750;line-height:1.25;box-shadow:0 10px 23px rgba(38,46,87,.15),inset 0 1px 0 rgba(255,255,255,.12)}
+.add-section:nth-child(2) .add-section-toggle{background:linear-gradient(135deg,#554caa,#766be0)}
+.add-section-toggle:hover:not(:disabled){color:#fff;filter:brightness(1.08)}
+.add-section-toggle-icon{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border-radius:11px;color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);font-size:21px;font-weight:450}
+.add-section-toggle-icon:empty{display:none}
+.add-form-card{margin:12px 0 0;padding:17px;background:rgba(255,255,255,.88);border:1px solid rgba(101,88,232,.12);border-radius:17px;box-shadow:var(--shadow-small)}
+.add-form-card .row{gap:9px}
+.pill{display:inline-flex;align-items:center;max-width:100%;white-space:normal;overflow-wrap:anywhere;margin:3px 5px 3px 0;padding:7px 11px;border:1px solid rgba(91,101,148,.17);border-radius:999px;background:rgba(255,255,255,.78);color:var(--ink-soft);font-size:13px;font-weight:650;transition:background-color .16s ease,border-color .16s ease,color .16s ease}
+.pill.on{background:var(--accent-soft);color:var(--accent-dark);border-color:rgba(101,88,232,.24)}
+.checkline{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14px;color:var(--ink-soft)}
+.checkline input{accent-color:var(--accent);width:18px;height:18px}
+.people-card{padding:19px 20px;margin:0 0 20px}
+.people-card-header,.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.people-card-header{margin-bottom:15px}
+.people-title{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:750}
+.people-count{padding:4px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent-dark);font-size:11px;font-weight:750}
+.participant-list{display:flex;flex-wrap:wrap;gap:8px}
+.participant-chip{display:inline-flex;align-items:center;gap:8px;max-width:100%;padding:7px 11px 7px 7px;border:1px solid rgba(81,94,143,.12);border-radius:999px;background:rgba(255,255,255,.66);color:var(--ink-soft);font-size:13px;font-weight:650;overflow-wrap:anywhere}
+.avatar-mini{display:grid;place-items:center;flex:0 0 27px;width:27px;height:27px;border-radius:50%;background:linear-gradient(145deg,#e8e5ff,#d9f1ec);color:var(--accent-dark)}
+.avatar-mini svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.people-manage{padding:17px 19px;margin:-7px 0 20px}
+.people-manage .row{padding:10px 0;border-bottom:1px solid var(--line)}
+.people-manage .row:last-child{border-bottom:0}
+.section-heading{margin:26px 2px 12px}
+.section-heading p{margin:4px 0 0;color:var(--muted);font-size:12px}
+.section-count{flex:0 0 auto;padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.72);border:1px solid rgba(87,97,142,.12);color:var(--muted);font-size:11px;font-weight:700}
+.expense-list{padding:5px 18px}
+.exp-item{display:flex;align-items:flex-start;gap:13px;padding:16px 2px;border-bottom:1px solid var(--line)}
+.exp-item:first-child{padding-top:13px}
+.exp-item:last-child{border-bottom:0}
+.expense-icon{display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;border-radius:13px;background:linear-gradient(145deg,#efedff,#e5f5f0);color:var(--accent)}
+.expense-icon svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.expense-main{flex:1;min-width:0}
+.expense-head{align-items:flex-start;gap:10px}
+.expense-head b{min-width:0;font-size:14px;font-weight:750;overflow-wrap:anywhere}
+.exp-item .amt{flex:0 0 auto;font-size:15px;white-space:nowrap;color:var(--ink)}
+.expense-meta{display:flex;align-items:center;flex-wrap:wrap;gap:7px 11px;margin-top:7px}
+.meta-tag{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:11px}
+.meta-dot{width:6px;height:6px;border-radius:50%;background:#887dee}
+.share-toggle{padding:0;border:0;background:transparent;color:var(--accent-dark);font-size:11px;font-weight:700;text-align:left}
+.share-toggle:hover:not(:disabled){background:transparent;text-decoration:underline}
+.share-names{margin-top:8px;color:var(--muted);font-size:12px;overflow-wrap:anywhere}
+.expense-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:10px}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:150px;padding:22px;text-align:center}
+.empty-icon{display:grid;place-items:center;width:46px;height:46px;margin-bottom:10px;border-radius:16px;background:var(--accent-soft);color:var(--accent);font-size:21px}
+.empty-state strong{font-size:14px;color:var(--ink)}
+.empty-state p{max-width:34ch;margin:5px 0 0;color:var(--muted);font-size:12px;line-height:1.5}
+.settle-section{margin:0 0 24px}
+.settle-section .section-heading{margin:0 2px 13px}
+.section-kicker{display:block;margin-bottom:4px;color:var(--accent);font-size:10px;font-weight:800;letter-spacing:.14em}
+.section-caption{color:var(--muted);font-size:12px}
+.balance-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:11px}
+.balance-card{padding:16px;border-radius:17px;background:rgba(255,255,255,.77);border:1px solid rgba(255,255,255,.9);box-shadow:var(--shadow-small)}
+.balance-card-top{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.balance-card .avatar-mini{width:32px;height:32px;flex-basis:32px}
+.balance-card .avatar-mini svg{width:16px;height:16px}
+.balance-name{min-width:0;font-size:14px;font-weight:750;overflow-wrap:anywhere}
+.balance-due{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-bottom:11px;border-bottom:1px solid var(--line)}
+.balance-due span{color:var(--muted);font-size:11px}
+.balance-due strong{font-size:19px;font-weight:780;letter-spacing:-.025em;white-space:nowrap}
+.balance-net{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;font-size:11px;font-weight:750}
+.balance-net b{font-size:12px;white-space:nowrap}
+.balance-net.positive{color:var(--mint)}
+.balance-net.negative{color:var(--amber)}
+.balance-net.neutral{color:var(--muted)}
+.transfer-control{padding:17px 19px;margin-bottom:14px}
+.transit-heading{display:flex;align-items:center;gap:8px;margin-bottom:9px;color:var(--ink);font-size:13px;font-weight:750}
+.transit-heading .small{font-weight:500}
+.transit-pills{display:flex;flex-wrap:wrap;gap:2px}
+.transfer-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;align-items:start}
+.transfer-group{min-width:0;padding:16px;border-radius:18px;border:1px solid transparent;margin:0;box-shadow:var(--shadow-small)}
+.transfer-group.receive{background:linear-gradient(145deg,rgba(232,249,243,.95),rgba(255,255,255,.82));border-color:rgba(39,164,125,.16)}
+.transfer-group.pay{background:linear-gradient(145deg,rgba(255,242,230,.96),rgba(255,255,255,.84));border-color:rgba(197,126,71,.16)}
+.transfer-group.receive .transfer-total,.transfer-group.receive .transfer-subtitle{color:var(--mint)}
+.transfer-group.pay .transfer-total,.transfer-group.pay .transfer-subtitle{color:var(--amber)}
+.transfer-heading{font-size:13px;font-weight:750}
+.transfer-total{font-weight:800;font-variant-numeric:tabular-nums;color:var(--ink);font-size:13px}
+.transfer-subtitle{font-size:11px;font-weight:750;margin-top:14px}
+.transfer-row{align-items:center;padding:11px 0;border-top:1px solid rgba(73,87,130,.12);gap:8px}
+.status-icon{display:inline-block;flex:0 0 17px;width:17px;height:17px;color:var(--muted);vertical-align:-3px}
+.status-icon.is-paid{color:var(--mint)}
+.status-icon.is-pending{color:var(--amber)}
+.transfer-flow{display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0;line-height:1.45}
+.transfer-description{flex:1;min-width:0;overflow-wrap:anywhere;font-size:12px;color:var(--ink-soft)}
+.transfer-row .btn-sm{flex:0 0 auto;min-height:32px;padding:7px 9px;font-size:11px}
+.transfer-group .small{margin:10px 0 0}
+.settled-note{display:flex;align-items:center;gap:11px;padding:18px;border-radius:16px;background:var(--mint-soft);color:#256a58;font-size:13px;font-weight:650}
+.settled-note .empty-icon{width:34px;height:34px;flex:0 0 34px;margin:0;background:rgba(255,255,255,.75);font-size:17px}
+.transfer-group:not(.receive):not(.pay){margin-top:13px;background:rgba(255,255,255,.75);border-color:var(--line)}
+.footer{margin-top:28px;padding:15px 4px 0;border-top:1px solid rgba(80,91,137,.12);text-align:center;font-size:12px;color:var(--muted)}
+@media(max-width:680px){
+  #app{padding-left:15px;padding-right:15px}
+  .home-hero{min-height:0;padding:24px;border-radius:23px}
+  .home-hero-copy{max-width:100%;margin-top:29px;padding-bottom:5px}
+  .hero-glass-card{display:none}
+  .home-lead{font-size:15px}
+  .meeting-hero{padding:20px;border-radius:23px}
+  .meeting-heading-row{align-items:flex-start;flex-direction:column;gap:12px;margin:21px 0 17px}
+  .meeting-stats{grid-template-columns:1fr 1fr}
+  .stat-tile:first-child{grid-column:1/-1}
+  .actions-grid{grid-template-columns:1fr;gap:10px}
+  .add-section-toggle{min-height:58px}
+  .people-card{padding:17px}
+  .transfer-columns{grid-template-columns:1fr}
+  .balance-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .balance-card{padding:13px}
 }
-button{
-  font-family:inherit;font-size:14px;font-weight:400;line-height:1.2;
-  border:1px solid transparent;
-  border-radius:4px;
-  padding:12px 16px;
-  cursor:pointer;
-  transition:background-color .16s ease,border-color .16s ease,color .16s ease;
+@media(max-width:420px){
+  .meeting-topline{align-items:flex-start}
+  .meeting-brand small{display:block;font-size:10px}
+  .meeting-live-tag{font-size:10px;padding:7px 9px}
+  .meeting-caption{max-width:30ch}
+  .balance-grid{grid-template-columns:1fr}
+  .balance-card{padding:15px}
+  .balance-due strong{font-size:18px}
+  .transfer-row{align-items:flex-start;flex-wrap:wrap}
+  .transfer-row .transfer-flow{flex-basis:100%}
+  .transfer-row .btn-sm{margin-left:25px}
+  .tab{flex:1;padding-inline:12px}
+  .tabs{width:100%}
 }
-button:hover:not(:disabled){transform:none;}
-button:active:not(:disabled){transform:none;}
-button:focus-visible,input:focus-visible{outline:2px solid var(--lavender);outline-offset:2px;}
-.btn-main{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  background:var(--btn);
-  color:var(--btnText);
-  width:100%;
-  min-height:48px;
-  font-weight:400;
-  font-size:14px;
-  box-shadow:none;
-}
-.btn-main:hover:not(:disabled){background:var(--indigo-hover);box-shadow:none;}
-.btn-sm{
-  background:transparent;
-  border:1px solid var(--lilac);
-  color:var(--indigo);
-  font-size:13px;
-  font-weight:400;
-  padding:8px 12px;
-  min-height:36px;
-}
-.btn-sm:hover:not(:disabled){border-color:var(--lavender);color:var(--indigo);background:var(--mist);}
-.btn-ghost{
-  background:transparent;
-  color:var(--indigo);
-  font-size:14px;
-  font-weight:400;
-  padding:4px 0;
-  text-decoration:underline;
-  text-underline-offset:3px;
-  border:0;
-  border-radius:0;
-}
-.btn-ghost:hover{background:transparent;color:var(--indigo-hover);}
-input[type=text],input[type=number]{
-  display:block;
-  width:100%;
-  min-height:48px;
-  padding:14px 12px;
-  border:1px solid var(--frost);
-  border-radius:4px;
-  background:var(--white);
-  color:var(--midnight);
-  font-family:inherit;font-size:16px;font-weight:400;line-height:1.2;
-  font-size:16px;
-  margin:6px 0 16px;
-  transition:border-color .16s ease,background-color .16s ease;
-}
-input::placeholder{color:var(--slate);opacity:.78;}
-input:focus{border-color:var(--indigo);box-shadow:none;outline:0;}
-label{display:block;font-size:14px;font-weight:400;color:var(--steel);margin:8px 0 4px;}
-.row{display:flex;justify-content:space-between;align-items:center;gap:12px;}
-.pill{
-  display:inline-flex;
-  max-width:100%;
-  white-space:normal;
-  overflow-wrap:anywhere;
-  align-items:center;
-  background:var(--white);
-  border:1px solid var(--lilac);
-  color:var(--slate);
-  border-radius:9999px;
-  padding:6px 12px;
-  font-size:13px;
-  font-weight:400;
-  margin:3px 5px 3px 0;
-  transition:background-color .16s ease,border-color .16s ease,color .16s ease;
-}
-.pill.on{background:var(--periwinkle);color:var(--indigo);border-color:var(--lavender);box-shadow:none;}
-.tabs{display:flex;gap:24px;margin:8px 0 24px;padding:0;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent;}
-.tab{
-  position:relative;
-  flex:0 0 auto;
-  text-align:center;
-  padding:12px 0;
-  border:0;
-  border-radius:0;
-  background:transparent;
-  color:var(--slate);
-  font-size:14px;
-  font-weight:400;
-  cursor:pointer;
-}
-.tab:hover{background:transparent;color:var(--indigo);}
-.tab.active{background:transparent;color:var(--indigo);border:0;box-shadow:none;}
-.tab.active::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--indigo);}
-.exp-item{border-bottom:1px solid var(--line);padding:16px 0;}
-.exp-item:first-child{padding-top:0;}
-.exp-item:last-child{border-bottom:0;padding-bottom:0;}
-.exp-item .amt{font-size:16px;}
-.small{font-size:12px;color:var(--slate);line-height:1.45;font-weight:400;}
-.amt{font-weight:400;font-variant-numeric:tabular-nums;letter-spacing:-.01em;}
-.warn{
-  background:var(--mist);
-  border:1px solid var(--line);
-  border-left:2px solid var(--indigo);
-  color:var(--steel);
-  border-radius:4px;
-  padding:12px 14px;
-  font-size:13px;
-  line-height:1.45;
-  margin-bottom:16px;
-}
-.notice{
-  background:var(--mist);
-  border:1px solid var(--line);
-  border-left:2px solid var(--indigo);
-  border-radius:4px;
-  padding:12px 14px;
-  font-size:13px;
-  line-height:1.45;
-  margin:12px 0 16px;
-  color:var(--steel);
-}
-.namebtn{
-  display:block;
-  width:100%;
-  text-align:left;
-  padding:12px;
-  margin-bottom:8px;
-  border:1px solid var(--lilac);
-  border-radius:4px;
-  background:var(--white);
-  color:var(--midnight);
-  font-weight:400;
-}
-.namebtn:hover{border-color:var(--lavender);background:var(--mist);color:var(--indigo);}
-.checkline{display:flex;align-items:center;gap:9px;padding:7px 0;font-size:14px;}
-.checkline input{accent-color:var(--indigo);width:17px;height:17px;}
-.footer{text-align:left;font-size:12px;color:var(--slate);margin-top:32px;padding-top:16px;border-top:1px solid var(--line);}
-.meeting-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:8px 0 16px;}
-.meeting-header h1{flex:1;min-width:0;overflow-wrap:anywhere;margin:0;font-size:32px;letter-spacing:-.02em;}
-.meeting-header .btn-sm{white-space:nowrap;flex:0 0 auto;margin-top:1px;}
-button:disabled{opacity:.55;cursor:wait;box-shadow:none;}
-.transfer-group{
-  border:0;
-  border-top:1px solid var(--line);
-  border-radius:4px;
-  padding:16px 0 0;
-  margin-top:20px;
-  background:transparent;
-}
-.transfer-group.receive{border-color:var(--lavender);}
-.transfer-group.pay{border-color:var(--line);}
-.transfer-group.receive .transfer-total,.transfer-group.receive .transfer-subtitle{color:var(--indigo);}
-.transfer-group.pay .transfer-total,.transfer-group.pay .transfer-subtitle{color:var(--steel);}
-.transfer-heading{font-size:14px;font-weight:400;}
-.transfer-total{font-weight:400;font-variant-numeric:tabular-nums;color:var(--midnight);}
-.transfer-subtitle{font-size:12px;font-weight:400;margin-top:12px;}
-.transfer-row{padding:12px 0;border-top:1px solid var(--line);gap:12px;}
-.status-icon{display:inline-block;flex:0 0 16px;width:16px;height:16px;color:var(--slate);vertical-align:-3px;}
-.status-icon.is-paid{color:var(--success);}
-.status-icon.is-pending{color:var(--slate);}
-.transfer-flow{display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0;line-height:1.45;}
-.transfer-description{flex:1;min-width:0;overflow-wrap:anywhere;}
-.home-shell{max-width:560px;margin:clamp(36px,12vh,112px) auto 0;}
-.home-hero{padding:0 0 32px;border-bottom:1px solid var(--line);}
-.brand-eyebrow{font-size:12px;font-weight:300;letter-spacing:.08em;color:var(--slate);margin-bottom:12px;}
-.home-title{margin:0;font-size:clamp(38px,8vw,56px);line-height:1.03;letter-spacing:-.025em;font-weight:300;color:var(--midnight);}
-.home-lead{color:var(--steel);font-size:20px;line-height:1.4;font-weight:300;margin:16px 0 0;max-width:38ch;}
-.home-card{padding:28px 0 32px;border-bottom:0;margin:0;background:transparent;}
-.card-heading{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
-.card-heading-icon{display:grid;place-items:center;width:32px;height:32px;border:1px solid var(--lavender);border-radius:4px;background:transparent;color:var(--indigo);font-size:17px;font-weight:300;}
-.card-heading-copy{display:flex;flex-direction:column;gap:4px;}
-.card-heading-copy strong{font-size:20px;font-weight:300;letter-spacing:-.01em;color:var(--midnight);}
-.home-submit{justify-content:space-between;padding-inline:20px;margin-top:8px;}
-.home-submit span:last-child{font-size:18px;line-height:1;}
-.home-note{display:flex;align-items:flex-start;gap:9px;margin:0;padding:16px 0 0;border-top:1px solid var(--line);line-height:1.45;color:var(--slate);}
-.home-note-icon{color:var(--indigo);font-size:16px;line-height:1.3;}
-.add-section{margin:0 0 16px;}
-.add-section-toggle{
-  display:flex;
-  align-items:center;
-  justify-content:flex-start;
-  gap:8px;
-  width:100%;
-  min-height:44px;
-  margin:0;
-  padding:8px 0;
-  border:0;
-  border-radius:0;
-  background:transparent;
-  color:var(--midnight);
-  text-align:left;
-  font-family:inherit;
-  font-size:20px;
-  font-weight:400;
-  line-height:1.2;
-}
-.add-section-toggle:hover:not(:disabled){background:transparent;color:var(--indigo);}
-.add-section-toggle-icon{display:inline-flex;align-items:center;justify-content:center;width:20px;color:var(--indigo);font-size:20px;font-weight:300;line-height:1;}
-.add-form-card{margin:0 0 20px;padding:20px 16px;background:var(--mist);border:1px solid var(--frost);border-radius:4px;box-shadow:none;}
-@media(max-width:520px){
-  #app{padding-left:16px;padding-right:16px;}
-  .home-shell{margin-top:clamp(32px,8vh,72px);}
-  .home-hero{padding-bottom:24px;}
-  .home-lead{font-size:18px;}
-  .home-card{padding-top:24px;padding-bottom:24px;}
-  .meeting-header h1{font-size:26px;}
-  .transfer-row{align-items:flex-start;gap:8px;}
-  .transfer-row .btn-sm{white-space:nowrap;padding-inline:9px;}
-}
-@media(prefers-reduced-motion:reduce){
-  *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important;}
-}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
@@ -464,23 +406,35 @@ function renderHome(){
   document.getElementById('app').innerHTML = `
     <main class="home-shell">
       <header class="home-hero">
-        <div class="brand-eyebrow">聚會分帳工具</div>
-        <h1 class="home-title">夾錢易</h1>
-        <p class="home-lead">清楚記錄代墊費用，快速整理分攤與轉帳。</p>
+        <div class="home-brand">
+          <span class="brand-mark" aria-hidden="true">⇄</span>
+          <span>夾錢易</span>
+          <span class="brand-badge">SHARED BILL</span>
+        </div>
+        <div class="home-hero-copy">
+          <div class="brand-eyebrow">聚會分帳 · 共同編輯</div>
+          <h1 class="home-title">聚會花費，<br>分得明白。</h1>
+          <p class="home-lead">每人記下自己代墊的項目，夾錢易會整理分攤與轉帳。打開專屬連結，大家即可一起更新。</p>
+        </div>
+        <div class="hero-glass-card" aria-hidden="true">
+          <small>一目了然的聚會帳本</small>
+          <strong>記帳 · 分攤 · 結算</strong>
+          <span>即時共同編輯</span>
+        </div>
       </header>
       <section class="card home-card" aria-labelledby="create-heading">
         <div class="card-heading">
           <span class="card-heading-icon" aria-hidden="true">＋</span>
           <div class="card-heading-copy">
             <strong id="create-heading">建立新聚會</strong>
-            <span class="small">開啟專屬帳本，與朋友共同記錄</span>
+            <span class="small">開啟一個專屬帳本，與朋友共同記錄</span>
           </div>
         </div>
         <label for="mname">聚會名稱</label>
         <input type="text" id="mname" placeholder="例如：週末露營">
         <button class="btn-main home-submit" onclick="createMeeting()"><span>建立新聚會</span><span aria-hidden="true">→</span></button>
       </section>
-      <p class="small home-note"><span class="home-note-icon" aria-hidden="true">↗</span><span>建立後會產生專屬連結，分享給朋友即可共同編輯，毋須登入。</span></p>
+      <p class="small home-note"><span class="home-note-icon" aria-hidden="true">✓</span><span>毋須登入。分享專屬連結後，任何持有連結的人都可以查看及共同編輯。</span></p>
     </main>
   `;
 }
@@ -498,14 +452,43 @@ function render(){
   if(S.meeting===null){ renderLoading(); return; }
   if(S.meeting===false){ document.getElementById('app').innerHTML='<p class="warn">找不到這場聚會，連結可能有誤。</p>'; return; }
   const m = S.meeting;
-  let html = `<div class="meeting-header"><h1>${esc(m.name)}</h1><button class="btn-sm" type="button" onclick="copyMeetingLink(this)" aria-live="polite">複製連結</button></div>`;
-  if(m.archived) html += `<p class="warn">此聚會已封存為唯讀，無法再編輯。</p>`;
-  html += `<div class="tabs">
-    <div class="tab ${S.view==='ledger'?'active':''}" onclick="setView('ledger')">帳目</div>
-    <div class="tab ${S.view==='settle'?'active':''}" onclick="setView('settle')">結算</div>
-  </div>`;
-  html += S.view==='settle' ? renderSettle(m) : renderLedger(m);
-  html += `<p class="footer">${m.archived?'':`<span class="btn-ghost" style="cursor:pointer" onclick="archiveMeeting()">封存此聚會（唯讀）</span>`}</p>`;
+  const total=S.expenses.reduce((sum,e)=>sum+e.amount,0);
+  const liveLabel=m.archived?'唯讀封存':'即時共同編輯';
+  let html = `<main class="meeting-page">
+    <header class="meeting-hero">
+      <div class="meeting-topline">
+        <div class="meeting-brand"><span class="brand-mark" aria-hidden="true">⇄</span><span>夾錢易 <small>／聚會帳本</small></span></div>
+        <button class="btn-share" type="button" onclick="copyMeetingLink(this)" aria-live="polite">
+          <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4H5.5A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16h9a1.5 1.5 0 0 0 1.5-1.5V12"/><path d="M10 4h6v6M16 4l-7 7"/></svg>
+          <span>複製連結</span>
+        </button>
+      </div>
+      <div class="meeting-heading-row">
+        <div>
+          <div class="brand-eyebrow">SHARED GATHERING</div>
+          <h1>${esc(m.name)}</h1>
+          <p class="meeting-caption">記錄共同開支，查看每人分攤與轉帳安排。</p>
+        </div>
+        <span class="meeting-live-tag ${m.archived?'is-archived':''}">${liveLabel}</span>
+      </div>
+      <div class="meeting-stats">
+        <div class="stat-tile"><span>聚會總開支</span><strong>${fmt(total)}</strong><span class="stat-hint">所有已記錄花費</span></div>
+        <div class="stat-tile"><span>參加者</span><strong>${m.participants.length} 人</strong><span class="stat-hint">共同分攤成員</span></div>
+        <div class="stat-tile"><span>花費紀錄</span><strong>${S.expenses.length} 項</strong><span class="stat-hint">代墊項目總數</span></div>
+      </div>
+    </header>
+    ${m.archived?'<p class="warn">此聚會已封存為唯讀，無法再編輯。</p>':''}
+    <nav class="tabs" role="tablist" aria-label="聚會內容">
+      <button type="button" role="tab" aria-selected="${S.view==='ledger'}" class="tab ${S.view==='ledger'?'active':''}" onclick="setView('ledger')">
+        <span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M5 2.8h7l3 3v11.4H5z"/><path d="M12 2.8v3h3M7.5 9h5M7.5 12h5M7.5 15h3"/></svg></span>帳目
+      </button>
+      <button type="button" role="tab" aria-selected="${S.view==='settle'}" class="tab ${S.view==='settle'?'active':''}" onclick="setView('settle')">
+        <span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 6h11M12 3l3 3-3 3M16 14H5m3-3-3 3 3 3"/></svg></span>結算
+      </button>
+    </nav>
+    ${S.view==='settle' ? renderSettle(m) : renderLedger(m)}
+    <footer class="footer">${m.archived?'':`<span class="btn-ghost" style="cursor:pointer" onclick="archiveMeeting()">封存此聚會（唯讀）</span>`}</footer>
+  </main>`;
   document.getElementById('app').innerHTML = html;
 }
 async function copyMeetingLink(button){
@@ -565,41 +548,52 @@ async function archiveMeeting(){
 }
 
 function renderAddToggle(formId,title,expanded,action){
-  const controls=expanded?' aria-controls="'+formId+'"':'';
-  return '<button type="button" class="add-section-toggle" aria-expanded="'+(expanded?'true':'false')+'"'+controls+' onclick="'+action+'"><span class="add-section-toggle-icon" aria-hidden="true">'+(expanded?'':'＋')+'</span><span>'+esc(title)+'</span></button>';
+  return '<button type="button" class="add-section-toggle" aria-expanded="'+(expanded?'true':'false')+'" aria-controls="'+formId+'" onclick="'+action+'"><span class="add-section-toggle-icon" aria-hidden="true">'+(expanded?'':'＋')+'</span><span>'+esc(title)+'</span></button>';
 }
 function renderLedger(m){
-  const total=S.expenses.reduce((s,e)=>s+e.amount,0);
-  const peopleManageButton=m.archived?'':' <button class="btn-ghost" onclick="togglePeople()">管理</button>';
   let html='';
   if(!m.archived){
+    html+='<div class="actions-grid">';
     html+='<section class="add-section">'+renderAddToggle('participantAddForm','新增參加者',S.showAddPerson,'toggleAddParticipant()')+(S.showAddPerson?renderAddParticipantForm():'')+'</section>';
+    const expenseTitle=S.editExpenseId?'編輯花費':'新增花費';
+    html+='<section class="add-section">'+renderAddToggle('expenseAddForm',expenseTitle,S.showAdd,'toggleAdd()')+(S.showAdd?renderAddExpenseForm(m):'')+'</section>';
+    html+='</div>';
   }
-  html+='<div class="card row"><div><div class="small">參加者</div><div>'+m.participants.length+' 人'+peopleManageButton+'</div></div><div><div class="small">總開支</div><div class="amt">'+fmt(total)+'</div></div></div>';
-  if(S.showPeople&&!m.archived){
-    html+='<div class="card"><div class="row"><b>管理參加者</b><button class="btn-sm" onclick="togglePeople()">完成</button></div>';
-    if(!m.participants.length) html+='<p class="small">目前沒有參加者。</p>';
+  const peopleManageButton=m.archived?'':'<button class="btn-sm" type="button" onclick="togglePeople()">'+(S.showPeople?'收起管理':'管理名單')+'</button>';
+  html+='<section class="surface people-card"><div class="people-card-header"><div class="people-title">參加者 <span class="people-count">'+m.participants.length+' 人</span></div>'+peopleManageButton+'</div>';
+  if(!m.participants.length){
+    html+='<div class="small">尚未加入參加者。使用上方「新增參加者」開始建立名單。</div>';
+  }else{
+    html+='<div class="participant-list">';
     m.participants.forEach(p=>{
-      html+='<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)"><span>'+esc(p.name)+'</span><span><button class="btn-sm" onclick="renameParticipant('+jsArg(p.name)+')">改名</button> <button class="btn-sm" onclick="removeParticipant('+jsArg(p.name)+')">移除</button></span></div>';
+      html+='<div class="participant-chip"><span class="avatar-mini" aria-hidden="true"><svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3"/><path d="M3.8 17a6.2 6.2 0 0 1 12.4 0"/></svg></span><span>'+esc(p.name)+'</span></div>';
     });
     html+='</div>';
   }
-  if(!m.archived){
-    const expenseTitle=S.editExpenseId?'編輯花費':'新增花費';
-    html+='<section class="add-section">'+renderAddToggle('expenseAddForm',expenseTitle,S.showAdd,'toggleAdd()')+(S.showAdd?renderAddExpenseForm(m):'')+'</section>';
+  html+='</section>';
+  if(S.showPeople&&!m.archived){
+    html+='<section class="surface people-manage"><div class="row"><b>管理參加者</b><button class="btn-sm" type="button" onclick="togglePeople()">完成</button></div>';
+    if(!m.participants.length) html+='<p class="small">目前沒有參加者。</p>';
+    m.participants.forEach(p=>{
+      html+='<div class="row"><span>'+esc(p.name)+'</span><span><button class="btn-sm" type="button" onclick="renameParticipant('+jsArg(p.name)+')">改名</button> <button class="btn-sm danger" type="button" onclick="removeParticipant('+jsArg(p.name)+')">移除</button></span></div>';
+    });
+    html+='</section>';
   }
-  html+='<h2>花費列表</h2><div class="card">';
-  if(S.expenses.length===0) html+='<p class="sub">目前還沒有任何花費紀錄。</p>';
+  html+='<section class="expenses-section"><div class="section-heading"><div><h2>花費紀錄</h2><p>每筆花費可指定實際付款人與分攤對象。</p></div><span class="section-count">'+S.expenses.length+' 筆</span></div><div class="surface expense-list">';
+  if(S.expenses.length===0){
+    html+='<div class="empty-state"><span class="empty-icon" aria-hidden="true">＋</span><strong>還沒有花費紀錄</strong><p>由任何一位參加者記下代墊項目，系統會同步更新分攤。</p></div>';
+  }
   S.expenses.forEach(e=>{
     const expanded=S.expId===e.id, shares=Array.isArray(e.shareWith)?e.shareWith:[];
-    html+='<div class="exp-item">'+
-      '<div class="row"><b>'+esc(e.item)+'</b><span class="amt">'+fmt(e.amount)+'</span></div>'+
-      '<div class="small">付款人：'+esc(e.payer)+' ｜ <span style="cursor:pointer;text-decoration:underline" onclick="toggleExp('+jsArg(e.id)+')">分攤對象：'+(shares.length===m.participants.length?'全體 '+shares.length+' 人':shares.length+' 人')+' · '+(expanded?'收起':'查看')+'</span></div>'+
-      (expanded?'<div class="small" style="margin-top:4px">'+shares.map(esc).join('、')+'</div>':'')+
-      (m.archived?'':'<div class="row" style="justify-content:flex-end;margin-top:6px"><button class="btn-sm" onclick="editExpense('+jsArg(e.id)+')">修改</button><button class="btn-sm" style="margin-left:6px" onclick="deleteExpense('+jsArg(e.id)+')">刪除</button></div>')+
-      '</div>';
+    const shareLabel=shares.length===m.participants.length?'全體 '+shares.length+' 人':shares.length+' 人';
+    html+='<article class="exp-item"><span class="expense-icon" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M5 2.7h7l3 3v11.6H5z"/><path d="M12 2.7v3h3M7.5 9h5M7.5 12h5"/></svg></span><div class="expense-main">';
+    html+='<div class="row expense-head"><b>'+esc(e.item)+'</b><span class="amt">'+fmt(e.amount)+'</span></div>';
+    html+='<div class="expense-meta"><span class="meta-tag"><span class="meta-dot"></span>由 '+esc(e.payer)+' 付款</span><button class="share-toggle" type="button" onclick="toggleExp('+jsArg(e.id)+')">分攤 '+shareLabel+' · '+(expanded?'收起':'查看')+'</button></div>';
+    if(expanded) html+='<div class="share-names">分攤對象：'+shares.map(esc).join('、')+'</div>';
+    if(!m.archived) html+='<div class="expense-actions"><button class="btn-sm" type="button" onclick="editExpense('+jsArg(e.id)+')">修改</button><button class="btn-sm danger" type="button" onclick="deleteExpense('+jsArg(e.id)+')">刪除</button></div>';
+    html+='</div></article>';
   });
-  html+='</div>';
+  html+='</div></section>';
   return html;
 }
 function renderAddParticipantForm(){
@@ -618,7 +612,7 @@ function toggleAdd(){
   }
   const draftRef=window.fb.doc(window.fb.collection(db,'meetings',meetingId(),'expenses'));
   S.newExpense={item:'',amount:'',payer:'',shareWith:S.meeting.participants.map(p=>p.name),editShare:false,pendingId:draftRef.id,pendingCreatedAt:Date.now()};
-  S.editExpenseId=null; S.showAdd=true; S.showPeople=false; S.showAddPerson=false; S.newParticipantName=''; render();
+  S.editExpenseId=null; S.showAdd=true; S.showPeople=false; render();
 }
 function editExpense(id){
   const e=S.expenses.find(x=>x.id===id); if(!e) return;
@@ -635,7 +629,7 @@ function toggleAddParticipant(){
     S.showAddPerson=false; S.newParticipantName='';
   }else{
     S.showAddPerson=true; S.newParticipantName='';
-    S.showAdd=false; S.editExpenseId=null; S.newExpense=null; S.showPeople=false;
+    S.showPeople=false;
   }
   render();
 }
@@ -883,7 +877,7 @@ function renderOtherCompleted(transfers,archived){
 }
 function renderSettle(m){
   const {names,owed,net,transit:calculatedTransit} = computeBalances(m, S.expenses);
-  if(names.length===0) return `<p class="sub">尚無參加者。</p>`;
+  if(names.length===0) return '<div class="surface empty-state"><span class="empty-icon" aria-hidden="true">＋</span><strong>先新增參加者</strong><p>到「帳目」加入聚會成員，之後便會自動計算每人的分攤。</p></div>';
   const transit = m.transitId && names.includes(m.transitId) ? m.transitId : calculatedTransit;
   const rnet = remainingNet(net, S.transfers);
   const pending = pendingTransfers(names, transit, rnet);
@@ -892,29 +886,27 @@ function renderSettle(m){
   const completedIncoming=S.transfers.filter(t=>t.to===transit).sort((a,b)=>(a.completedAt||0)-(b.completedAt||0));
   const completedOutgoing=S.transfers.filter(t=>t.from===transit).sort((a,b)=>(a.completedAt||0)-(b.completedAt||0));
   const completedOther=S.transfers.filter(t=>t.from!==transit&&t.to!==transit).sort((a,b)=>(a.completedAt||0)-(b.completedAt||0));
-
-  let html = `<h2>每人狀況</h2><div class="card">`;
+  let html='<section class="settle-section"><div class="section-heading"><div><span class="section-kicker">BALANCE SUMMARY</span><h2>每人應付款</h2><p>按各筆花費的分攤對象計算，已包含個別分攤設定。</p></div></div><div class="balance-grid">';
   names.forEach(n=>{
-    const v = Math.round(rnet[n]);
-    const icon = v>0?'▲ 應收':(v<0?'▼ 應付':'✓ 已打平');
-    const color = v>0?'var(--pos)':(v<0?'var(--neg)':'var(--sub)');
-    html += `<div class="row" style="padding:6px 0"><span>${esc(n)}<br><span class="small">應付分攤：${fmt(owed[n]||0)}</span></span><span style="color:${color}">${icon} ${v!==0?fmt(Math.abs(v)):''}</span></div>`;
+    const v=Math.round(rnet[n]);
+    const tone=v>0?'positive':(v<0?'negative':'neutral');
+    const status=v>0?'應收款':(v<0?'待付款':'已結清');
+    html+='<article class="balance-card"><div class="balance-card-top"><span class="avatar-mini" aria-hidden="true"><svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3"/><path d="M3.8 17a6.2 6.2 0 0 1 12.4 0"/></svg></span><span class="balance-name">'+esc(n)+'</span></div><div class="balance-due"><span>應付分攤</span><strong>'+fmt(owed[n]||0)+'</strong></div><div class="balance-net '+tone+'"><span>'+status+'</span><b>'+(v!==0?fmt(Math.abs(v)):'—')+'</b></div></article>';
   });
-  html += `</div>`;
-
-  html += `<h2>中轉人結算</h2><p class="small">中轉人：${esc(transit)}。以下按中轉人的收款與付款分組。</p><div class="card"><label>更改中轉人</label><div>`;
+  html+='</div></section>';
+  html+='<section class="settle-section"><div class="section-heading"><div><span class="section-kicker">TRANSFER PLAN</span><h2>中轉人結算</h2><p>中轉人集中收款與付款，其他人只需按安排轉帳。</p></div></div>';
+  html+='<div class="surface transfer-control"><div class="transit-heading"><span>中轉人</span><span class="small">'+esc(transit)+'</span></div><label>更改中轉人</label><div class="transit-pills">';
   names.forEach(n=>{
-    html += `<span class="pill ${transit===n?'on':''}" ${m.archived?'':`style="cursor:pointer" onclick="setTransit(${jsArg(n)})"`}>${esc(n)}</span>`;
+    html+='<span class="pill '+(transit===n?'on':'')+'" '+(m.archived?'':'style="cursor:pointer" onclick="setTransit('+jsArg(n)+')"')+'>'+esc(n)+'</span>';
   });
-  html += `</div>`;
+  html+='</div></div>';
   if(pending.length===0&&S.transfers.length===0){
-    html += `<p style="margin-top:10px">目前無需轉帳。</p>`;
+    html+='<div class="settled-note"><span class="empty-icon" aria-hidden="true">✓</span><span>目前無需轉帳，所有帳目已平衡。</span></div>';
   }else{
-    html += renderTransferGroup('receive',incoming,completedIncoming,transit,m.archived);
-    html += renderTransferGroup('pay',outgoing,completedOutgoing,transit,m.archived);
-    html += renderOtherCompleted(completedOther,m.archived);
+    html+='<div class="transfer-columns">'+renderTransferGroup('receive',incoming,completedIncoming,transit,m.archived)+renderTransferGroup('pay',outgoing,completedOutgoing,transit,m.archived)+'</div>';
+    html+=renderOtherCompleted(completedOther,m.archived);
   }
-  html += `</div>`;
+  html+='</section>';
   return html;
 }
 async function setTransit(name){
