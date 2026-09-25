@@ -240,7 +240,7 @@ async function waitFb(){
   while(!window.fbReady && tries<100){ await new Promise(r=>setTimeout(r,50)); tries++; }
   return window.fbdb || null;
 }
-let S={meeting:null,expId:null,expenses:[],transfers:[],view:'ledger',
+let S={meeting:null,expId:null,expenses:[],transfers:[],view:'home',
   showAdd:false,editExpenseId:null,showPeople:false,splitSyncKey:'',newExpense:null,
   showAddPerson:false,newParticipantName:''};
 let addingParticipant=false;
@@ -248,8 +248,6 @@ let addingParticipant=false;
 function cents(v){return Math.round(parseFloat(v||0)*100)||0;}
 function fmt(c){const n=c<0;c=Math.abs(c);return (n?'－':'')+'HK$'+(c/100).toFixed(2);}
 function meetingId(){const m=location.hash.match(/#\/m\/([^\/]+)/);return m?m[1]:null;}
-function meName(id){return localStorage.getItem('jqy_me_'+id)||'';}
-function setMe(id,name){try{localStorage.setItem('jqy_me_'+id,name);}catch(e){}}
 let expenseSaving=false;
 const markingTransferKeys=new Set();
 function transferKey(from,to,amount){return JSON.stringify([meetingId(),from,to,Math.round(Number(amount))]);}
@@ -361,13 +359,15 @@ async function boot(){
   db = db || await waitFb();
   if(!db){ document.getElementById('app').innerHTML='<p class="warn">尚未連上資料庫：請在程式碼開頭填入你的 Firebase 設定（firebaseConfig）。</p>'; return; }
   if(!id){ S={meeting:null,view:'home'}; renderHome(); return; }
-  if(S.view==='home') S.view='ledger';
+  if(S.meeting?.id!==id) S.view='home';
+  const chooseDefaultView=S.view==='home';
   renderLoading();
   const mref = window.fb.doc(db,'meetings',id);
   unsub.push(window.fb.onSnapshot(mref, snap=>{
-    if(!snap.exists()){ S.meeting=null; render(); return; }
+    if(!snap.exists()){ S.meeting=false; render(); return; }
     S.meeting={id, ...snap.data()};
-    if(!S.meeting.participants) S.meeting.participants=[];
+    if(!Array.isArray(S.meeting.participants)) S.meeting.participants=[];
+    if(chooseDefaultView&&S.view==='home') S.view=S.meeting.participants.length?'settle':'ledger';
     render();
     syncAllSplitExpenses(id,S.meeting.participants,S.meeting.archived);
   }, err=>{ S.meeting=false; render(); }));
@@ -383,7 +383,6 @@ async function boot(){
   }));
   render();
 }
-
 function renderLoading(){ document.getElementById('app').innerHTML='<p class="sub">載入聚會資料…</p>'; }
 
 function renderHome(){
@@ -425,26 +424,20 @@ async function createMeeting(){
 }
 
 function render(){
-  if(S.view==='home' || !meetingId()){ renderHome(); return; }
+  if(!meetingId()){ renderHome(); return; }
   if(S.meeting===null){ renderLoading(); return; }
   if(S.meeting===false){ document.getElementById('app').innerHTML='<p class="warn">找不到這場聚會，連結可能有誤。</p>'; return; }
-  const id = meetingId();
   const m = S.meeting;
-  let me = meName(id);
-  if(me && !(m.participants||[]).some(p=>p.name===me)){ setMe(id,''); me=''; }
-  if(!me){ renderNamePicker(); return; }
-  let html = `<div class="meeting-header"><h1>${esc(m.name)}</h1><button class="btn-sm" type="button" onclick="copyMeetingLink(this)" aria-live="polite">複製連結</button></div>
-  <p class="notice">你持有這場聚會的連結，可查看與編輯所有紀錄（新增花費、標記轉帳等）。目前身分：<b>${esc(me)}</b>（僅為顯示名稱，非驗證身分）<span class="btn-ghost" style="margin-left:8px;cursor:pointer" onclick="switchName()">切換</span></p>`;
+  let html = `<div class="meeting-header"><h1>${esc(m.name)}</h1><button class="btn-sm" type="button" onclick="copyMeetingLink(this)" aria-live="polite">複製連結</button></div>`;
   if(m.archived) html += `<p class="warn">此聚會已封存為唯讀，無法再編輯。</p>`;
   html += `<div class="tabs">
     <div class="tab ${S.view==='ledger'?'active':''}" onclick="setView('ledger')">帳目</div>
     <div class="tab ${S.view==='settle'?'active':''}" onclick="setView('settle')">結算</div>
   </div>`;
-  html += S.view==='settle' ? renderSettle(m,me) : renderLedger(m,me);
+  html += S.view==='settle' ? renderSettle(m) : renderLedger(m);
   html += `<p class="footer">${m.archived?'':`<span class="btn-ghost" style="cursor:pointer" onclick="archiveMeeting()">封存此聚會（唯讀）</span>`}</p>`;
   document.getElementById('app').innerHTML = html;
 }
-
 async function copyMeetingLink(button){
   const link=window.location.href;
   let copied=false;
@@ -470,17 +463,7 @@ async function copyMeetingLink(button){
   }
 }
 
-function renderNamePicker(){
-  const m=S.meeting;
-  let html = `<h1>${esc(m.name)}</h1><p class="sub">請選擇你在這場聚會的顯示名稱（僅供辨識，非驗證身分）</p><div class="card">`;
-  (m.participants||[]).forEach(p=>{
-    html += `<button class="namebtn" onclick="pickName(${jsArg(p.name)})">${esc(p.name)}</button>`;
-  });
-  html += `<label>或新增你的名字</label>
-  <input type="text" id="newmename" placeholder="輸入名字">
-  <button class="btn-main" onclick="pickNewName()">加入聚會</button></div>`;
-  document.getElementById('app').innerHTML = html;
-}
+
 async function addParticipant(name){
   const id=meetingId(), mref=window.fb.doc(db,'meetings',id);
   try{
@@ -505,22 +488,13 @@ async function addParticipant(name){
     return false;
   }
 }
-function pickName(name){ setMe(meetingId(), name); render(); }
-async function pickNewName(){
-  const name=document.getElementById('newmename').value.trim();
-  if(!name) return;
-  if((S.meeting.participants||[]).some(p=>p.name===name)){ alert('這個名字已被使用，請選其他名稱或直接選取。'); return; }
-  if(!await addParticipant(name)) return;
-  setMe(meetingId(), name);
-  render();
-}
-function switchName(){ setMe(meetingId(), ''); render(); }
+
 async function archiveMeeting(){
   if(!confirm('封存後將無法再編輯，確定要封存嗎？')) return;
   await window.fb.updateDoc(window.fb.doc(db,'meetings',meetingId()), {archived:true});
 }
 
-function renderLedger(m,me){
+function renderLedger(m){
   const total = S.expenses.reduce((s,e)=>s+e.amount,0);
   const peopleManageButton=m.archived?'':' <button class="btn-ghost" onclick="togglePeople()">管理</button>';
   let html='';
@@ -548,7 +522,6 @@ function renderLedger(m,me){
       <div class="row"><b>${esc(e.item)}</b><span class="amt">${fmt(e.amount)}</span></div>
       <div class="small">付款人：${esc(e.payer)} ｜ <span style="cursor:pointer;text-decoration:underline" onclick="toggleExp(${jsArg(e.id)})">分攤對象：${shares.length===m.participants.length?'全體 '+shares.length+' 人':shares.length+' 人'} · ${expanded?'收起':'查看'}</span></div>
       ${expanded?`<div class="small" style="margin-top:4px">${shares.map(esc).join('、')}</div>`:''}
-      <div class="small">新增者：${esc(e.addedBy||'')}</div>
       ${m.archived?'':`<div class="row" style="justify-content:flex-end;margin-top:6px"><button class="btn-sm" onclick="editExpense(${jsArg(e.id)})">修改</button><button class="btn-sm" style="margin-left:6px" onclick="deleteExpense(${jsArg(e.id)})">刪除</button></div>`}
     </div>`;
   });
@@ -566,9 +539,8 @@ function renderAddParticipantForm(){
   </div>`;
 }
 function toggleAdd(){
-  const me=meName(meetingId());
   const draftRef=window.fb.doc(window.fb.collection(db,'meetings',meetingId(),'expenses'));
-  S.newExpense={item:'',amount:'',payer:me,shareWith:S.meeting.participants.map(p=>p.name),editShare:false,pendingId:draftRef.id,pendingCreatedAt:Date.now()};
+  S.newExpense={item:'',amount:'',payer:'',shareWith:S.meeting.participants.map(p=>p.name),editShare:false,pendingId:draftRef.id,pendingCreatedAt:Date.now()};
   S.editExpenseId=null; S.showAdd=true; S.showPeople=false; S.showAddPerson=false; S.newParticipantName=''; render();
 }
 function editExpense(id){
@@ -636,7 +608,6 @@ async function renameParticipant(name){
       const expenses=expenseDocs.filter(s=>s.exists()).map(s=>{
         const e={id:s.id,...s.data()}, patch={};
         if(e.payer===name) patch.payer=newName;
-        if(e.addedBy===name) patch.addedBy=newName;
         if((e.shareWith||[]).includes(name)) patch.shareWith=e.shareWith.map(n=>n===name?newName:n);
         if(Object.keys(patch).length) transaction.update(s.ref,patch);
         return {...e,...patch};
@@ -645,16 +616,14 @@ async function renameParticipant(name){
         const t={id:s.id,...s.data()}, patch={};
         if(t.from===name) patch.from=newName;
         if(t.to===name) patch.to=newName;
-        if(t.completedBy===name) patch.completedBy=newName;
         if(Object.keys(patch).length) transaction.update(s.ref,patch);
         return {...t,...patch};
       });
       return {participants,transitId,expenses,transfers};
     });
     S.meeting={...S.meeting,participants:result.participants,transitId:result.transitId};
-    S.expenses=S.expenses.map(e=>({...e,payer:e.payer===name?newName:e.payer,addedBy:e.addedBy===name?newName:e.addedBy,shareWith:(e.shareWith||[]).map(n=>n===name?newName:n)}));
-    S.transfers=S.transfers.map(t=>({...t,from:t.from===name?newName:t.from,to:t.to===name?newName:t.to,completedBy:t.completedBy===name?newName:t.completedBy}));
-    if(meName(id)===name) setMe(id,newName);
+    S.expenses=S.expenses.map(e=>({...e,payer:e.payer===name?newName:e.payer,shareWith:(e.shareWith||[]).map(n=>n===name?newName:n)}));
+    S.transfers=S.transfers.map(t=>({...t,from:t.from===name?newName:t.from,to:t.to===name?newName:t.to}));
     render();
   }catch(err){
     const messages={
@@ -705,7 +674,6 @@ async function removeParticipant(name){
     });
     S.meeting={...S.meeting,participants:result.participants,transitId:result.transitId};
     S.expenses=S.expenses.map(e=>({...e,shareWith:(e.shareWith||[]).filter(n=>n!==name)}));
-    if(meName(id)===name) setMe(id,'');
     render();
   }catch(err){
     const messages={
@@ -724,7 +692,7 @@ function renderAddExpenseForm(m){
   let html = `<div class="card">
     <label>項目名稱</label><input type="text" id="ex_item" value="${esc(ne.item)}">
     <label>金額（HK$）</label><input type="number" step="0.01" id="ex_amount" value="${esc(ne.amount)}">
-    <label>付款人</label>
+    <label>實際付款人</label>
     <div>`;
   m.participants.forEach(p=>{
     html += `<span class="pill ${ne.payer===p.name?'on':''}" style="cursor:pointer" onclick="setPayer(${jsArg(p.name)})">${esc(p.name)}</span>`;
@@ -774,6 +742,7 @@ async function submitExpense(){
   const ne=S.newExpense, amt=cents(ne.amount), editId=S.editExpenseId;
   if(!ne.item.trim()){ alert('請輸入項目名稱'); return; }
   if(amt<=0){ alert('金額需大於 0'); return; }
+  if(!ne.payer){ alert('請選擇實際付款人'); return; }
   if(ne.shareWith.length===0){ alert('分攤對象至少需 1 人'); return; }
   const expense={item:ne.item.trim(),amount:amt,payer:ne.payer,shareWith:[...ne.shareWith]};
   expenseSaving=true;
@@ -784,7 +753,7 @@ async function submitExpense(){
       await window.fb.updateDoc(window.fb.doc(db,'meetings',meetingId(),'expenses',editId),expense);
     }else{
       await window.fb.setDoc(window.fb.doc(db,'meetings',meetingId(),'expenses',ne.pendingId),{
-        ...expense,addedBy:meName(meetingId()),createdAt:ne.pendingCreatedAt
+        ...expense,addedBy:'共同編輯者',createdAt:ne.pendingCreatedAt
       });
     }
     S.showAdd=false; S.editExpenseId=null; S.newExpense=null; render();
@@ -816,7 +785,7 @@ function renderTransferGroup(kind,pendingItems,doneItems,transit,archived){
   if(doneItems.length){
     html+=`<div class="transfer-subtitle">已完成（${doneItems.length}筆）</div>`;
     doneItems.forEach(t=>{
-      html+=`<div class="row transfer-row"><span class="transfer-flow">✅ ${esc(t.from)} → ${esc(t.to)}：<b>${fmt(t.amount)}</b><br><span class="small">由 ${esc(t.completedBy||'')} 標記</span></span>${archived?'':`<button class="btn-sm" onclick="unmarkPaid(${jsArg(t.id)})">取消</button>`}</div>`;
+      html+=`<div class="row transfer-row"><span class="transfer-flow">✅ ${esc(t.from)} → ${esc(t.to)}：<b>${fmt(t.amount)}</b></span>${archived?'':`<button class="btn-sm" onclick="unmarkPaid(${jsArg(t.id)})">取消</button>`}</div>`;
     });
   }
   return html+'</section>';
@@ -825,11 +794,11 @@ function renderOtherCompleted(transfers,archived){
   if(!transfers.length) return '';
   let html=`<section class="transfer-group"><div class="row transfer-heading"><b>其他已完成轉帳</b><span class="small">${transfers.length}筆</span></div>`;
   transfers.forEach(t=>{
-    html+=`<div class="row transfer-row"><span class="transfer-flow">✅ ${esc(t.from)} → ${esc(t.to)}：<b>${fmt(t.amount)}</b><br><span class="small">由 ${esc(t.completedBy||'')} 標記</span></span>${archived?'':`<button class="btn-sm" onclick="unmarkPaid(${jsArg(t.id)})">取消</button>`}</div>`;
+    html+=`<div class="row transfer-row"><span class="transfer-flow">✅ ${esc(t.from)} → ${esc(t.to)}：<b>${fmt(t.amount)}</b></span>${archived?'':`<button class="btn-sm" onclick="unmarkPaid(${jsArg(t.id)})">取消</button>`}</div>`;
   });
   return html+'</section>';
 }
-function renderSettle(m,me){
+function renderSettle(m){
   const {names,owed,net,transit:calculatedTransit} = computeBalances(m, S.expenses);
   if(names.length===0) return `<p class="sub">尚無參加者。</p>`;
   const transit = m.transitId && names.includes(m.transitId) ? m.transitId : calculatedTransit;
@@ -876,7 +845,7 @@ async function markPaid(from,to,amount){
   try{
     const transferId=await paidTransferId(from,to,amount);
     await window.fb.setDoc(window.fb.doc(db,'meetings',id,'transfers',transferId),{
-      from,to,amount,completedBy:meName(id),completedAt:Date.now()
+      from,to,amount,completedBy:'共同編輯者',completedAt:Date.now()
     });
   }catch(err){
     console.error('標記付款失敗',err);
