@@ -485,7 +485,7 @@ function renderOtherCompleted(transfers,archived){
   return html+'</section>';
 }
 function renderSettle(m,me){
-  const {names,net} = computeBalances(m, S.expenses);
+  const {names,owed,net} = computeBalances(m, S.expenses);
   if(names.length===0) return `<p class="sub">尚無參加者。</p>`;
   const transit = m.transitId && names.includes(m.transitId) ? m.transitId : defaultTransit(names,net);
   const rnet = remainingNet(net, S.transfers);
@@ -501,7 +501,7 @@ function renderSettle(m,me){
     const v = Math.round(rnet[n]);
     const icon = v>0?'▲ 應收':(v<0?'▼ 應付':'✓ 已打平');
     const color = v>0?'var(--pos)':(v<0?'var(--neg)':'var(--sub)');
-    html += `<div class="row" style="padding:4px 0"><span>${esc(n)}</span><span style="color:${color}">${icon} ${v!==0?fmt(Math.abs(v)):''}</span></div>`;
+    html += `<div class="row" style="padding:6px 0"><span>${esc(n)}<br><span class="small">應付分攤：${fmt(owed[n]||0)}</span></span><span style="color:${color}">${icon} ${v!==0?fmt(Math.abs(v)):''}</span></div>`;
   });
   html += `</div>`;
 
