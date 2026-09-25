@@ -93,7 +93,9 @@ async function waitFb(){
   return window.fbdb || null;
 }
 let S={meeting:null,expId:null,expenses:[],transfers:[],view:'ledger',
-  showAdd:false,editExpenseId:null,showPeople:false,splitSyncKey:'',newExpense:null};
+  showAdd:false,editExpenseId:null,showPeople:false,splitSyncKey:'',newExpense:null,
+  showAddPerson:false,newParticipantName:''};
+let addingParticipant=false;
 
 function cents(v){return Math.round(parseFloat(v||0)*100)||0;}
 function fmt(c){const n=c<0;c=Math.abs(c);return (n?'－':'')+'HK$'+(c/100).toFixed(2);}
@@ -325,7 +327,11 @@ async function archiveMeeting(){
 function renderLedger(m,me){
   const total = S.expenses.reduce((s,e)=>s+e.amount,0);
   const peopleManageButton=m.archived?'':' <button class="btn-ghost" onclick="togglePeople()">管理</button>';
-  let html = `<div class="card row"><div><div class="small">參加者</div><div>${m.participants.length} 人${peopleManageButton}</div></div>
+  let html='';
+  if(!m.archived){
+    html+=S.showAddPerson?renderAddParticipantForm():`<button class="btn-main" style="margin-bottom:12px" onclick="toggleAddParticipant()">＋新增參加者</button>`;
+  }
+  html+=`<div class="card row"><div><div class="small">參加者</div><div>${m.participants.length} 人${peopleManageButton}</div></div>
     <div><div class="small">總開支</div><div class="amt">${fmt(total)}</div></div></div>`;
   if(S.showPeople && !m.archived){
     html += `<div class="card"><div class="row"><b>管理參加者</b><button class="btn-sm" onclick="togglePeople()">完成</button></div>`;
@@ -336,10 +342,6 @@ function renderLedger(m,me){
     html += `</div>`;
   }
   if(!m.archived){
-    html += `<div class="card">
-      <label>新增參加者</label>
-      <div class="row"><input type="text" id="addpname" placeholder="名字" style="flex:1"><button class="btn-sm" onclick="doAddParticipant()">加入</button></div>
-    </div>`;
     html += S.showAdd ? renderAddExpenseForm(m) : `<button class="btn-main" onclick="toggleAdd()">＋新增花費</button>`;
   }
   html += `<h2>花費列表</h2><div class="card">`;
@@ -357,11 +359,21 @@ function renderLedger(m,me){
   html += `</div>`;
   return html;
 }
+function renderAddParticipantForm(){
+  return `<div class="card">
+    <label>參加者名稱</label>
+    <input type="text" id="newParticipantName" value="${esc(S.newParticipantName||'')}" placeholder="輸入名字" oninput="updateParticipantDraft(this.value)" ${addingParticipant?'disabled':''}>
+    <div class="row" style="margin-top:4px">
+      <button class="btn-sm" onclick="cancelAddParticipant()" ${addingParticipant?'disabled':''}>取消</button>
+      <button class="btn-main" id="addParticipantButton" style="flex:1;margin-left:8px" onclick="submitParticipant()" ${addingParticipant?'disabled':''}>${addingParticipant?'加入中…':'加入參加者'}</button>
+    </div>
+  </div>`;
+}
 function toggleAdd(){
   const me=meName(meetingId());
   const draftRef=window.fb.doc(window.fb.collection(db,'meetings',meetingId(),'expenses'));
   S.newExpense={item:'',amount:'',payer:me,shareWith:S.meeting.participants.map(p=>p.name),editShare:false,pendingId:draftRef.id,pendingCreatedAt:Date.now()};
-  S.editExpenseId=null; S.showAdd=true; S.showPeople=false; render();
+  S.editExpenseId=null; S.showAdd=true; S.showPeople=false; S.showAddPerson=false; S.newParticipantName=''; render();
 }
 function editExpense(id){
   const e=S.expenses.find(x=>x.id===id); if(!e) return;
@@ -370,13 +382,35 @@ function editExpense(id){
   S.editExpenseId=id; S.showAdd=true; S.showPeople=false; render();
 }
 function toggleExp(id){ S.expId = S.expId===id ? null : id; render(); }
-function setView(v){ S.view=v; S.showAdd=false; S.editExpenseId=null; S.newExpense=null; render(); }
+function setView(v){ S.view=v; S.showAdd=false; S.editExpenseId=null; S.newExpense=null; S.showAddPerson=false; S.newParticipantName=''; render(); }
 function togglePeople(){ S.showPeople=!S.showPeople; render(); }
-async function doAddParticipant(){
-  const v=document.getElementById('addpname').value.trim();
-  if(!v) return;
-  if((S.meeting.participants||[]).some(p=>p.name===v)){ alert('這個名字已存在'); return; }
-  await addParticipant(v);
+function toggleAddParticipant(){
+  if(addingParticipant) return;
+  if(S.showAddPerson){
+    S.showAddPerson=false; S.newParticipantName='';
+  }else{
+    S.showAddPerson=true; S.newParticipantName='';
+    S.showAdd=false; S.editExpenseId=null; S.newExpense=null;
+  }
+  render();
+}
+function updateParticipantDraft(value){S.newParticipantName=value;}
+function cancelAddParticipant(){
+  if(addingParticipant) return;
+  S.showAddPerson=false; S.newParticipantName=''; render();
+}
+async function submitParticipant(){
+  if(addingParticipant) return;
+  const name=(S.newParticipantName||'').trim();
+  if(!name){alert('請輸入參加者名稱');return;}
+  if((S.meeting.participants||[]).some(p=>p.name===name)){alert('這個名字已存在');return;}
+  addingParticipant=true; render();
+  try{
+    const added=await addParticipant(name);
+    if(added){S.showAddPerson=false;S.newParticipantName='';}
+  }finally{
+    addingParticipant=false; render();
+  }
 }
 async function renameParticipant(name){
   const next=prompt('請輸入新的參加者名稱',name);
