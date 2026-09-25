@@ -47,6 +47,16 @@ label{font-size:13px;color:var(--sub);}
 .namebtn{display:block;width:100%;text-align:left;padding:10px;margin-bottom:6px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--text);}
 .checkline{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:14px;}
 .footer{text-align:center;font-size:11px;color:var(--sub);margin-top:24px;}
+.transfer-group{border:1px solid var(--line);border-left-width:5px;border-radius:10px;padding:10px;margin-top:10px;}
+.transfer-group.receive{border-color:var(--pos);}
+.transfer-group.pay{border-color:var(--neg);}
+.transfer-group.receive .transfer-total,.transfer-group.receive .transfer-subtitle{color:var(--pos);}
+.transfer-group.pay .transfer-total,.transfer-group.pay .transfer-subtitle{color:var(--neg);}
+.transfer-heading{font-size:14px;}
+.transfer-total{font-weight:700;}
+.transfer-subtitle{font-size:12px;font-weight:600;margin-top:10px;}
+.transfer-row{padding:8px 0;border-top:1px solid var(--line);gap:8px;}
+.transfer-flow{flex:1;min-width:0;}
 </style>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
@@ -446,12 +456,45 @@ async function submitExpense(){
     S.showAdd=false; S.editExpenseId=null; S.newExpense=null; render();
   }catch(err){ console.error('儲存花費失敗',err); alert('儲存花費失敗（'+(err.code||'未知原因')+'），請把錯誤代碼告訴我。'); }
 }
+function renderTransferGroup(kind,pendingItems,doneItems,transit,archived){
+  const incoming=kind==='receive', noun=incoming?'收款':'付款';
+  const amount=pendingItems.reduce((sum,t)=>sum+t.amount,0);
+  let html=`<section class="transfer-group ${kind}"><div class="row transfer-heading"><b>中轉人${noun}</b><span class="transfer-total">待${incoming?'收':'付'} ${fmt(amount)}</span></div>`;
+  if(pendingItems.length){
+    html+=`<div class="transfer-subtitle">待${noun}（${pendingItems.length}筆）</div>`;
+    pendingItems.forEach(t=>{
+      html+=`<div class="row transfer-row"><span class="transfer-flow">⏳ ${esc(t.from)} → ${esc(t.to)}：<b>${fmt(t.amount)}</b></span>${archived?'':`<button class="btn-sm" onclick="markPaid(${jsArg(t.from)},${jsArg(t.to)},${t.amount})">標記已付款</button>`}</div>`;
+    });
+  }else{
+    html+=`<p class="small">目前沒有待${noun}</p>`;
+  }
+  if(doneItems.length){
+    html+=`<div class="transfer-subtitle">已完成（${doneItems.length}筆）</div>`;
+    doneItems.forEach(t=>{
+      html+=`<div class="row transfer-row"><span class="transfer-flow">✅ ${esc(t.from)} → ${esc(t.to)}：<b>${fmt(t.amount)}</b><br><span class="small">由 ${esc(t.completedBy||'')} 標記</span></span>${archived?'':`<button class="btn-sm" onclick="unmarkPaid(${jsArg(t.id)})">取消</button>`}</div>`;
+    });
+  }
+  return html+'</section>';
+}
+function renderOtherCompleted(transfers,archived){
+  if(!transfers.length) return '';
+  let html=`<section class="transfer-group"><div class="row transfer-heading"><b>其他已完成轉帳</b><span class="small">${transfers.length}筆</span></div>`;
+  transfers.forEach(t=>{
+    html+=`<div class="row transfer-row"><span class="transfer-flow">✅ ${esc(t.from)} → ${esc(t.to)}：<b>${fmt(t.amount)}</b><br><span class="small">由 ${esc(t.completedBy||'')} 標記</span></span>${archived?'':`<button class="btn-sm" onclick="unmarkPaid(${jsArg(t.id)})">取消</button>`}</div>`;
+  });
+  return html+'</section>';
+}
 function renderSettle(m,me){
   const {names,net} = computeBalances(m, S.expenses);
   if(names.length===0) return `<p class="sub">尚無參加者。</p>`;
   const transit = m.transitId && names.includes(m.transitId) ? m.transitId : defaultTransit(names,net);
   const rnet = remainingNet(net, S.transfers);
   const pending = pendingTransfers(names, transit, rnet);
+  const incoming=pending.filter(t=>t.to===transit);
+  const outgoing=pending.filter(t=>t.from===transit);
+  const completedIncoming=S.transfers.filter(t=>t.to===transit).sort((a,b)=>(a.completedAt||0)-(b.completedAt||0));
+  const completedOutgoing=S.transfers.filter(t=>t.from===transit).sort((a,b)=>(a.completedAt||0)-(b.completedAt||0));
+  const completedOther=S.transfers.filter(t=>t.from!==transit&&t.to!==transit).sort((a,b)=>(a.completedAt||0)-(b.completedAt||0));
 
   let html = `<h2>每人狀況</h2><div class="card">`;
   names.forEach(n=>{
@@ -462,33 +505,17 @@ function renderSettle(m,me){
   });
   html += `</div>`;
 
-  html += `<h2>中轉人結算</h2><p class="small">每位參加者最多一筆轉帳；不代表全場轉帳筆數最少。</p><div class="card">
-    <label>中轉人</label><div>`;
+  html += `<h2>中轉人結算</h2><p class="small">中轉人：${esc(transit)}。以下按中轉人的收款與付款分組。</p><div class="card"><label>更改中轉人</label><div>`;
   names.forEach(n=>{
     html += `<span class="pill ${transit===n?'on':''}" ${m.archived?'':`style="cursor:pointer" onclick="setTransit(${jsArg(n)})"`}>${esc(n)}</span>`;
   });
   html += `</div>`;
-
-  if(pending.length===0 && S.transfers.length===0){
+  if(pending.length===0&&S.transfers.length===0){
     html += `<p style="margin-top:10px">目前無需轉帳。</p>`;
-  }
-  if(pending.length>0){
-    html += `<h2 style="font-size:14px;margin-top:14px">待付款（${pending.length}）</h2>`;
-    pending.forEach((t,i)=>{
-      html += `<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)">
-        <span>⏳ ${esc(t.from)} → ${esc(t.to)}：<b>${fmt(t.amount)}</b></span>
-        ${m.archived?'':`<button class="btn-sm" onclick="markPaid(${jsArg(t.from)},${jsArg(t.to)},${t.amount})">標記已付款</button>`}
-      </div>`;
-    });
-  }
-  if(S.transfers.length>0){
-    html += `<h2 style="font-size:14px;margin-top:14px">已完成（${S.transfers.length}）</h2>`;
-    S.transfers.forEach(t=>{
-      html += `<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)">
-        <span>✅ ${esc(t.from)} → ${esc(t.to)}：<b>${fmt(t.amount)}</b><br><span class="small">由 ${esc(t.completedBy)} 標記</span></span>
-        ${m.archived?'':`<button class="btn-sm" onclick="unmarkPaid('${t.id}')">取消</button>`}
-      </div>`;
-    });
+  }else{
+    html += renderTransferGroup('receive',incoming,completedIncoming,transit,m.archived);
+    html += renderTransferGroup('pay',outgoing,completedOutgoing,transit,m.archived);
+    html += renderOtherCompleted(completedOther,m.archived);
   }
   html += `</div>`;
   return html;
