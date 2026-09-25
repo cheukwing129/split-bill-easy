@@ -128,10 +128,9 @@ function splitAmount(amountCents,namesOrdered,transit){
   const n=namesOrdered.length; if(n===0)return{};
   const base=Math.floor(amountCents/n), rem=amountCents-base*n;
   const r={}; namesOrdered.forEach(nm=>{r[nm]=base;});
-  if(rem>0){
-    const remainderOwner=namesOrdered.includes(transit)?transit:namesOrdered[0];
-    r[remainderOwner]+=rem;
-  }
+  // 中轉人有參與時，零頭由其他分攤者吸收，讓中轉人少付作辛苦費。
+  const extraRecipients=namesOrdered.includes(transit)?namesOrdered.filter(nm=>nm!==transit):namesOrdered;
+  for(let i=0;i<rem;i++) r[extraRecipients[i]]+=1;
   return r;
 }
 function calculateBalancesFor(meeting,expenses,transit){
