@@ -64,7 +64,7 @@ button:disabled{opacity:.58;cursor:wait;}
 </style>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-import { getFirestore, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query, orderBy, writeBatch }
+import { getFirestore, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query, orderBy, writeBatch, runTransaction, arrayUnion }
   from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 // TODO: 請換成你自己 Firebase 專案的設定（Firebase Console → 專案設定 → 一般 → 你的應用程式）
@@ -78,7 +78,7 @@ const firebaseConfig = {
 };
 const fbApp = initializeApp(firebaseConfig);
 window.fbdb = getFirestore(fbApp);
-window.fb = { doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query, orderBy, writeBatch };
+window.fb = { doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query, orderBy, writeBatch, runTransaction, arrayUnion };
 window.fbReady = true;
 </script>
 </head>
@@ -176,9 +176,8 @@ async function syncAllSplitExpenses(id,participants,archived){
       const e=d.data();
       if(!isDefaultAllExpense(e,participants)) return;
       const shares=Array.isArray(e.shareWith)?e.shareWith:[];
-      if(shares.length!==names.length||names.some(n=>!shares.includes(n))){
-        batch.update(d.ref,{shareWith:names}); writes++;
-      }
+      const missing=names.filter(n=>!shares.includes(n));
+      if(missing.length){batch.update(d.ref,{shareWith:window.fb.arrayUnion(...missing)});writes++;}
     });
     if(writes) await batch.commit();
   }catch(err){S.splitSyncKey='';console.error('同步預設分攤失敗',err);}
@@ -294,20 +293,28 @@ function renderNamePicker(){
   document.getElementById('app').innerHTML = html;
 }
 async function addParticipant(name){
-  const id=meetingId(), m=S.meeting, oldPeople=m.participants||[];
-  if(m.archived){ alert('此聚會已封存，無法新增參加者。'); return false; }
-  if(oldPeople.some(p=>p.name===name)) return false;
-  const list=[...oldPeople,{name,joinedAt:Date.now()}], names=list.map(p=>p.name);
+  const id=meetingId(), mref=window.fb.doc(db,'meetings',id);
   try{
-    const snapshot=await window.fb.getDocs(window.fb.collection(db,'meetings',id,'expenses'));
-    const batch=window.fb.writeBatch(db);
-    batch.update(window.fb.doc(db,'meetings',id),{participants:list});
-    snapshot.forEach(d=>{
-      const e=d.data();
-      if(isDefaultAllExpense(e,oldPeople)) batch.update(d.ref,{shareWith:names});
+    const participants=await window.fb.runTransaction(db,async transaction=>{
+      const snap=await transaction.get(mref);
+      if(!snap.exists()) throw new Error('meeting-not-found');
+      const live=snap.data(), current=Array.isArray(live.participants)?live.participants:[];
+      if(live.archived) throw new Error('meeting-archived');
+      if(current.some(p=>p.name===name)) throw new Error('duplicate-name');
+      const next=[...current,{name,joinedAt:Date.now()}];
+      transaction.update(mref,{participants:next});
+      return next;
     });
-    await batch.commit(); return true;
-  }catch(err){ alert('新增參加者失敗，請檢查網絡後再試。'); return false; }
+    S.meeting={...S.meeting,participants};
+    render();
+    syncAllSplitExpenses(id,participants,false);
+    return true;
+  }catch(err){
+    if(err.message==='duplicate-name') alert('這個名字已被使用，請選其他名稱或直接選取。');
+    else if(err.message==='meeting-archived') alert('此聚會已封存，無法新增參加者。');
+    else alert('新增參加者失敗，請檢查網絡後再試。');
+    return false;
+  }
 }
 function pickName(name){ setMe(meetingId(), name); render(); }
 async function pickNewName(){
@@ -416,65 +423,112 @@ async function renameParticipant(name){
   const next=prompt('請輸入新的參加者名稱',name);
   if(next===null) return;
   const newName=next.trim(); if(!newName||newName===name) return;
-  const id=meetingId(), m=S.meeting;
-  if((m.participants||[]).some(p=>p.name===newName)){ alert('這個名字已被使用。'); return; }
+  const id=meetingId(), meetingRef=window.fb.doc(db,'meetings',id);
   try{
     const [expenseSnap,transferSnap]=await Promise.all([
       window.fb.getDocs(window.fb.collection(db,'meetings',id,'expenses')),
       window.fb.getDocs(window.fb.collection(db,'meetings',id,'transfers'))
     ]);
-    const expenses=expenseSnap.docs.map(d=>({id:d.id,...d.data()}));
-    const transfers=transferSnap.docs.map(d=>({id:d.id,...d.data()}));
-    const participants=m.participants.map(p=>p.name===name?{...p,name:newName}:p);
-    const batch=window.fb.writeBatch(db), meetingUpdate={participants};
-    if(m.transitId===name) meetingUpdate.transitId=newName;
-    batch.update(window.fb.doc(db,'meetings',id),meetingUpdate);
-    expenses.forEach(e=>{
-      const patch={};
-      if(e.payer===name) patch.payer=newName;
-      if(e.addedBy===name) patch.addedBy=newName;
-      if((e.shareWith||[]).includes(name)) patch.shareWith=e.shareWith.map(n=>n===name?newName:n);
-      if(Object.keys(patch).length) batch.update(window.fb.doc(db,'meetings',id,'expenses',e.id),patch);
+    const expenseRefs=expenseSnap.docs.map(d=>d.ref), transferRefs=transferSnap.docs.map(d=>d.ref);
+    const result=await window.fb.runTransaction(db,async transaction=>{
+      const meetingSnap=await transaction.get(meetingRef);
+      if(!meetingSnap.exists()) throw new Error('meeting-not-found');
+      const live=meetingSnap.data(), current=Array.isArray(live.participants)?live.participants:[];
+      if(live.archived) throw new Error('meeting-archived');
+      if(!current.some(p=>p.name===name)) throw new Error('participant-not-found');
+      if(current.some(p=>p.name===newName)) throw new Error('duplicate-name');
+      const [expenseDocs,transferDocs]=await Promise.all([
+        Promise.all(expenseRefs.map(ref=>transaction.get(ref))),
+        Promise.all(transferRefs.map(ref=>transaction.get(ref)))
+      ]);
+      const participants=current.map(p=>p.name===name?{...p,name:newName}:p);
+      const transitId=live.transitId===name?newName:(live.transitId||null);
+      transaction.update(meetingRef,{participants,...(live.transitId===name?{transitId:newName}:{})});
+      const expenses=expenseDocs.filter(s=>s.exists()).map(s=>{
+        const e={id:s.id,...s.data()}, patch={};
+        if(e.payer===name) patch.payer=newName;
+        if(e.addedBy===name) patch.addedBy=newName;
+        if((e.shareWith||[]).includes(name)) patch.shareWith=e.shareWith.map(n=>n===name?newName:n);
+        if(Object.keys(patch).length) transaction.update(s.ref,patch);
+        return {...e,...patch};
+      });
+      const transfers=transferDocs.filter(s=>s.exists()).map(s=>{
+        const t={id:s.id,...s.data()}, patch={};
+        if(t.from===name) patch.from=newName;
+        if(t.to===name) patch.to=newName;
+        if(t.completedBy===name) patch.completedBy=newName;
+        if(Object.keys(patch).length) transaction.update(s.ref,patch);
+        return {...t,...patch};
+      });
+      return {participants,transitId,expenses,transfers};
     });
-    transfers.forEach(t=>{
-      const patch={};
-      if(t.from===name) patch.from=newName;
-      if(t.to===name) patch.to=newName;
-      if(t.completedBy===name) patch.completedBy=newName;
-      if(Object.keys(patch).length) batch.update(window.fb.doc(db,'meetings',id,'transfers',t.id),patch);
-    });
-    await batch.commit();
-    S.meeting={...m,participants,transitId:m.transitId===name?newName:m.transitId};
-    S.expenses=expenses.map(e=>({...e,payer:e.payer===name?newName:e.payer,addedBy:e.addedBy===name?newName:e.addedBy,shareWith:(e.shareWith||[]).map(n=>n===name?newName:n)}));
-    S.transfers=transfers.map(t=>({...t,from:t.from===name?newName:t.from,to:t.to===name?newName:t.to,completedBy:t.completedBy===name?newName:t.completedBy}));
+    S.meeting={...S.meeting,participants:result.participants,transitId:result.transitId};
+    S.expenses=S.expenses.map(e=>({...e,payer:e.payer===name?newName:e.payer,addedBy:e.addedBy===name?newName:e.addedBy,shareWith:(e.shareWith||[]).map(n=>n===name?newName:n)}));
+    S.transfers=S.transfers.map(t=>({...t,from:t.from===name?newName:t.from,to:t.to===name?newName:t.to,completedBy:t.completedBy===name?newName:t.completedBy}));
     if(meName(id)===name) setMe(id,newName);
     render();
-  }catch(err){ alert('修改名稱失敗，請檢查網絡後再試。'); }
+  }catch(err){
+    const messages={
+      'duplicate-name':'這個名字已被使用。',
+      'participant-not-found':'參加者名單已更新，找不到這個名字，請重新整理後再試。',
+      'meeting-archived':'此聚會已封存，無法修改。',
+      'meeting-not-found':'找不到這場聚會。'
+    };
+    alert(messages[err.message]||'修改名稱失敗，請檢查網絡後再試。');
+  }
 }
 async function removeParticipant(name){
-  const id=meetingId(), m=S.meeting;
+  const id=meetingId(), meetingRef=window.fb.doc(db,'meetings',id);
   try{
     const [expenseSnap,transferSnap]=await Promise.all([
       window.fb.getDocs(window.fb.collection(db,'meetings',id,'expenses')),
       window.fb.getDocs(window.fb.collection(db,'meetings',id,'transfers'))
     ]);
-    const expenses=expenseSnap.docs.map(d=>({id:d.id,...d.data()}));
-    const transfers=transferSnap.docs.map(d=>({id:d.id,...d.data()}));
-    if(expenses.some(e=>e.payer===name)){ alert('此人曾付款。請先修改或刪除由此人付款的花費，再移除此人。'); return; }
-    if(transfers.some(t=>t.from===name||t.to===name)){ alert('此人已有已付款轉帳紀錄。請先取消相關付款標記，再移除此人。'); return; }
-    const affected=expenses.filter(e=>(e.shareWith||[]).includes(name));
-    if(affected.some(e=>(e.shareWith||[]).filter(n=>n!==name).length===0)){ alert('有花費只分攤給此人。請先修改或刪除該花費，再移除此人。'); return; }
-    if(!confirm('移除 '+name+'？此人會從 '+affected.length+' 筆花費的分攤名單中移除，其他人的分攤會重新計算。')) return;
-    const participants=m.participants.filter(p=>p.name!==name), batch=window.fb.writeBatch(db);
-    batch.update(window.fb.doc(db,'meetings',id),{participants,transitId:m.transitId===name?null:m.transitId});
-    affected.forEach(e=>batch.update(window.fb.doc(db,'meetings',id,'expenses',e.id),{shareWith:e.shareWith.filter(n=>n!==name)}));
-    await batch.commit();
-    S.meeting={...m,participants,transitId:m.transitId===name?null:m.transitId};
-    S.expenses=expenses.map(e=>({...e,shareWith:(e.shareWith||[]).filter(n=>n!==name)}));
-    S.transfers=transfers;
+    const expenseRefs=expenseSnap.docs.map(d=>d.ref), transferRefs=transferSnap.docs.map(d=>d.ref);
+    const initialExpenses=expenseSnap.docs.map(d=>({id:d.id,...d.data()}));
+    const initialTransfers=transferSnap.docs.map(d=>({id:d.id,...d.data()}));
+    if(initialExpenses.some(e=>e.payer===name)){alert('此人曾付款。請先修改或刪除由此人付款的花費，再移除此人。');return;}
+    if(initialTransfers.some(t=>t.from===name||t.to===name)){alert('此人已有已付款轉帳紀錄。請先取消相關付款標記，再移除此人。');return;}
+    const initialAffected=initialExpenses.filter(e=>(e.shareWith||[]).includes(name));
+    if(initialAffected.some(e=>(e.shareWith||[]).filter(n=>n!==name).length===0)){alert('有花費只分攤給此人。請先修改或刪除該花費，再移除此人。');return;}
+    if(!confirm('移除 '+name+'？此人會從 '+initialAffected.length+' 筆花費的分攤名單中移除，其他人的分攤會重新計算。')) return;
+    const result=await window.fb.runTransaction(db,async transaction=>{
+      const meetingSnap=await transaction.get(meetingRef);
+      if(!meetingSnap.exists()) throw new Error('meeting-not-found');
+      const live=meetingSnap.data(), current=Array.isArray(live.participants)?live.participants:[];
+      if(live.archived) throw new Error('meeting-archived');
+      if(!current.some(p=>p.name===name)) throw new Error('participant-not-found');
+      const [expenseDocs,transferDocs]=await Promise.all([
+        Promise.all(expenseRefs.map(ref=>transaction.get(ref))),
+        Promise.all(transferRefs.map(ref=>transaction.get(ref)))
+      ]);
+      const expenses=expenseDocs.filter(s=>s.exists()).map(s=>({id:s.id,...s.data(),ref:s.ref}));
+      const transfers=transferDocs.filter(s=>s.exists()).map(s=>({id:s.id,...s.data()}));
+      if(expenses.some(e=>e.payer===name)) throw new Error('remove-has-payer');
+      if(transfers.some(t=>t.from===name||t.to===name)) throw new Error('remove-has-transfer');
+      const affected=expenses.filter(e=>(e.shareWith||[]).includes(name));
+      if(affected.some(e=>(e.shareWith||[]).filter(n=>n!==name).length===0)) throw new Error('remove-only-share');
+      const participants=current.filter(p=>p.name!==name);
+      const transitId=live.transitId===name?null:(live.transitId||null);
+      transaction.update(meetingRef,{participants,transitId});
+      affected.forEach(e=>transaction.update(e.ref,{shareWith:e.shareWith.filter(n=>n!==name)}));
+      return {participants,transitId,expenses};
+    });
+    S.meeting={...S.meeting,participants:result.participants,transitId:result.transitId};
+    S.expenses=S.expenses.map(e=>({...e,shareWith:(e.shareWith||[]).filter(n=>n!==name)}));
     if(meName(id)===name) setMe(id,'');
     render();
-  }catch(err){ alert('移除參加者失敗，請檢查網絡後再試。'); }
+  }catch(err){
+    const messages={
+      'remove-has-payer':'此人曾付款。請先修改或刪除由此人付款的花費，再移除此人。',
+      'remove-has-transfer':'此人已有已付款轉帳紀錄。請先取消相關付款標記，再移除此人。',
+      'remove-only-share':'有花費只分攤給此人。請先修改或刪除該花費，再移除此人。',
+      'participant-not-found':'參加者名單已更新，找不到這個名字，請重新整理後再試。',
+      'meeting-archived':'此聚會已封存，無法移除參加者。',
+      'meeting-not-found':'找不到這場聚會。'
+    };
+    alert(messages[err.message]||'移除參加者失敗，請檢查網絡後再試。');
+  }
 }
 function renderAddExpenseForm(m){
   const ne=S.newExpense;
