@@ -328,7 +328,7 @@ function renderLedger(m,me){
   const total = S.expenses.reduce((s,e)=>s+e.amount,0);
   const peopleManageButton=m.archived?'':' <button class="btn-ghost" onclick="togglePeople()">管理</button>';
   let html='';
-  if(!m.archived){
+  if(!m.archived && !S.showAdd){
     html+=S.showAddPerson?renderAddParticipantForm():`<button class="btn-main" style="margin-bottom:12px" onclick="toggleAddParticipant()">＋新增參加者</button>`;
   }
   html+=`<div class="card row"><div><div class="small">參加者</div><div>${m.participants.length} 人${peopleManageButton}</div></div>
@@ -341,7 +341,7 @@ function renderLedger(m,me){
     });
     html += `</div>`;
   }
-  if(!m.archived){
+  if(!m.archived && !S.showAddPerson){
     html += S.showAdd ? renderAddExpenseForm(m) : `<button class="btn-main" onclick="toggleAdd()">＋新增花費</button>`;
   }
   html += `<h2>花費列表</h2><div class="card">`;
