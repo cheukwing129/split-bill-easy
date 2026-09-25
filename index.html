@@ -241,6 +241,29 @@ button:disabled{opacity:.55;cursor:wait;box-shadow:none;}
 .home-submit span:last-child{font-size:18px;line-height:1;}
 .home-note{display:flex;align-items:flex-start;gap:9px;margin:0;padding:16px 0 0;border-top:1px solid var(--line);line-height:1.45;color:var(--slate);}
 .home-note-icon{color:var(--indigo);font-size:16px;line-height:1.3;}
+.add-section{margin:0 0 16px;}
+.add-section-toggle{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:8px;
+  width:100%;
+  min-height:44px;
+  margin:0;
+  padding:8px 0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  color:var(--midnight);
+  text-align:left;
+  font-family:inherit;
+  font-size:20px;
+  font-weight:400;
+  line-height:1.2;
+}
+.add-section-toggle:hover:not(:disabled){background:transparent;color:var(--indigo);}
+.add-section-toggle-icon{display:inline-flex;align-items:center;justify-content:center;width:20px;color:var(--indigo);font-size:20px;font-weight:300;line-height:1;}
+.add-form-card{margin:0 0 20px;padding:20px 16px;background:var(--mist);border:1px solid var(--frost);border-radius:4px;box-shadow:none;}
 @media(max-width:520px){
   #app{padding-left:16px;padding-right:16px;}
   .home-shell{margin-top:clamp(32px,8vh,72px);}
@@ -534,42 +557,46 @@ async function archiveMeeting(){
   await window.fb.updateDoc(window.fb.doc(db,'meetings',meetingId()), {archived:true});
 }
 
+function renderAddToggle(formId,title,expanded,action){
+  const controls=expanded?' aria-controls="'+formId+'"':'';
+  return '<button type="button" class="add-section-toggle" aria-expanded="'+(expanded?'true':'false')+'"'+controls+' onclick="'+action+'"><span class="add-section-toggle-icon" aria-hidden="true">'+(expanded?'':'＋')+'</span><span>'+esc(title)+'</span></button>';
+}
 function renderLedger(m){
-  const total = S.expenses.reduce((s,e)=>s+e.amount,0);
+  const total=S.expenses.reduce((s,e)=>s+e.amount,0);
   const peopleManageButton=m.archived?'':' <button class="btn-ghost" onclick="togglePeople()">管理</button>';
   let html='';
-  if(!m.archived && !S.showAdd){
-    html+=S.showAddPerson?renderAddParticipantForm():`<button class="btn-main" style="margin-bottom:12px" onclick="toggleAddParticipant()">＋新增參加者</button>`;
+  if(!m.archived){
+    html+='<section class="add-section">'+renderAddToggle('participantAddForm','新增參加者',S.showAddPerson,'toggleAddParticipant()')+(S.showAddPerson?renderAddParticipantForm():'')+'</section>';
   }
-  html+=`<div class="card row"><div><div class="small">參加者</div><div>${m.participants.length} 人${peopleManageButton}</div></div>
-    <div><div class="small">總開支</div><div class="amt">${fmt(total)}</div></div></div>`;
-  if(S.showPeople && !m.archived){
-    html += `<div class="card"><div class="row"><b>管理參加者</b><button class="btn-sm" onclick="togglePeople()">完成</button></div>`;
-    if(!m.participants.length) html += `<p class="small">目前沒有參加者。</p>`;
+  html+='<div class="card row"><div><div class="small">參加者</div><div>'+m.participants.length+' 人'+peopleManageButton+'</div></div><div><div class="small">總開支</div><div class="amt">'+fmt(total)+'</div></div></div>';
+  if(S.showPeople&&!m.archived){
+    html+='<div class="card"><div class="row"><b>管理參加者</b><button class="btn-sm" onclick="togglePeople()">完成</button></div>';
+    if(!m.participants.length) html+='<p class="small">目前沒有參加者。</p>';
     m.participants.forEach(p=>{
-      html += `<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)"><span>${esc(p.name)}</span><span><button class="btn-sm" onclick="renameParticipant(${jsArg(p.name)})">改名</button> <button class="btn-sm" onclick="removeParticipant(${jsArg(p.name)})">移除</button></span></div>`;
+      html+='<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)"><span>'+esc(p.name)+'</span><span><button class="btn-sm" onclick="renameParticipant('+jsArg(p.name)+')">改名</button> <button class="btn-sm" onclick="removeParticipant('+jsArg(p.name)+')">移除</button></span></div>';
     });
-    html += `</div>`;
+    html+='</div>';
   }
-  if(!m.archived && !S.showAddPerson){
-    html += S.showAdd ? renderAddExpenseForm(m) : `<button class="btn-main" onclick="toggleAdd()">＋新增花費</button>`;
+  if(!m.archived){
+    const expenseTitle=S.editExpenseId?'編輯花費':'新增花費';
+    html+='<section class="add-section">'+renderAddToggle('expenseAddForm',expenseTitle,S.showAdd,'toggleAdd()')+(S.showAdd?renderAddExpenseForm(m):'')+'</section>';
   }
-  html += `<h2>花費列表</h2><div class="card">`;
-  if(S.expenses.length===0) html += `<p class="sub">目前還沒有任何花費紀錄。</p>`;
+  html+='<h2>花費列表</h2><div class="card">';
+  if(S.expenses.length===0) html+='<p class="sub">目前還沒有任何花費紀錄。</p>';
   S.expenses.forEach(e=>{
-    const expanded = S.expId===e.id, shares=Array.isArray(e.shareWith)?e.shareWith:[];
-    html += `<div class="exp-item">
-      <div class="row"><b>${esc(e.item)}</b><span class="amt">${fmt(e.amount)}</span></div>
-      <div class="small">付款人：${esc(e.payer)} ｜ <span style="cursor:pointer;text-decoration:underline" onclick="toggleExp(${jsArg(e.id)})">分攤對象：${shares.length===m.participants.length?'全體 '+shares.length+' 人':shares.length+' 人'} · ${expanded?'收起':'查看'}</span></div>
-      ${expanded?`<div class="small" style="margin-top:4px">${shares.map(esc).join('、')}</div>`:''}
-      ${m.archived?'':`<div class="row" style="justify-content:flex-end;margin-top:6px"><button class="btn-sm" onclick="editExpense(${jsArg(e.id)})">修改</button><button class="btn-sm" style="margin-left:6px" onclick="deleteExpense(${jsArg(e.id)})">刪除</button></div>`}
-    </div>`;
+    const expanded=S.expId===e.id, shares=Array.isArray(e.shareWith)?e.shareWith:[];
+    html+='<div class="exp-item">'+
+      '<div class="row"><b>'+esc(e.item)+'</b><span class="amt">'+fmt(e.amount)+'</span></div>'+
+      '<div class="small">付款人：'+esc(e.payer)+' ｜ <span style="cursor:pointer;text-decoration:underline" onclick="toggleExp('+jsArg(e.id)+')">分攤對象：'+(shares.length===m.participants.length?'全體 '+shares.length+' 人':shares.length+' 人')+' · '+(expanded?'收起':'查看')+'</span></div>'+
+      (expanded?'<div class="small" style="margin-top:4px">'+shares.map(esc).join('、')+'</div>':'')+
+      (m.archived?'':'<div class="row" style="justify-content:flex-end;margin-top:6px"><button class="btn-sm" onclick="editExpense('+jsArg(e.id)+')">修改</button><button class="btn-sm" style="margin-left:6px" onclick="deleteExpense('+jsArg(e.id)+')">刪除</button></div>')+
+      '</div>';
   });
-  html += `</div>`;
+  html+='</div>';
   return html;
 }
 function renderAddParticipantForm(){
-  return `<div class="card">
+  return `<div class="card add-form-card" id="participantAddForm">
     <label>參加者名稱</label>
     <input type="text" id="newParticipantName" value="${esc(S.newParticipantName||'')}" placeholder="輸入名字" oninput="updateParticipantDraft(this.value)" ${addingParticipant?'disabled':''}>
     <div class="row" style="margin-top:4px">
@@ -579,6 +606,9 @@ function renderAddParticipantForm(){
   </div>`;
 }
 function toggleAdd(){
+  if(S.showAdd){
+    S.showAdd=false; S.editExpenseId=null; S.newExpense=null; render(); return;
+  }
   const draftRef=window.fb.doc(window.fb.collection(db,'meetings',meetingId(),'expenses'));
   S.newExpense={item:'',amount:'',payer:'',shareWith:S.meeting.participants.map(p=>p.name),editShare:false,pendingId:draftRef.id,pendingCreatedAt:Date.now()};
   S.editExpenseId=null; S.showAdd=true; S.showPeople=false; S.showAddPerson=false; S.newParticipantName=''; render();
@@ -587,7 +617,7 @@ function editExpense(id){
   const e=S.expenses.find(x=>x.id===id); if(!e) return;
   const all=isDefaultAllExpense(e,S.meeting.participants);
   S.newExpense={item:e.item||'',amount:(e.amount/100).toFixed(2),payer:e.payer,shareWith:all?S.meeting.participants.map(p=>p.name):[...(e.shareWith||[])],editShare:false};
-  S.editExpenseId=id; S.showAdd=true; S.showPeople=false; render();
+  S.editExpenseId=id; S.showAdd=true; S.showAddPerson=false; S.newParticipantName=''; S.showPeople=false; render();
 }
 function toggleExp(id){ S.expId = S.expId===id ? null : id; render(); }
 function setView(v){ S.view=v; S.showAdd=false; S.editExpenseId=null; S.newExpense=null; S.showAddPerson=false; S.newParticipantName=''; render(); }
@@ -598,7 +628,7 @@ function toggleAddParticipant(){
     S.showAddPerson=false; S.newParticipantName='';
   }else{
     S.showAddPerson=true; S.newParticipantName='';
-    S.showAdd=false; S.editExpenseId=null; S.newExpense=null;
+    S.showAdd=false; S.editExpenseId=null; S.newExpense=null; S.showPeople=false;
   }
   render();
 }
@@ -729,7 +759,7 @@ async function removeParticipant(name){
 }
 function renderAddExpenseForm(m){
   const ne=S.newExpense;
-  let html = `<div class="card">
+  let html = `<div class="card add-form-card" id="expenseAddForm">
     <label>項目名稱</label><input type="text" id="ex_item" value="${esc(ne.item)}">
     <label>金額（HK$）</label><input type="number" step="0.01" id="ex_amount" value="${esc(ne.amount)}">
     <label>實際付款人</label>
