@@ -124,24 +124,43 @@ async function paidTransferId(from,to,amount){
   return 'paid_'+hex;
 }
 
-function splitAmount(amountCents,namesOrdered){
+function splitAmount(amountCents,namesOrdered,transit){
   const n=namesOrdered.length; if(n===0)return{};
-  const base=Math.floor(amountCents/n); const rem=amountCents-base*n;
-  const r={}; namesOrdered.forEach((nm,i)=>{r[nm]=base+(i<rem?1:0);}); return r;
+  const base=Math.floor(amountCents/n), rem=amountCents-base*n;
+  const r={}; namesOrdered.forEach(nm=>{r[nm]=base;});
+  if(rem>0){
+    const remainderOwner=namesOrdered.includes(transit)?transit:namesOrdered[0];
+    r[remainderOwner]+=rem;
+  }
+  return r;
 }
-function computeBalances(meeting,expenses){
-  const names=meeting.participants.map(p=>p.name);
+function calculateBalancesFor(meeting,expenses,transit){
+  const names=(meeting.participants||[]).map(p=>p.name);
   const paid={},owed={}; names.forEach(n=>{paid[n]=0;owed[n]=0;});
   expenses.forEach(e=>{
     paid[e.payer]=(paid[e.payer]||0)+e.amount;
-    const order=names.filter(n=>e.shareWith.includes(n));
-    const sp=splitAmount(e.amount,order);
+    const shares=Array.isArray(e.shareWith)?e.shareWith:[];
+    const order=names.filter(n=>shares.includes(n));
+    const sp=splitAmount(e.amount,order,transit);
     order.forEach(n=>{owed[n]=(owed[n]||0)+sp[n];});
   });
   const net={}; names.forEach(n=>{net[n]=(paid[n]||0)-(owed[n]||0);});
   return {names,paid,owed,net};
 }
-function defaultTransit(names,net){let best=names[0];names.forEach(n=>{if(net[n]>net[best])best=n;});return best;}
+function computeBalances(meeting,expenses){
+  const explicitTransit=meeting.transitId;
+  const names=(meeting.participants||[]).map(p=>p.name);
+  if(explicitTransit&&names.includes(explicitTransit)){
+    return {...calculateBalancesFor(meeting,expenses,explicitTransit),transit:explicitTransit};
+  }
+  const baseline=calculateBalancesFor(meeting,expenses,null);
+  const transit=defaultTransit(names,baseline.net);
+  return {...calculateBalancesFor(meeting,expenses,transit),transit};
+}
+function defaultTransit(names,net){
+  if(!names.length)return null;
+  let best=names[0]; names.forEach(n=>{if(net[n]>net[best])best=n;}); return best;
+}
 function remainingNet(net,transfers){
   const r={...net};
   transfers.forEach(t=>{r[t.from]=(r[t.from]||0)+t.amount;r[t.to]=(r[t.to]||0)-t.amount;});
@@ -641,9 +660,9 @@ function renderOtherCompleted(transfers,archived){
   return html+'</section>';
 }
 function renderSettle(m,me){
-  const {names,owed,net} = computeBalances(m, S.expenses);
+  const {names,owed,net,transit:calculatedTransit} = computeBalances(m, S.expenses);
   if(names.length===0) return `<p class="sub">尚無參加者。</p>`;
-  const transit = m.transitId && names.includes(m.transitId) ? m.transitId : defaultTransit(names,net);
+  const transit = m.transitId && names.includes(m.transitId) ? m.transitId : calculatedTransit;
   const rnet = remainingNet(net, S.transfers);
   const pending = pendingTransfers(names, transit, rnet);
   const incoming=pending.filter(t=>t.to===transit);
