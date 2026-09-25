@@ -14,18 +14,21 @@
   --shadow-small:0 8px 24px rgba(39,48,92,.07),inset 0 1px 0 rgba(255,255,255,.92)
 }
 *{box-sizing:border-box}
-html{min-height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+html{min-height:100%;scroll-padding-top:env(safe-area-inset-top,0px);background:#f4f5fb}
 body{
-  margin:0;min-height:100vh;color:var(--ink);
+  position:relative;isolation:isolate;
+  margin:0;min-height:100vh;color:var(--ink);background:transparent;
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;
+  font-size:16px;line-height:1.5;font-feature-settings:"tnum" 1;font-variant-numeric:tabular-nums
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
   background:
     radial-gradient(ellipse at 8% 7%,rgba(145,132,255,.46) 0,rgba(145,132,255,.18) 22rem,transparent 43rem),
     radial-gradient(ellipse at 94% 28%,rgba(79,205,183,.37) 0,rgba(79,205,183,.14) 22rem,transparent 42rem),
     radial-gradient(ellipse at 54% 78%,rgba(175,148,255,.40) 0,rgba(175,148,255,.17) 22rem,transparent 43rem),
     radial-gradient(ellipse at 63% 9%,rgba(255,255,255,.72) 0,transparent 34rem),
-    linear-gradient(135deg,#f2efff 0%,#eef2fb 47%,#e9f7f3 100%);
-  background-attachment:scroll;
-  font-family:Inter,-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;
-  font-size:16px;line-height:1.5;font-feature-settings:"tnum" 1;font-variant-numeric:tabular-nums
+    linear-gradient(135deg,#f2efff 0%,#eef2fb 47%,#e9f7f3 100%)
 }
 #app{width:min(100%,1040px);margin:0 auto;padding:clamp(18px,4vw,42px) clamp(16px,4vw,34px) 64px}
 h1,h2,h3,p{margin-top:0}
