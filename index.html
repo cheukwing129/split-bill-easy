@@ -47,6 +47,9 @@ label{font-size:13px;color:var(--sub);}
 .namebtn{display:block;width:100%;text-align:left;padding:10px;margin-bottom:6px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--text);}
 .checkline{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:14px;}
 .footer{text-align:center;font-size:11px;color:var(--sub);margin-top:24px;}
+.meeting-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px;}
+.meeting-header h1{flex:1;min-width:0;overflow-wrap:anywhere;margin:0 0 4px;}
+.meeting-header .btn-sm{white-space:nowrap;flex:0 0 auto;margin-top:-2px;}
 .transfer-group{border:1px solid var(--line);border-left-width:5px;border-radius:10px;padding:10px;margin-top:10px;}
 .transfer-group.receive{border-color:var(--pos);}
 .transfer-group.pay{border-color:var(--neg);}
@@ -218,7 +221,7 @@ function render(){
   let me = meName(id);
   if(me && !(m.participants||[]).some(p=>p.name===me)){ setMe(id,''); me=''; }
   if(!me){ renderNamePicker(); return; }
-  let html = `<h1>${esc(m.name)}</h1>
+  let html = `<div class="meeting-header"><h1>${esc(m.name)}</h1><button class="btn-sm" type="button" onclick="copyMeetingLink(this)" aria-live="polite">複製連結</button></div>
   <p class="notice">你持有這場聚會的連結，可查看與編輯所有紀錄（新增花費、標記轉帳等）。目前身分：<b>${esc(me)}</b>（僅為顯示名稱，非驗證身分）<span class="btn-ghost" style="margin-left:8px;cursor:pointer" onclick="switchName()">切換</span></p>`;
   if(m.archived) html += `<p class="warn">此聚會已封存為唯讀，無法再編輯。</p>`;
   html += `<div class="tabs">
@@ -228,6 +231,31 @@ function render(){
   html += S.view==='settle' ? renderSettle(m,me) : renderLedger(m,me);
   html += `<p class="footer">${m.archived?'':`<span class="btn-ghost" style="cursor:pointer" onclick="archiveMeeting()">封存此聚會（唯讀）</span>`}</p>`;
   document.getElementById('app').innerHTML = html;
+}
+
+async function copyMeetingLink(button){
+  const link=window.location.href;
+  let copied=false;
+  if(navigator.clipboard&&window.isSecureContext){
+    try{await navigator.clipboard.writeText(link);copied=true;}catch(err){}
+  }
+  if(!copied){
+    try{
+      const field=document.createElement('textarea');
+      field.value=link; field.setAttribute('readonly','');
+      field.style.position='fixed'; field.style.left='-9999px'; field.style.top='0';
+      document.body.appendChild(field); field.select();
+      copied=document.execCommand('copy');
+      field.remove();
+    }catch(err){}
+  }
+  if(copied){
+    const previous=button.textContent;
+    button.textContent='已複製 ✓';
+    window.setTimeout(()=>{if(button.isConnected)button.textContent=previous;},1800);
+  }else{
+    window.prompt('無法自動複製，請手動複製聚會連結：',link);
+  }
 }
 
 function renderNamePicker(){
