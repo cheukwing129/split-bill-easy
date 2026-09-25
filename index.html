@@ -176,9 +176,22 @@ label{display:block;font-size:13px;font-weight:700;color:var(--ink-soft);margin:
 .balance-net.negative{color:var(--amber)}
 .balance-net.neutral{color:var(--muted)}
 .transfer-control{padding:17px 19px;margin-bottom:14px}
-.transit-heading{display:flex;align-items:center;gap:8px;margin-bottom:9px;color:var(--ink);font-size:13px;font-weight:750}
-.transit-heading .small{font-weight:500}
-.transit-pills{display:flex;flex-wrap:wrap;gap:2px}
+.transit-current{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.transit-person{display:flex;align-items:center;gap:11px;min-width:0}
+.transit-person-icon{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border:1px solid rgba(101,88,232,.16);border-radius:13px;background:linear-gradient(145deg,#efedff,#e5f5f0);color:var(--accent);font-size:19px}
+.transit-person-copy{display:flex;flex-direction:column;gap:2px;min-width:0}
+.transit-person-copy strong{color:var(--ink);font-size:15px;overflow-wrap:anywhere}
+.transit-change{display:inline-flex;align-items:center;gap:8px;flex:0 0 auto;white-space:nowrap}
+.transit-change svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;transition:transform .16s ease}
+.transit-change[aria-expanded="true"] svg{transform:rotate(180deg)}
+.transit-picker{margin-top:14px;padding-top:13px;border-top:1px solid var(--line)}
+.transit-picker p{margin:0;color:var(--muted);font-size:12px}
+.transit-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin-top:10px}
+.transit-option{display:flex;align-items:center;gap:9px;width:100%;min-width:0;padding:8px 10px;border:1px solid rgba(81,94,143,.13);border-radius:13px;background:rgba(255,255,255,.55);color:var(--ink-soft);text-align:left}
+.transit-option:hover:not(:disabled){background:rgba(255,255,255,.82);border-color:rgba(101,88,232,.3);color:var(--accent-dark)}
+.transit-option .avatar-mini{flex:0 0 29px;width:29px;height:29px}
+.transit-option-name{min-width:0;flex:1;overflow-wrap:anywhere;font-size:13px;font-weight:700}
+.transit-option-action{flex:0 0 auto;color:var(--accent);font-size:11px;font-weight:750}
 .transfer-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;align-items:start}
 .transfer-group{min-width:0;padding:16px;border-radius:18px;border:1px solid transparent;margin:0;box-shadow:var(--shadow-small)}
 .transfer-group.receive{background:linear-gradient(145deg,rgba(232,249,243,.82),rgba(255,255,255,.66));border-color:rgba(39,164,125,.16)}
@@ -265,7 +278,7 @@ async function waitFb(){
 }
 let S={meeting:null,expId:null,expenses:[],transfers:[],view:'home',
   showAdd:false,editExpenseId:null,showPeople:false,splitSyncKey:'',newExpense:null,
-  showAddPerson:false,newParticipantName:''};
+  showAddPerson:false,newParticipantName:'',showTransitPicker:false};
 let addingParticipant=false;
 
 function cents(v){return Math.round(parseFloat(v||0)*100)||0;}
@@ -382,7 +395,7 @@ async function boot(){
   db = db || await waitFb();
   if(!db){ document.getElementById('app').innerHTML='<p class="warn">尚未連上資料庫：請在程式碼開頭填入你的 Firebase 設定（firebaseConfig）。</p>'; return; }
   if(!id){ S={meeting:null,view:'home'}; renderHome(); return; }
-  if(S.meeting?.id!==id) S.view='home';
+  if(S.meeting?.id!==id){ S.view='home'; S.showTransitPicker=false; }
   const chooseDefaultView=S.view==='home';
   renderLoading();
   const mref = window.fb.doc(db,'meetings',id);
@@ -627,7 +640,7 @@ function editExpense(id){
   S.editExpenseId=id; S.showAdd=true; S.showAddPerson=false; S.newParticipantName=''; S.showPeople=false; render();
 }
 function toggleExp(id){ S.expId = S.expId===id ? null : id; render(); }
-function setView(v){ S.view=v; S.showAdd=false; S.editExpenseId=null; S.newExpense=null; S.showAddPerson=false; S.newParticipantName=''; render(); }
+function setView(v){ S.view=v; S.showAdd=false; S.editExpenseId=null; S.newExpense=null; S.showAddPerson=false; S.newParticipantName=''; S.showTransitPicker=false; render(); }
 function togglePeople(){ S.showPeople=!S.showPeople; render(); }
 function toggleAddParticipant(){
   if(addingParticipant) return;
@@ -901,11 +914,22 @@ function renderSettle(m){
   });
   html+='</div></section>';
   html+='<section class="settle-section"><div class="section-heading"><div><span class="section-kicker">TRANSFER PLAN</span><h2>中轉人結算</h2><p>中轉人集中收款與付款，其他人只需按安排轉帳。</p></div></div>';
-  html+='<div class="surface transfer-control"><div class="transit-heading"><span>中轉人</span><span class="small">'+esc(transit)+'</span></div><label>更改中轉人</label><div class="transit-pills">';
-  names.forEach(n=>{
-    html+='<span class="pill '+(transit===n?'on':'')+'" '+(m.archived?'':'style="cursor:pointer" onclick="setTransit('+jsArg(n)+')"')+'>'+esc(n)+'</span>';
-  });
-  html+='</div></div>';
+  html+='<div class="surface transfer-control"><div class="transit-current"><div class="transit-person"><span class="transit-person-icon" aria-hidden="true">⇄</span><div class="transit-person-copy"><span class="small">目前中轉人</span><strong>'+esc(transit)+'</strong></div></div>';
+  if(!m.archived){
+    const toggleLabel=S.showTransitPicker?'收起名單':'更換中轉人';
+    html+='<button type="button" class="btn-sm transit-change" aria-expanded="'+(S.showTransitPicker?'true':'false')+'" '+(S.showTransitPicker?'aria-controls="transitPicker"':'')+' onclick="toggleTransitPicker()"><span>'+toggleLabel+'</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4 4.5-4"/></svg></button>';
+  }
+  html+='</div>';
+  if(S.showTransitPicker&&!m.archived){
+    const choices=names.filter(n=>n!==transit);
+    html+='<div class="transit-picker" id="transitPicker"><p class="small">選擇另一位參加者作為中轉人。</p><div class="transit-options">';
+    if(!choices.length) html+='<span class="small">目前沒有其他參加者可選。</span>';
+    choices.forEach(n=>{
+      html+='<button type="button" class="transit-option" onclick="setTransit('+jsArg(n)+')"><span class="avatar-mini" aria-hidden="true"><svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3"/><path d="M3.8 17a6.2 6.2 0 0 1 12.4 0"/></svg></span><span class="transit-option-name">'+esc(n)+'</span><span class="transit-option-action">選擇</span></button>';
+    });
+    html+='</div></div>';
+  }
+  html+='</div>';
   if(pending.length===0&&S.transfers.length===0){
     html+='<div class="settled-note"><span class="empty-icon" aria-hidden="true">✓</span><span>目前無需轉帳，所有帳目已平衡。</span></div>';
   }else{
@@ -915,8 +939,20 @@ function renderSettle(m){
   html+='</section>';
   return html;
 }
+function toggleTransitPicker(){
+  if(S.meeting?.archived) return;
+  S.showTransitPicker=!S.showTransitPicker;
+  render();
+}
 async function setTransit(name){
-  await window.fb.updateDoc(window.fb.doc(db,'meetings',meetingId()), {transitId:name});
+  if(S.meeting?.archived) return;
+  try{
+    await window.fb.updateDoc(window.fb.doc(db,'meetings',meetingId()), {transitId:name});
+    S.showTransitPicker=false;
+    render();
+  }catch(err){
+    alert('更改中轉人失敗，請檢查網絡後再試。');
+  }
 }
 async function markPaid(from,to,amount){
   const id=meetingId(), key=transferKey(from,to,amount);
