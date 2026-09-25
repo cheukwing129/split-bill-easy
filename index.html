@@ -272,12 +272,18 @@ async function paidTransferId(from,to,amount){
   return 'paid_'+hex;
 }
 
-function splitAmount(amountCents,namesOrdered,transit){
+function splitAmount(amountCents,namesOrdered,transit,priorOwed={}){
   const n=namesOrdered.length; if(n===0)return{};
+  const r={};
+  if(transit&&namesOrdered.includes(transit)&&n>1){
+    const equalShare=Math.min(Math.ceil(amountCents/n),Math.floor(amountCents/(n-1)));
+    namesOrdered.forEach(nm=>{r[nm]=nm===transit?amountCents-equalShare*(n-1):equalShare;});
+    return r;
+  }
   const base=Math.floor(amountCents/n), rem=amountCents-base*n;
-  const r={}; namesOrdered.forEach(nm=>{r[nm]=base;});
-  // 中轉人有參與時，零頭由其他分攤者吸收，讓中轉人少付作辛苦費。
-  const extraRecipients=namesOrdered.includes(transit)?namesOrdered.filter(nm=>nm!==transit):namesOrdered;
+  namesOrdered.forEach(nm=>{r[nm]=base;});
+  // 中轉人未參與時，無法同時讓每人同額並精確加總；尾數優先分給累積應付較少的人。
+  const extraRecipients=transit?[...namesOrdered].sort((a,b)=>(priorOwed[a]||0)-(priorOwed[b]||0)||namesOrdered.indexOf(a)-namesOrdered.indexOf(b)):namesOrdered;
   for(let i=0;i<rem;i++) r[extraRecipients[i]]+=1;
   return r;
 }
@@ -288,7 +294,7 @@ function calculateBalancesFor(meeting,expenses,transit){
     paid[e.payer]=(paid[e.payer]||0)+e.amount;
     const shares=Array.isArray(e.shareWith)?e.shareWith:[];
     const order=names.filter(n=>shares.includes(n));
-    const sp=splitAmount(e.amount,order,transit);
+    const sp=splitAmount(e.amount,order,transit,owed);
     order.forEach(n=>{owed[n]=(owed[n]||0)+sp[n];});
   });
   const net={}; names.forEach(n=>{net[n]=(paid[n]||0)-(owed[n]||0);});
