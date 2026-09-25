@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>夾錢易</title>
+<style>
+:root{
+  --bg:#f6f5f2; --card:#fff; --text:#1c1c1c; --sub:#6b6b6b; --line:#e5e3de;
+  --accent:#0f7a5f; --pos:#0f7a5f; --neg:#b3441a; --btn:#1c1c1c; --btnText:#fff;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#161616; --card:#232323; --text:#f0f0ee; --sub:#a0a0a0; --line:#3a3a3a;
+  --accent:#3fcf9f; --pos:#3fcf9f; --neg:#ff8a5c; --btn:#f0f0ee; --btnText:#161616;
+}}
+:root[data-theme="dark"]{
+  --bg:#161616; --card:#232323; --text:#f0f0ee; --sub:#a0a0a0; --line:#3a3a3a;
+  --accent:#3fcf9f; --pos:#3fcf9f; --neg:#ff8a5c; --btn:#f0f0ee; --btnText:#161616;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px); height:100%;}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;height:100%;}
+#app{max-width:520px;margin:0 auto;padding:16px 14px 40px;}
+h1{font-size:20px;margin:0 0 4px;}
+h2{font-size:16px;margin:18px 0 8px;}
+p.sub{color:var(--sub);font-size:13px;margin:2px 0 16px;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;}
+button{font:inherit;border:none;border-radius:10px;padding:10px 14px;cursor:pointer;}
+.btn-main{background:var(--btn);color:var(--btnText);width:100%;font-weight:600;font-size:15px;}
+.btn-sm{background:transparent;border:1px solid var(--line);color:var(--text);font-size:13px;padding:6px 10px;}
+.btn-ghost{background:transparent;color:var(--accent);font-size:13px;padding:4px 0;text-decoration:underline;}
+input[type=text],input[type=number]{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:15px;margin:4px 0 10px;}
+label{font-size:13px;color:var(--sub);}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.pill{display:inline-block;background:var(--bg);border:1px solid var(--line);border-radius:20px;padding:4px 10px;font-size:12px;margin:2px 4px 2px 0;}
+.pill.on{background:var(--accent);color:var(--btnText);border-color:var(--accent);}
+.tabs{display:flex;gap:8px;margin-bottom:14px;}
+.tab{flex:1;text-align:center;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-size:14px;cursor:pointer;}
+.tab.active{background:var(--btn);color:var(--btnText);}
+.exp-item{border-bottom:1px solid var(--line);padding:10px 0;}
+.exp-item:last-child{border-bottom:none;}
+.small{font-size:12px;color:var(--sub);}
+.amt{font-weight:700;}
+.warn{background:#7a4d0f22;border:1px solid #b3441a55;color:var(--neg);border-radius:10px;padding:10px;font-size:13px;margin-bottom:12px;}
+.notice{background:var(--accent)18;border:1px solid var(--accent);border-radius:10px;padding:8px 10px;font-size:12px;margin-bottom:12px;color:var(--text);}
+.namebtn{display:block;width:100%;text-align:left;padding:10px;margin-bottom:6px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--text);}
+.checkline{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:14px;}
+.footer{text-align:center;font-size:11px;color:var(--sub);margin-top:24px;}
+</style>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query, orderBy }
+  from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+// TODO: 請換成你自己 Firebase 專案的設定（Firebase Console → 專案設定 → 一般 → 你的應用程式）
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+const fbApp = initializeApp(firebaseConfig);
+window.fbdb = getFirestore(fbApp);
+window.fb = { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query, orderBy };
+window.fbReady = true;
+</script>
+</head>
+<body>
+<div id="app">載入中…</div>
+<script>
+let db=null;
+let unsub=[];
+async function waitFb(){
+  let tries=0;
+  while(!window.fbReady && tries<100){ await new Promise(r=>setTimeout(r,50)); tries++; }
+  return window.fbdb || null;
+}
+let S={meeting:null,expId:null,expenses:[],transfers:[],view:'ledger',
+  showAdd:false,editShare:false,newExpense:null,addName:''};
+
+function cents(v){return Math.round(parseFloat(v||0)*100)||0;}
+function fmt(c){const n=c<0;c=Math.abs(c);return (n?'－':'')+'HK$'+(c/100).toFixed(2);}
+function meetingId(){const m=location.hash.match(/#\/m\/([^\/]+)/);return m?m[1]:null;}
+function meName(id){return localStorage.getItem('jqy_me_'+id)||'';}
+function setMe(id,name){try{localStorage.setItem('jqy_me_'+id,name);}catch(e){}}
+
+function splitAmount(amountCents,namesOrdered){
+  const n=namesOrdered.length; if(n===0)return{};
+  const base=Math.floor(amountCents/n); const rem=amountCents-base*n;
+  const r={}; namesOrdered.forEach((nm,i)=>{r[nm]=base+(i<rem?1:0);}); return r;
+}
+function computeBalances(meeting,expenses){
+  const names=meeting.participants.map(p=>p.name);
+  const paid={},owed={}; names.forEach(n=>{paid[n]=0;owed[n]=0;});
+  expenses.forEach(e=>{
+    paid[e.payer]=(paid[e.payer]||0)+e.amount;
+    const order=names.filter(n=>e.shareWith.includes(n));
+    const sp=splitAmount(e.amount,order);
+    order.forEach(n=>{owed[n]=(owed[n]||0)+sp[n];});
+  });
+  const net={}; names.forEach(n=>{net[n]=(paid[n]||0)-(owed[n]||0);});
+  return {names,paid,owed,net};
+}
+function defaultTransit(names,net){let best=names[0];names.forEach(n=>{if(net[n]>net[best])best=n;});return best;}
+function remainingNet(net,transfers){
+  const r={...net};
+  transfers.forEach(t=>{r[t.from]=(r[t.from]||0)+t.amount;r[t.to]=(r[t.to]||0)-t.amount;});
+  return r;
+}
+function pendingTransfers(names,transit,rnet){
+  const list=[];
+  names.forEach(n=>{if(n===transit)return;const v=Math.round(rnet[n]);
+    if(v<0)list.push({from:n,to:transit,amount:-v});
+    else if(v>0)list.push({from:transit,to:n,amount:v});
+  });
+  return list;
+}
+
+function esc(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+async function boot(){
+  unsub.forEach(u=>u()); unsub=[];
+  const id=meetingId();
+  db = db || await waitFb();
+  if(!db){ document.getElementById('app').innerHTML='<p class="warn">尚未連上資料庫：請在程式碼開頭填入你的 Firebase 設定（firebaseConfig）。</p>'; return; }
+  if(!id){ S={meeting:null,view:'home'}; renderHome(); return; }
+  renderLoading();
+  const mref = window.fb.doc(db,'meetings',id);
+  unsub.push(window.fb.onSnapshot(mref, snap=>{
+    if(!snap.exists()){ S.meeting=null; render(); return; }
+    S.meeting={id, ...snap.data()};
+    if(!S.meeting.participants) S.meeting.participants=[];
+    render();
+  }, err=>{ S.meeting=false; render(); }));
+  const expQ = window.fb.query(window.fb.collection(db,'meetings',id,'expenses'), window.fb.orderBy('createdAt','asc'));
+  unsub.push(window.fb.onSnapshot(expQ, snap=>{
+    S.expenses = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    render();
+  }));
+  const trCol = window.fb.collection(db,'meetings',id,'transfers');
+  unsub.push(window.fb.onSnapshot(trCol, snap=>{
+    S.transfers = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    render();
+  }));
+  render();
+}
+
+function renderLoading(){ document.getElementById('app').innerHTML='<p class="sub">載入聚會資料…</p>'; }
+
+function renderHome(){
+  document.getElementById('app').innerHTML = `
+    <h1>💰 夾錢易</h1>
+    <p class="sub">一群人共同記錄代墊費用、公平分攤、清楚轉帳。</p>
+    <div class="card">
+      <label>聚會名稱</label>
+      <input type="text" id="mname" placeholder="例如：週末露營">
+      <button class="btn-main" onclick="createMeeting()">建立新聚會</button>
+    </div>
+    <p class="small">建立後會產生專屬連結，分享給朋友即可共同編輯，不需登入或建立帳戶。</p>
+  `;
+}
+async function createMeeting(){
+  const name = document.getElementById('mname').value.trim() || '未命名聚會';
+  if(!db){ alert('目前無法連線到資料庫，請確認 Firebase 設定。'); return; }
+  const ref = await window.fb.addDoc(window.fb.collection(db,'meetings'), {
+    name, participants:[], transitId:null, archived:false, createdAt:Date.now()
+  });
+  location.hash = '#/m/'+ref.id;
+}
+
+function render(){
+  if(S.view==='home' || !meetingId()){ renderHome(); return; }
+  if(S.meeting===null){ renderLoading(); return; }
+  if(S.meeting===false){ document.getElementById('app').innerHTML='<p class="warn">找不到這場聚會，連結可能有誤。</p>'; return; }
+  const id = meetingId();
+  const me = meName(id);
+  if(!me){ renderNamePicker(); return; }
+  const m = S.meeting;
+  let html = `<h1>${esc(m.name)}</h1>
+  <p class="notice">你持有這場聚會的連結，可查看與編輯所有紀錄（新增花費、標記轉帳等）。目前身分：<b>${esc(me)}</b>（僅為顯示名稱，非驗證身分）<span class="btn-ghost" style="margin-left:8px;cursor:pointer" onclick="switchName()">切換</span></p>`;
+  if(m.archived) html += `<p class="warn">此聚會已封存為唯讀，無法再編輯。</p>`;
+  html += `<div class="tabs">
+    <div class="tab ${S.view==='ledger'?'active':''}" onclick="setView('ledger')">帳目</div>
+    <div class="tab ${S.view==='settle'?'active':''}" onclick="setView('settle')">結算</div>
+  </div>`;
+  html += S.view==='settle' ? renderSettle(m,me) : renderLedger(m,me);
+  html += `<p class="footer">${m.archived?'':`<span class="btn-ghost" style="cursor:pointer" onclick="archiveMeeting()">封存此聚會（唯讀）</span>`}</p>`;
+  document.getElementById('app').innerHTML = html;
+}
+
+function renderNamePicker(){
+  const m=S.meeting; const id=meetingId();
+  let html = `<h1>${esc(m.name)}</h1><p class="sub">請選擇你在這場聚會的顯示名稱（僅供辨識，非驗證身分）</p><div class="card">`;
+  (m.participants||[]).forEach(p=>{
+    html += `<button class="namebtn" onclick="pickName('${esc(p.name).replace(/'/g,"\\'")}')">${esc(p.name)}</button>`;
+  });
+  html += `<label>或新增你的名字</label>
+  <input type="text" id="newmename" placeholder="輸入名字">
+  <button class="btn-main" onclick="pickNewName()">加入聚會</button></div>`;
+  document.getElementById('app').innerHTML = html;
+}
+async function addParticipant(name){
+  const id=meetingId(); const m=S.meeting;
+  if((m.participants||[]).some(p=>p.name===name)) return;
+  const list=[...(m.participants||[]), {name, joinedAt:Date.now()}];
+  await window.fb.updateDoc(window.fb.doc(db,'meetings',id), {participants:list});
+}
+function pickName(name){ setMe(meetingId(), name); render(); }
+async function pickNewName(){
+  const name=document.getElementById('newmename').value.trim();
+  if(!name) return;
+  if((S.meeting.participants||[]).some(p=>p.name===name)){ alert('這個名字已被使用，請選其他名稱或直接選取。'); return; }
+  await addParticipant(name);
+  setMe(meetingId(), name);
+  render();
+}
+function switchName(){ setMe(meetingId(), ''); render(); }
+function setView(v){ S.view=v; S.showAdd=false; render(); }
+
+async function archiveMeeting(){
+  if(!confirm('封存後將無法再編輯，確定要封存嗎？')) return;
+  await window.fb.updateDoc(window.fb.doc(db,'meetings',meetingId()), {archived:true});
+}
+
+function renderLedger(m,me){
+  const total = S.expenses.reduce((s,e)=>s+e.amount,0);
+  let html = `<div class="card row"><div><div class="small">參加者</div><div>${m.participants.length} 人</div></div>
+    <div><div class="small">總開支</div><div class="amt">${fmt(total)}</div></div></div>`;
+
+  if(!m.archived){
+    html += `<div class="card">
+      <label>新增參加者</label>
+      <div class="row"><input type="text" id="addpname" placeholder="名字" style="flex:1"><button class="btn-sm" onclick="doAddParticipant()">加入</button></div>
+    </div>`;
+    html += S.showAdd ? renderAddExpenseForm(m) : `<button class="btn-main" onclick="toggleAdd()">＋新增花費</button>`;
+  }
+
+  html += `<h2>花費列表</h2><div class="card">`;
+  if(S.expenses.length===0) html += `<p class="sub">目前還沒有任何花費紀錄。</p>`;
+  S.expenses.forEach(e=>{
+    const expanded = S.expId===e.id;
+    html += `<div class="exp-item">
+      <div class="row"><b>${esc(e.item)}</b><span class="amt">${fmt(e.amount)}</span></div>
+      <div class="small">付款人：${esc(e.payer)} ｜ <span style="cursor:pointer;text-decoration:underline" onclick="toggleExp('${e.id}')">分攤對象：${e.shareWith.length===m.participants.length?'全體 '+e.shareWith.length+' 人':e.shareWith.length+' 人'} · ${expanded?'收起':'更改'}</span></div>
+      ${expanded?`<div class="small" style="margin-top:4px">${e.shareWith.map(esc).join('、')}</div>`:''}
+      <div class="small">新增者：${esc(e.addedBy||'')}</div>
+    </div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+function toggleAdd(){
+  const me=meName(meetingId());
+  S.newExpense={item:'',amount:'',payer:me,shareWith:S.meeting.participants.map(p=>p.name),editShare:false};
+  S.showAdd=true; render();
+}
+function toggleExp(id){ S.expId = S.expId===id ? null : id; render(); }
+async function doAddParticipant(){
+  const v=document.getElementById('addpname').value.trim();
+  if(!v) return;
+  if((S.meeting.participants||[]).some(p=>p.name===v)){ alert('這個名字已存在'); return; }
+  await addParticipant(v);
+}
+
+function renderAddExpenseForm(m){
+  const ne=S.newExpense;
+  let html = `<div class="card">
+    <label>項目名稱</label><input type="text" id="ex_item" value="${esc(ne.item)}">
+    <label>金額（HK$）</label><input type="number" step="0.01" id="ex_amount" value="${esc(ne.amount)}">
+    <label>付款人</label>
+    <div>`;
+  m.participants.forEach(p=>{
+    html += `<span class="pill ${ne.payer===p.name?'on':''}" style="cursor:pointer" onclick="setPayer('${esc(p.name).replace(/'/g,"\\'")}')">${esc(p.name)}</span>`;
+  });
+  html += `</div>`;
+  if(!ne.editShare){
+    html += `<p class="small" style="margin-top:10px">分攤對象：${ne.shareWith.length===m.participants.length?'全體 '+m.participants.length+' 人':ne.shareWith.length+' 人'} · <span class="btn-ghost" style="cursor:pointer" onclick="toggleEditShare()">更改</span></p>`;
+  } else {
+    html += `<p class="small" style="margin-top:10px">分攤對象 · <span class="btn-ghost" style="cursor:pointer" onclick="selectAllShare()">全選</span> · <span class="btn-ghost" style="cursor:pointer" onclick="toggleEditShare()">收起</span></p>`;
+    m.participants.forEach(p=>{
+      const checked = ne.shareWith.includes(p.name);
+      html += `<div class="checkline"><input type="checkbox" ${checked?'checked':''} onchange="toggleShareName('${esc(p.name).replace(/'/g,"\\'")}')"> ${esc(p.name)}</div>`;
+    });
+  }
+  html += `<div class="row" style="margin-top:12px">
+      <button class="btn-sm" onclick="cancelAdd()">取消</button>
+      <button class="btn-main" style="flex:1;margin-left:8px" onclick="submitExpense()">儲存花費</button>
+    </div></div>`;
+  return html;
+}
+function setPayer(name){ S.newExpense.payer=name; syncFormInputs(); render(); }
+function toggleEditShare(){ syncFormInputs(); S.newExpense.editShare=!S.newExpense.editShare; render(); }
+function selectAllShare(){ syncFormInputs(); S.newExpense.shareWith=S.meeting.participants.map(p=>p.name); render(); }
+function toggleShareName(name){
+  syncFormInputs();
+  const sw=S.newExpense.shareWith;
+  const i=sw.indexOf(name);
+  if(i>=0) sw.splice(i,1); else sw.push(name);
+  render();
+}
+function syncFormInputs(){
+  const it=document.getElementById('ex_item'); const am=document.getElementById('ex_amount');
+  if(it) S.newExpense.item=it.value;
+  if(am) S.newExpense.amount=am.value;
+}
+function cancelAdd(){ S.showAdd=false; S.newExpense=null; render(); }
+async function submitExpense(){
+  syncFormInputs();
+  const ne=S.newExpense;
+  const amt=cents(ne.amount);
+  if(!ne.item.trim()){ alert('請輸入項目名稱'); return; }
+  if(amt<=0){ alert('金額需大於 0'); return; }
+  if(ne.shareWith.length===0){ alert('分攤對象至少需 1 人'); return; }
+  await window.fb.addDoc(window.fb.collection(db,'meetings',meetingId(),'expenses'), {
+    item:ne.item.trim(), amount:amt, payer:ne.payer, shareWith:ne.shareWith,
+    addedBy:meName(meetingId()), createdAt:Date.now()
+  });
+  S.showAdd=false; S.newExpense=null; render();
+}
+
+function renderSettle(m,me){
+  const {names,net} = computeBalances(m, S.expenses);
+  if(names.length===0) return `<p class="sub">尚無參加者。</p>`;
+  const transit = m.transitId && names.includes(m.transitId) ? m.transitId : defaultTransit(names,net);
+  const rnet = remainingNet(net, S.transfers);
+  const pending = pendingTransfers(names, transit, rnet);
+
+  let html = `<h2>每人狀況</h2><div class="card">`;
+  names.forEach(n=>{
+    const v = Math.round(rnet[n]);
+    const icon = v>0?'▲ 應收':(v<0?'▼ 應付':'✓ 已打平');
+    const color = v>0?'var(--pos)':(v<0?'var(--neg)':'var(--sub)');
+    html += `<div class="row" style="padding:4px 0"><span>${esc(n)}</span><span style="color:${color}">${icon} ${v!==0?fmt(Math.abs(v)):''}</span></div>`;
+  });
+  html += `</div>`;
+
+  html += `<h2>中轉人結算</h2><p class="small">每位參加者最多一筆轉帳；不代表全場轉帳筆數最少。</p><div class="card">
+    <label>中轉人</label><div>`;
+  names.forEach(n=>{
+    html += `<span class="pill ${transit===n?'on':''}" ${m.archived?'':`style="cursor:pointer" onclick="setTransit('${esc(n).replace(/'/g,"\\'")}')"`}>${esc(n)}</span>`;
+  });
+  html += `</div>`;
+
+  if(pending.length===0 && S.transfers.length===0){
+    html += `<p style="margin-top:10px">目前無需轉帳。</p>`;
+  }
+  if(pending.length>0){
+    html += `<h2 style="font-size:14px;margin-top:14px">待付款（${pending.length}）</h2>`;
+    pending.forEach((t,i)=>{
+      html += `<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)">
+        <span>⏳ ${esc(t.from)} → ${esc(t.to)}：<b>${fmt(t.amount)}</b></span>
+        ${m.archived?'':`<button class="btn-sm" onclick="markPaid('${esc(t.from).replace(/'/g,"\\'")}','${esc(t.to).replace(/'/g,"\\'")}',${t.amount})">標記已付款</button>`}
+      </div>`;
+    });
+  }
+  if(S.transfers.length>0){
+    html += `<h2 style="font-size:14px;margin-top:14px">已完成（${S.transfers.length}）</h2>`;
+    S.transfers.forEach(t=>{
+      html += `<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)">
+        <span>✅ ${esc(t.from)} → ${esc(t.to)}：<b>${fmt(t.amount)}</b><br><span class="small">由 ${esc(t.completedBy)} 標記</span></span>
+        ${m.archived?'':`<button class="btn-sm" onclick="unmarkPaid('${t.id}')">取消</button>`}
+      </div>`;
+    });
+  }
+  html += `</div>`;
+  return html;
+}
+async function setTransit(name){
+  await window.fb.updateDoc(window.fb.doc(db,'meetings',meetingId()), {transitId:name});
+}
+async function markPaid(from,to,amount){
+  await window.fb.addDoc(window.fb.collection(db,'meetings',meetingId(),'transfers'), {
+    from,to,amount, completedBy:meName(meetingId()), completedAt:Date.now()
+  });
+}
+async function unmarkPaid(tid){
+  await window.fb.deleteDoc(window.fb.doc(db,'meetings',meetingId(),'transfers',tid));
+}
+
+window.addEventListener('hashchange', boot);
+boot();
+</script>
+</body>
+</html>
