@@ -170,16 +170,16 @@ label{display:block;font-size:13px;font-weight:700;color:var(--ink-soft);margin:
 .balance-card .avatar-mini{width:32px;height:32px;flex-basis:32px}
 .balance-card .avatar-mini svg{width:16px;height:16px}
 .balance-name{min-width:0;font-size:14px;font-weight:750;overflow-wrap:anywhere}
-.balance-due{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-bottom:11px;border-bottom:1px solid var(--line)}
-.balance-due span{color:var(--muted);font-size:11px}
-.balance-due strong{font-size:19px;font-weight:780;letter-spacing:-.025em;white-space:nowrap}
-.balance-paid{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:9px;color:var(--muted);font-size:11px}
-.balance-paid b{color:var(--ink-soft);font-size:12px;font-weight:750;white-space:nowrap}
-.balance-net{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;font-size:11px;font-weight:750}
-.balance-net b{font-size:12px;white-space:nowrap}
+.balance-net{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-bottom:12px;border-bottom:1px solid var(--line);font-size:13px;font-weight:750}
+.balance-net b{font-size:22px;font-weight:800;letter-spacing:-.025em;white-space:nowrap}
 .balance-net.positive{color:var(--mint)}
 .balance-net.negative{color:var(--amber)}
 .balance-net.neutral{color:var(--muted)}
+.balance-paid{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:9px;color:var(--muted);font-size:11px}
+.balance-paid b{color:var(--ink-soft);font-size:12px;font-weight:750;white-space:nowrap}
+.balance-due{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:6px;font-size:11px}
+.balance-due span{color:var(--muted)}
+.balance-due strong{color:var(--ink-soft);font-size:12px;font-weight:750;white-space:nowrap}
 .transfer-control{padding:17px 19px;margin-bottom:14px}
 .transit-current{display:flex;align-items:center;justify-content:space-between;gap:14px}
 .transit-person{display:flex;align-items:center;gap:11px;min-width:0}
@@ -910,15 +910,15 @@ function renderSettle(m){
   const completedIncoming=S.transfers.filter(t=>t.to===transit).sort((a,b)=>(a.completedAt||0)-(b.completedAt||0));
   const completedOutgoing=S.transfers.filter(t=>t.from===transit).sort((a,b)=>(a.completedAt||0)-(b.completedAt||0));
   const completedOther=S.transfers.filter(t=>t.from!==transit&&t.to!==transit).sort((a,b)=>(a.completedAt||0)-(b.completedAt||0));
-  let html='<section class="settle-section"><div class="section-heading"><div><span class="section-kicker">BALANCE SUMMARY</span><h2>每人應付款</h2><p>按各筆花費的分攤對象計算，已包含個別分攤設定。</p></div></div><div class="balance-grid">';
+  let summaryHtml='<section class="settle-section"><div class="section-heading"><div><span class="section-kicker">BALANCE SUMMARY</span><h2>每人應付款</h2><p>按各筆花費的分攤對象計算，已包含個別分攤設定。</p></div></div><div class="balance-grid">';
   names.forEach(n=>{
     const v=Math.round(rnet[n]);
     const tone=v>0?'positive':(v<0?'negative':'neutral');
     const status=v>0?'應收款':(v<0?'待付款':'已結清');
-    html+='<article class="balance-card"><div class="balance-card-top"><span class="avatar-mini" aria-hidden="true"><svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3"/><path d="M3.8 17a6.2 6.2 0 0 1 12.4 0"/></svg></span><span class="balance-name">'+esc(n)+'</span></div><div class="balance-due"><span>應付分攤</span><strong>'+fmt(owed[n]||0)+'</strong></div><div class="balance-paid"><span>已代墊</span><b>'+fmt(paid[n]||0)+'</b></div><div class="balance-net '+tone+'"><span>'+status+'</span><b>'+(v!==0?fmt(Math.abs(v)):'—')+'</b></div></article>';
+    html+='<article class="balance-card"><div class="balance-card-top"><span class="avatar-mini" aria-hidden="true"><svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3"/><path d="M3.8 17a6.2 6.2 0 0 1 12.4 0"/></svg></span><span class="balance-name">'+esc(n)+'</span></div><div class="balance-net '+tone+'"><span>'+status+'</span><b>'+(v!==0?fmt(Math.abs(v)):'—')+'</b></div><div class="balance-paid"><span>已代墊</span><b>'+fmt(paid[n]||0)+'</b></div><div class="balance-due"><span>應付分攤</span><strong>'+fmt(owed[n]||0)+'</strong></div></article>';
   });
-  html+='</div></section>';
-  html+='<section class="settle-section"><div class="section-heading"><div><span class="section-kicker">TRANSFER PLAN</span><h2>中轉人結算</h2><p>中轉人集中收款與付款，其他人只需按安排轉帳。</p></div></div>';
+  summaryHtml+='</div></section>';
+  let html='<section class="settle-section"><div class="section-heading"><div><span class="section-kicker">TRANSFER PLAN</span><h2>中轉人結算</h2><p>中轉人集中收款與付款，其他人只需按安排轉帳。</p></div></div>';
   html+='<div class="surface transfer-control"><div class="transit-current"><div class="transit-person"><span class="transit-person-icon" aria-hidden="true">⇄</span><div class="transit-person-copy"><span class="small">目前中轉人</span><strong>'+esc(transit)+'</strong></div></div>';
   if(!m.archived){
     const toggleLabel=S.showTransitPicker?'收起名單':'更換中轉人';
@@ -942,6 +942,7 @@ function renderSettle(m){
     html+=renderOtherCompleted(completedOther,m.archived);
   }
   html+='</section>';
+  html+=summaryHtml;
   return html;
 }
 function toggleTransitPicker(){
