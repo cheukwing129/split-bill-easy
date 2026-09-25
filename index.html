@@ -288,7 +288,7 @@ function renderLedger(m,me){
     const expanded = S.expId===e.id, shares=Array.isArray(e.shareWith)?e.shareWith:[];
     html += `<div class="exp-item">
       <div class="row"><b>${esc(e.item)}</b><span class="amt">${fmt(e.amount)}</span></div>
-      <div class="small">付款人：${esc(e.payer)} ｜ <span style="cursor:pointer;text-decoration:underline" onclick="toggleExp(${jsArg(e.id)})">分攤對象：${shares.length===m.participants.length?'全體 '+shares.length+' 人':shares.length+' 人'} · ${expanded?'收起':'更改'}</span></div>
+      <div class="small">付款人：${esc(e.payer)} ｜ <span style="cursor:pointer;text-decoration:underline" onclick="toggleExp(${jsArg(e.id)})">分攤對象：${shares.length===m.participants.length?'全體 '+shares.length+' 人':shares.length+' 人'} · ${expanded?'收起':'查看'}</span></div>
       ${expanded?`<div class="small" style="margin-top:4px">${shares.map(esc).join('、')}</div>`:''}
       <div class="small">新增者：${esc(e.addedBy||'')}</div>
       ${m.archived?'':`<div class="row" style="justify-content:flex-end;margin-top:6px"><button class="btn-sm" onclick="editExpense(${jsArg(e.id)})">修改</button><button class="btn-sm" style="margin-left:6px" onclick="deleteExpense(${jsArg(e.id)})">刪除</button></div>`}
