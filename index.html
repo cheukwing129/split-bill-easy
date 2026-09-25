@@ -127,6 +127,7 @@ async function boot(){
   db = db || await waitFb();
   if(!db){ document.getElementById('app').innerHTML='<p class="warn">尚未連上資料庫：請在程式碼開頭填入你的 Firebase 設定（firebaseConfig）。</p>'; return; }
   if(!id){ S={meeting:null,view:'home'}; renderHome(); return; }
+  if(S.view==='home') S.view='ledger';
   renderLoading();
   const mref = window.fb.doc(db,'meetings',id);
   unsub.push(window.fb.onSnapshot(mref, snap=>{
