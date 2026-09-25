@@ -238,30 +238,27 @@ async function addParticipant(name){
   if(m.archived){ alert('此聚會已封存，無法新增參加者。'); return false; }
   if(oldPeople.some(p=>p.name===name)) return false;
   const list=[...oldPeople,{name,joinedAt:Date.now()}], names=list.map(p=>p.name);
-  const snapshot=await window.fb.getDocs(window.fb.collection(db,'meetings',id,'expenses'));
-  const batch=window.fb.writeBatch(db);
-  batch.update(window.fb.doc(db,'meetings',id),{participants:list});
-  snapshot.forEach(d=>{
-    const e=d.data();
-    if(isDefaultAllExpense(e,oldPeople)){
-      batch.update(d.ref,{shareMode:'all',shareWith:names});
-    }
-  });
-  try{ await batch.commit(); return true; }
-  catch(err){ alert('新增參加者失敗，請檢查網絡後再試。'); return false; }
+  try{
+    const snapshot=await window.fb.getDocs(window.fb.collection(db,'meetings',id,'expenses'));
+    const batch=window.fb.writeBatch(db);
+    batch.update(window.fb.doc(db,'meetings',id),{participants:list});
+    snapshot.forEach(d=>{
+      const e=d.data();
+      if(isDefaultAllExpense(e,oldPeople)) batch.update(d.ref,{shareMode:'all',shareWith:names});
+    });
+    await batch.commit(); return true;
+  }catch(err){ alert('新增參加者失敗，請檢查網絡後再試。'); return false; }
 }
 function pickName(name){ setMe(meetingId(), name); render(); }
 async function pickNewName(){
   const name=document.getElementById('newmename').value.trim();
   if(!name) return;
   if((S.meeting.participants||[]).some(p=>p.name===name)){ alert('這個名字已被使用，請選其他名稱或直接選取。'); return; }
-  await addParticipant(name);
+  if(!await addParticipant(name)) return;
   setMe(meetingId(), name);
   render();
 }
 function switchName(){ setMe(meetingId(), ''); render(); }
-function setView(v){ S.view=v; S.showAdd=false; render(); }
-
 async function archiveMeeting(){
   if(!confirm('封存後將無法再編輯，確定要封存嗎？')) return;
   await window.fb.updateDoc(window.fb.doc(db,'meetings',meetingId()), {archived:true});
@@ -326,47 +323,62 @@ async function renameParticipant(name){
   const next=prompt('請輸入新的參加者名稱',name);
   if(next===null) return;
   const newName=next.trim(); if(!newName||newName===name) return;
-  if((S.meeting.participants||[]).some(p=>p.name===newName)){ alert('這個名字已被使用。'); return; }
-  const id=meetingId(), m=S.meeting, participants=m.participants.map(p=>p.name===name?{...p,name:newName}:p);
-  const batch=window.fb.writeBatch(db), meetingUpdate={participants};
-  if(m.transitId===name) meetingUpdate.transitId=newName;
-  batch.update(window.fb.doc(db,'meetings',id),meetingUpdate);
-  S.expenses.forEach(e=>{
-    const patch={};
-    if(e.payer===name) patch.payer=newName;
-    if(e.addedBy===name) patch.addedBy=newName;
-    if((e.shareWith||[]).includes(name)) patch.shareWith=e.shareWith.map(n=>n===name?newName:n);
-    if(Object.keys(patch).length) batch.update(window.fb.doc(db,'meetings',id,'expenses',e.id),patch);
-  });
-  S.transfers.forEach(t=>{
-    const patch={};
-    if(t.from===name) patch.from=newName;
-    if(t.to===name) patch.to=newName;
-    if(t.completedBy===name) patch.completedBy=newName;
-    if(Object.keys(patch).length) batch.update(window.fb.doc(db,'meetings',id,'transfers',t.id),patch);
-  });
+  const id=meetingId(), m=S.meeting;
+  if((m.participants||[]).some(p=>p.name===newName)){ alert('這個名字已被使用。'); return; }
   try{
+    const [expenseSnap,transferSnap]=await Promise.all([
+      window.fb.getDocs(window.fb.collection(db,'meetings',id,'expenses')),
+      window.fb.getDocs(window.fb.collection(db,'meetings',id,'transfers'))
+    ]);
+    const expenses=expenseSnap.docs.map(d=>({id:d.id,...d.data()}));
+    const transfers=transferSnap.docs.map(d=>({id:d.id,...d.data()}));
+    const participants=m.participants.map(p=>p.name===name?{...p,name:newName}:p);
+    const batch=window.fb.writeBatch(db), meetingUpdate={participants};
+    if(m.transitId===name) meetingUpdate.transitId=newName;
+    batch.update(window.fb.doc(db,'meetings',id),meetingUpdate);
+    expenses.forEach(e=>{
+      const patch={};
+      if(e.payer===name) patch.payer=newName;
+      if(e.addedBy===name) patch.addedBy=newName;
+      if((e.shareWith||[]).includes(name)) patch.shareWith=e.shareWith.map(n=>n===name?newName:n);
+      if(Object.keys(patch).length) batch.update(window.fb.doc(db,'meetings',id,'expenses',e.id),patch);
+    });
+    transfers.forEach(t=>{
+      const patch={};
+      if(t.from===name) patch.from=newName;
+      if(t.to===name) patch.to=newName;
+      if(t.completedBy===name) patch.completedBy=newName;
+      if(Object.keys(patch).length) batch.update(window.fb.doc(db,'meetings',id,'transfers',t.id),patch);
+    });
     await batch.commit();
     S.meeting={...m,participants,transitId:m.transitId===name?newName:m.transitId};
-    S.expenses=S.expenses.map(e=>({...e,payer:e.payer===name?newName:e.payer,addedBy:e.addedBy===name?newName:e.addedBy,shareWith:(e.shareWith||[]).map(n=>n===name?newName:n)}));
-    S.transfers=S.transfers.map(t=>({...t,from:t.from===name?newName:t.from,to:t.to===name?newName:t.to,completedBy:t.completedBy===name?newName:t.completedBy}));
+    S.expenses=expenses.map(e=>({...e,payer:e.payer===name?newName:e.payer,addedBy:e.addedBy===name?newName:e.addedBy,shareWith:(e.shareWith||[]).map(n=>n===name?newName:n)}));
+    S.transfers=transfers.map(t=>({...t,from:t.from===name?newName:t.from,to:t.to===name?newName:t.to,completedBy:t.completedBy===name?newName:t.completedBy}));
     if(meName(id)===name) setMe(id,newName);
     render();
   }catch(err){ alert('修改名稱失敗，請檢查網絡後再試。'); }
 }
 async function removeParticipant(name){
-  if(S.expenses.some(e=>e.payer===name)){ alert('此人曾付款。請先修改或刪除由此人付款的花費，再移除此人。'); return; }
-  if(S.transfers.some(t=>t.from===name||t.to===name)){ alert('此人已有已付款轉帳紀錄。請先取消相關付款標記，再移除此人。'); return; }
-  const affected=S.expenses.filter(e=>(e.shareWith||[]).includes(name));
-  if(affected.some(e=>(e.shareWith||[]).filter(n=>n!==name).length===0)){ alert('有花費只分攤給此人。請先修改或刪除該花費，再移除此人。'); return; }
-  if(!confirm('移除 '+name+'？此人會從 '+affected.length+' 筆花費的分攤名單中移除，其他人的分攤會重新計算。')) return;
-  const id=meetingId(), m=S.meeting, participants=m.participants.filter(p=>p.name!==name), batch=window.fb.writeBatch(db);
-  batch.update(window.fb.doc(db,'meetings',id),{participants,transitId:m.transitId===name?null:m.transitId});
-  affected.forEach(e=>batch.update(window.fb.doc(db,'meetings',id,'expenses',e.id),{shareWith:e.shareWith.filter(n=>n!==name)}));
+  const id=meetingId(), m=S.meeting;
   try{
+    const [expenseSnap,transferSnap]=await Promise.all([
+      window.fb.getDocs(window.fb.collection(db,'meetings',id,'expenses')),
+      window.fb.getDocs(window.fb.collection(db,'meetings',id,'transfers'))
+    ]);
+    const expenses=expenseSnap.docs.map(d=>({id:d.id,...d.data()}));
+    const transfers=transferSnap.docs.map(d=>({id:d.id,...d.data()}));
+    if(expenses.some(e=>e.payer===name)){ alert('此人曾付款。請先修改或刪除由此人付款的花費，再移除此人。'); return; }
+    if(transfers.some(t=>t.from===name||t.to===name)){ alert('此人已有已付款轉帳紀錄。請先取消相關付款標記，再移除此人。'); return; }
+    const affected=expenses.filter(e=>(e.shareWith||[]).includes(name));
+    if(affected.some(e=>(e.shareWith||[]).filter(n=>n!==name).length===0)){ alert('有花費只分攤給此人。請先修改或刪除該花費，再移除此人。'); return; }
+    if(!confirm('移除 '+name+'？此人會從 '+affected.length+' 筆花費的分攤名單中移除，其他人的分攤會重新計算。')) return;
+    const participants=m.participants.filter(p=>p.name!==name), batch=window.fb.writeBatch(db);
+    batch.update(window.fb.doc(db,'meetings',id),{participants,transitId:m.transitId===name?null:m.transitId});
+    affected.forEach(e=>batch.update(window.fb.doc(db,'meetings',id,'expenses',e.id),{shareWith:e.shareWith.filter(n=>n!==name)}));
     await batch.commit();
     S.meeting={...m,participants,transitId:m.transitId===name?null:m.transitId};
-    S.expenses=S.expenses.map(e=>({...e,shareWith:(e.shareWith||[]).filter(n=>n!==name)}));
+    S.expenses=expenses.map(e=>({...e,shareWith:(e.shareWith||[]).filter(n=>n!==name)}));
+    S.transfers=transfers;
     if(meName(id)===name) setMe(id,'');
     render();
   }catch(err){ alert('移除參加者失敗，請檢查網絡後再試。'); }
@@ -421,12 +433,6 @@ async function deleteExpense(id){
     if(S.editExpenseId===id) cancelAdd();
   }catch(err){ alert('刪除花費失敗，請檢查網絡後再試。'); }
 }
-function syncFormInputs(){
-  const it=document.getElementById('ex_item'); const am=document.getElementById('ex_amount');
-  if(it) S.newExpense.item=it.value;
-  if(am) S.newExpense.amount=am.value;
-}
-function cancelAdd(){ S.showAdd=false; S.newExpense=null; render(); }
 async function submitExpense(){
   syncFormInputs();
   const ne=S.newExpense, amt=cents(ne.amount), editId=S.editExpenseId;
