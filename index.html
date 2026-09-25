@@ -50,6 +50,7 @@ label{font-size:13px;color:var(--sub);}
 .meeting-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px;}
 .meeting-header h1{flex:1;min-width:0;overflow-wrap:anywhere;margin:0 0 4px;}
 .meeting-header .btn-sm{white-space:nowrap;flex:0 0 auto;margin-top:-2px;}
+button:disabled{opacity:.58;cursor:wait;}
 .transfer-group{border:1px solid var(--line);border-left-width:5px;border-radius:10px;padding:10px;margin-top:10px;}
 .transfer-group.receive{border-color:var(--pos);}
 .transfer-group.pay{border-color:var(--neg);}
@@ -99,6 +100,27 @@ function fmt(c){const n=c<0;c=Math.abs(c);return (n?'－':'')+'HK$'+(c/100).toFi
 function meetingId(){const m=location.hash.match(/#\/m\/([^\/]+)/);return m?m[1]:null;}
 function meName(id){return localStorage.getItem('jqy_me_'+id)||'';}
 function setMe(id,name){try{localStorage.setItem('jqy_me_'+id,name);}catch(e){}}
+let expenseSaving=false;
+const markingTransferKeys=new Set();
+function transferKey(from,to,amount){return JSON.stringify([meetingId(),from,to,Math.round(Number(amount))]);}
+function stableRows(rows,map){
+  return rows.map(map).sort((a,b)=>{
+    const x=JSON.stringify(a),y=JSON.stringify(b);
+    return x<y?-1:x>y?1:0;
+  });
+}
+async function paidTransferId(from,to,amount){
+  const state=JSON.stringify({
+    meeting:meetingId(),
+    participants:(S.meeting?.participants||[]).map(p=>p.name),
+    expenses:stableRows(S.expenses,e=>[e.id,e.payer,e.amount,[...(e.shareWith||[])].sort()]),
+    transfers:stableRows(S.transfers,t=>[t.id,t.from,t.to,t.amount]),
+    payment:[from,to,Math.round(Number(amount))]
+  });
+  const digest=await window.crypto.subtle.digest('SHA-256',new TextEncoder().encode(state));
+  const hex=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
+  return 'paid_'+hex;
+}
 
 function splitAmount(amountCents,namesOrdered){
   const n=namesOrdered.length; if(n===0)return{};
@@ -337,7 +359,8 @@ function renderLedger(m,me){
 }
 function toggleAdd(){
   const me=meName(meetingId());
-  S.newExpense={item:'',amount:'',payer:me,shareWith:S.meeting.participants.map(p=>p.name),editShare:false};
+  const draftRef=window.fb.doc(window.fb.collection(db,'meetings',meetingId(),'expenses'));
+  S.newExpense={item:'',amount:'',payer:me,shareWith:S.meeting.participants.map(p=>p.name),editShare:false,pendingId:draftRef.id,pendingCreatedAt:Date.now()};
   S.editExpenseId=null; S.showAdd=true; S.showPeople=false; render();
 }
 function editExpense(id){
@@ -441,7 +464,7 @@ function renderAddExpenseForm(m){
   }
   html += `<div class="row" style="margin-top:12px">
       <button class="btn-sm" onclick="cancelAdd()">取消</button>
-      <button class="btn-main" style="flex:1;margin-left:8px" onclick="submitExpense()">${S.editExpenseId?'儲存修改':'儲存花費'}</button>
+      <button class="btn-main" id="expenseSaveButton" style="flex:1;margin-left:8px" ${expenseSaving?'disabled':''} onclick="submitExpense()">${expenseSaving?'儲存中…':(S.editExpenseId?'儲存修改':'儲存花費')}</button>
     </div></div>`;
   return html;
 }
@@ -469,20 +492,36 @@ async function deleteExpense(id){
   }catch(err){ alert('刪除花費失敗，請檢查網絡後再試。'); }
 }
 async function submitExpense(){
+  if(expenseSaving) return;
   syncFormInputs();
   const ne=S.newExpense, amt=cents(ne.amount), editId=S.editExpenseId;
   if(!ne.item.trim()){ alert('請輸入項目名稱'); return; }
   if(amt<=0){ alert('金額需大於 0'); return; }
   if(ne.shareWith.length===0){ alert('分攤對象至少需 1 人'); return; }
   const expense={item:ne.item.trim(),amount:amt,payer:ne.payer,shareWith:[...ne.shareWith]};
+  expenseSaving=true;
+  const saveButton=document.getElementById('expenseSaveButton');
+  if(saveButton){saveButton.disabled=true;saveButton.textContent='儲存中…';}
   try{
     if(editId){
       await window.fb.updateDoc(window.fb.doc(db,'meetings',meetingId(),'expenses',editId),expense);
     }else{
-      await window.fb.addDoc(window.fb.collection(db,'meetings',meetingId(),'expenses'),{...expense,addedBy:meName(meetingId()),createdAt:Date.now()});
+      await window.fb.setDoc(window.fb.doc(db,'meetings',meetingId(),'expenses',ne.pendingId),{
+        ...expense,addedBy:meName(meetingId()),createdAt:ne.pendingCreatedAt
+      });
     }
     S.showAdd=false; S.editExpenseId=null; S.newExpense=null; render();
-  }catch(err){ console.error('儲存花費失敗',err); alert('儲存花費失敗（'+(err.code||'未知原因')+'），請把錯誤代碼告訴我。'); }
+  }catch(err){
+    console.error('儲存花費失敗',err);
+    alert('儲存花費失敗（'+(err.code||'未知原因')+'），請檢查網絡後再試。');
+  }finally{
+    expenseSaving=false;
+    const currentButton=document.getElementById('expenseSaveButton');
+    if(currentButton){
+      currentButton.disabled=false;
+      currentButton.textContent=S.editExpenseId?'儲存修改':'儲存花費';
+    }
+  }
 }
 function renderTransferGroup(kind,pendingItems,doneItems,transit,archived){
   const incoming=kind==='receive', noun=incoming?'收款':'付款';
@@ -491,7 +530,8 @@ function renderTransferGroup(kind,pendingItems,doneItems,transit,archived){
   if(pendingItems.length){
     html+=`<div class="transfer-subtitle">待${noun}（${pendingItems.length}筆）</div>`;
     pendingItems.forEach(t=>{
-      html+=`<div class="row transfer-row"><span class="transfer-flow">⏳ ${esc(t.from)} → ${esc(t.to)}：<b>${fmt(t.amount)}</b></span>${archived?'':`<button class="btn-sm" onclick="markPaid(${jsArg(t.from)},${jsArg(t.to)},${t.amount})">標記已付款</button>`}</div>`;
+      const busy=markingTransferKeys.has(transferKey(t.from,t.to,t.amount));
+      html+=`<div class="row transfer-row"><span class="transfer-flow">⏳ ${esc(t.from)} → ${esc(t.to)}：<b>${fmt(t.amount)}</b></span>${archived?'':`<button class="btn-sm" ${busy?'disabled':''} onclick="markPaid(${jsArg(t.from)},${jsArg(t.to)},${t.amount})">${busy?'記錄中…':'標記已付款'}</button>`}</div>`;
     });
   }else{
     html+=`<p class="small">目前沒有待${noun}</p>`;
@@ -552,9 +592,22 @@ async function setTransit(name){
   await window.fb.updateDoc(window.fb.doc(db,'meetings',meetingId()), {transitId:name});
 }
 async function markPaid(from,to,amount){
-  await window.fb.addDoc(window.fb.collection(db,'meetings',meetingId(),'transfers'), {
-    from,to,amount, completedBy:meName(meetingId()), completedAt:Date.now()
-  });
+  const id=meetingId(), key=transferKey(from,to,amount);
+  if(markingTransferKeys.has(key)) return;
+  markingTransferKeys.add(key);
+  render();
+  try{
+    const transferId=await paidTransferId(from,to,amount);
+    await window.fb.setDoc(window.fb.doc(db,'meetings',id,'transfers',transferId),{
+      from,to,amount,completedBy:meName(id),completedAt:Date.now()
+    });
+  }catch(err){
+    console.error('標記付款失敗',err);
+    alert('標記已付款失敗，請檢查網絡後再試。');
+  }finally{
+    markingTransferKeys.delete(key);
+    if(meetingId()===id&&S.view==='settle') render();
+  }
 }
 async function unmarkPaid(tid){
   await window.fb.deleteDoc(window.fb.doc(db,'meetings',meetingId(),'transfers',tid));
