@@ -493,13 +493,12 @@ async function boot(){
       view:'settle',showAdd:false,editExpenseId:null,showPeople:false,splitSyncKey:'',newExpense:null,
       showAddPerson:false,newParticipantName:'',newParticipantEmoji:'',editParticipant:null,showTransitPicker:false,shareQrDataUrl:''};
     render();
-    render();
     return;
   }
   db = db || await waitFb();
   if(!db){ document.getElementById('app').innerHTML='<p class="warn">尚未連上資料庫：請在程式碼開頭填入你的 Firebase 設定（firebaseConfig）。</p>'; return; }
   if(!id){ S={meeting:null,view:'home'}; renderHome(); return; }
-  if(S.meeting?.id!==id){ S.view='home'; S.showTransitPicker=false; S.shareQrDataUrl=''; }
+  if(S.meeting?.id!==id){ closeMeetingQr(); S.view='home'; S.showTransitPicker=false; S.shareQrDataUrl=''; }
   const chooseDefaultView=S.view==='home';
   renderLoading();
   const mref = window.fb.doc(db,'meetings',id);
