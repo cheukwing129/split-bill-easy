@@ -145,6 +145,8 @@ label{display:block;font-size:14px;font-weight:700;color:var(--app-ink-soft);mar
 .checkline input{accent-color:var(--app-accent);width:18px;height:18px}
 .people-card{padding:19px 20px;margin:0 0 20px}
 .people-card-header,.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.transfer-plan-heading{align-items:flex-start;flex-wrap:wrap}
+.settlement-copy-button{flex:0 0 auto;white-space:nowrap}
 .people-card-header{margin-bottom:15px}
 .people-title{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:750}
 .people-count{padding:4px 8px;border-radius:999px;background:var(--app-accent-soft);color:var(--app-accent-dark);font-size:12px;font-weight:750}
@@ -611,6 +613,49 @@ async function copyMeetingLink(button){
   }
 }
 
+
+async function copySettlementSummary(button){
+  const m=S.meeting;
+  if(!m) return;
+  const {names,net,transit:calculatedTransit}=computeBalances(m,S.expenses);
+  if(!names.length) return;
+  const transit=m.transitId&&names.includes(m.transitId)?m.transitId:calculatedTransit;
+  const completed=(S.transfers||[]).slice().sort((a,b)=>(a.completedAt||0)-(b.completedAt||0));
+  const pending=pendingTransfers(names,transit,remainingNet(net,completed));
+  const transferLines=items=>items.length?items.map(t=>'• '+t.from+' → '+t.to+'：'+fmt(t.amount)):['• 無'];
+  const summary=[
+    '埋單有數｜'+(m.name||'聚會結算'),
+    '中轉人：'+transit,
+    '',
+    '待付款（'+pending.length+'筆）：',
+    ...transferLines(pending),
+    '',
+    '已付款（'+completed.length+'筆）：',
+    ...transferLines(completed)
+  ].join('\\n');
+  let copied=false;
+  if(navigator.clipboard&&window.isSecureContext){
+    try{await navigator.clipboard.writeText(summary);copied=true;}catch(err){}
+  }
+  if(!copied){
+    try{
+      const field=document.createElement('textarea');
+      field.value=summary; field.setAttribute('readonly','');
+      field.style.position='fixed'; field.style.left='-9999px'; field.style.top='0';
+      document.body.appendChild(field); field.select();
+      copied=document.execCommand('copy');
+      field.remove();
+    }catch(err){}
+  }
+  if(copied&&button){
+    const previous=button.textContent;
+    button.textContent='已複製 ✓';
+    window.setTimeout(()=>{if(button.isConnected)button.textContent=previous;},1800);
+  }else if(!copied){
+    window.prompt('無法自動複製，請手動複製結算摘要：',summary);
+  }
+}
+
 function goHome(){location.hash='';}
 
 async function addParticipant(name,emoji=''){
@@ -1061,7 +1106,7 @@ function renderSettle(m){
     summaryHtml+='<lumen-card variant="glass" glass="subtle" class="balance-card" role="article" aria-label="'+esc(n)+' 的結算"><div class="balance-card-top">'+avatar+'<span class="balance-name">'+esc(n)+'</span></div><div class="balance-net '+tone+'"><span>'+status+'</span><b>'+(v!==0?fmt(Math.abs(v)):'—')+'</b></div><div class="balance-paid"><span>已代墊</span><b>'+fmt(paid[n]||0)+'</b></div><div class="balance-due"><span>應付分攤</span><strong>'+fmt(owed[n]||0)+'</strong></div></lumen-card>';
   });
   summaryHtml+='</div></section>';
-  let html='<section class="settle-section"><div class="section-heading"><div><span class="section-kicker">TRANSFER PLAN</span><h2>中轉人結算</h2><p>中轉人集中收款與付款，其他人只需按安排轉帳。</p></div></div>';
+  let html='<section class="settle-section"><div class="section-heading transfer-plan-heading"><div><span class="section-kicker">TRANSFER PLAN</span><h2>中轉人結算</h2><p>中轉人集中收款與付款，其他人只需按安排轉帳。</p></div><button type="button" class="btn-sm settlement-copy-button" onclick="copySettlementSummary(this)">複製結算摘要</button></div>';
   html+='<lumen-card variant="glass" glass="strong" class="transfer-control"><div class="transit-current"><div class="transit-person"><span class="transit-person-icon" aria-hidden="true">⇄</span><div class="transit-person-copy"><span class="small">目前中轉人</span><strong>'+esc(transit)+'</strong></div></div>';
   if(!m.archived){
     const toggleLabel=S.showTransitPicker?'收起名單':'更換中轉人';
