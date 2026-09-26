@@ -103,12 +103,15 @@ label{display:block;font-size:14px;font-weight:700;color:var(--app-ink-soft);mar
 .home-note-icon{display:grid;place-items:center;flex:0 0 22px;width:22px;height:22px;border-radius:8px;background:var(--mint-soft);color:var(--mint);font-size:14px;font-weight:800}
 .meeting-page{max-width:920px;margin:0 auto}
 .meeting-hero{padding:clamp(20px,4vw,34px);margin-bottom:20px}
-.meeting-topline{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.meeting-topline{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .meeting-brand{color:#fff;font-size:15px}
 .meeting-brand small{color:rgba(255,255,255,.75);font-weight:500}
 .meeting-brand .brand-mark{width:34px;height:34px;border-radius:11px;font-size:18px}
 .btn-share{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:9px 12px;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.23);border-radius:11px;font-size:13px;font-weight:700;backdrop-filter:blur(10px)}
 .btn-share:hover:not(:disabled){background:rgba(255,255,255,.2)}
+.meeting-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.meeting-actions .btn-share{flex:0 0 auto;white-space:nowrap}
+.btn-new-meeting svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .meeting-heading-row{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:25px 0 21px}
 .meeting-heading-row h1{color:#fff;font-size:clamp(27px,4.5vw,38px);overflow-wrap:anywhere}
 .meeting-caption{color:rgba(255,255,255,.78);font-size:14px;margin:8px 0 0}
@@ -149,9 +152,29 @@ label{display:block;font-size:14px;font-weight:700;color:var(--app-ink-soft);mar
 .participant-chip{display:inline-flex;align-items:center;gap:8px;max-width:100%;padding:7px 11px 7px 7px;border:1px solid rgba(81,94,143,.12);border-radius:999px;background:rgba(255,255,255,.56);color:var(--app-ink-soft);font-size:14px;font-weight:650;overflow-wrap:anywhere}
 .avatar-mini{display:grid;place-items:center;flex:0 0 27px;width:27px;height:27px;border-radius:50%;background:linear-gradient(145deg,#e8e5ff,#d9f1ec);color:var(--app-accent-dark)}
 .avatar-mini svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.avatar-mini.avatar-emoji{font-size:16px;line-height:1}
+.balance-card .avatar-mini.avatar-emoji{font-size:19px}
+.participant-manage-name{display:flex;align-items:center;gap:9px;min-width:0;font-weight:650}
+.participant-edit-form{padding:14px;margin:8px 0;border:1px solid rgba(101,88,232,.18);border-radius:15px;background:rgba(255,255,255,.62)}
+.participant-edit-form>label:first-child{margin-top:0}
+.avatar-picker{margin:10px 0 18px}
+.avatar-picker-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.avatar-picker-heading b{font-size:14px;color:var(--app-ink-soft)}
+.avatar-picker-options{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.avatar-choice{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:42px;min-height:42px;padding:6px 9px;border:1px solid rgba(86,96,143,.17);border-radius:12px;background:rgba(255,255,255,.75);color:var(--app-ink-soft);font-size:19px}
+.avatar-choice:hover:not(:disabled){background:#fff;border-color:rgba(101,88,232,.36);color:var(--app-accent-dark)}
+.avatar-choice.selected{border-color:rgba(101,88,232,.58);background:var(--app-accent-soft);box-shadow:0 0 0 2px rgba(101,88,232,.1);color:var(--app-accent-dark)}
+.avatar-choice-default,.avatar-choice-random{font-size:12px;font-weight:700}
+.avatar-choice-default .avatar-mini{width:24px;height:24px;flex-basis:24px}
+.avatar-hint{margin:7px 0 0;font-size:12px}
 .people-manage{padding:17px 19px;margin:-7px 0 20px}
 .people-manage .row{padding:10px 0;border-bottom:1px solid var(--app-line)}
 .people-manage .row:last-child{border-bottom:0}
+.participant-edit-row{padding:0 0 8px;margin:0 0 8px;border-bottom:1px solid var(--app-line)}
+.participant-edit-row:last-child{padding-bottom:0;margin-bottom:0;border-bottom:0}
+.pill .avatar-mini,.checkline .avatar-mini{width:23px;height:23px;flex-basis:23px}
+.pill .avatar-mini svg,.checkline .avatar-mini svg{width:12px;height:12px}
+.pill .avatar-mini.avatar-emoji,.checkline .avatar-mini.avatar-emoji{font-size:14px}
 .section-heading{margin:26px 2px 12px}
 .section-heading p{margin:4px 0 0;color:var(--muted);font-size:13px}
 .section-count{flex:0 0 auto;padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.72);border:1px solid rgba(87,97,142,.12);color:var(--muted);font-size:12px;font-weight:700}
@@ -255,6 +278,9 @@ label{display:block;font-size:14px;font-weight:700;color:var(--app-ink-soft);mar
   .meeting-topline{align-items:flex-start}
   .meeting-brand small{display:block;font-size:11px}
   .meeting-live-tag{font-size:11px;padding:7px 9px}
+  .meeting-topline{gap:10px}
+  .meeting-actions{gap:6px;margin-left:auto}
+  .meeting-actions .btn-share{padding:8px 9px;font-size:12px}
   .meeting-caption{max-width:30ch}
   .balance-grid{grid-template-columns:1fr}
   .balance-card{padding:15px}
@@ -299,8 +325,9 @@ async function waitFb(){
 }
 let S={meeting:null,expId:null,expenses:[],transfers:[],view:'home',
   showAdd:false,editExpenseId:null,showPeople:false,splitSyncKey:'',newExpense:null,
-  showAddPerson:false,newParticipantName:'',showTransitPicker:false};
+  showAddPerson:false,newParticipantName:'',newParticipantEmoji:'',editParticipant:null,showTransitPicker:false};
 let addingParticipant=false;
+let renamingParticipant=false;
 
 function cents(v){return Math.round(parseFloat(v||0)*100)||0;}
 function fmt(c){const n=c<0;c=Math.abs(c);return (n?'－':'')+'HK$'+(c/100).toFixed(2);}
@@ -423,14 +450,14 @@ async function boot(){
   unsub.forEach(u=>u()); unsub=[];
   const id=meetingId();
   if(id==='lumen-demo'){
-    S={meeting:{id,name:'週末聚餐 · 設計試看',participants:[{name:'A'},{name:'B'},{name:'C'}],transitId:'A',archived:true},
+    S={meeting:{id,name:'週末聚餐 · 設計試看',participants:[{name:'A',emoji:'😀'},{name:'B',emoji:'🐱'},{name:'C'}],transitId:'A',archived:true},
       expId:null,expenses:[
         {id:'demo-meal',item:'晚餐',amount:9000,payer:'A',shareWith:['A','B','C'],createdAt:1},
         {id:'demo-taxi',item:'交通',amount:6000,payer:'B',shareWith:['A','B','C'],createdAt:2}
       ],
       transfers:[{id:'demo-paid-1',from:'C',to:'A',amount:5000,completedAt:3}],
       view:'settle',showAdd:false,editExpenseId:null,showPeople:false,splitSyncKey:'',newExpense:null,
-      showAddPerson:false,newParticipantName:'',showTransitPicker:false};
+      showAddPerson:false,newParticipantName:'',newParticipantEmoji:'',editParticipant:null,showTransitPicker:false};
     render();
     return;
   }
@@ -519,10 +546,16 @@ function render(){
     <header class="meeting-hero">
       <div class="meeting-topline">
         <div class="meeting-brand"><span class="brand-mark" aria-hidden="true">⇄</span><span>埋單有數 <small>／聚會帳本</small></span></div>
-        <button class="btn-share" type="button" onclick="copyMeetingLink(this)" aria-live="polite">
-          <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4H5.5A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16h9a1.5 1.5 0 0 0 1.5-1.5V12"/><path d="M10 4h6v6M16 4l-7 7"/></svg>
-          <span>複製連結</span>
-        </button>
+        <div class="meeting-actions">
+          <button class="btn-share btn-new-meeting" type="button" onclick="goHome()" aria-label="返回首頁建立新聚會">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg>
+            <span>建立新聚會</span>
+          </button>
+          <button class="btn-share" type="button" onclick="copyMeetingLink(this)" aria-live="polite">
+            <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4H5.5A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16h9a1.5 1.5 0 0 0 1.5-1.5V12"/><path d="M10 4h6v6M16 4l-7 7"/></svg>
+            <span>複製連結</span>
+          </button>
+        </div>
       </div>
       <div class="meeting-heading-row">
         <div>
@@ -578,8 +611,9 @@ async function copyMeetingLink(button){
   }
 }
 
+function goHome(){location.hash='';}
 
-async function addParticipant(name){
+async function addParticipant(name,emoji=''){
   const id=meetingId(), mref=window.fb.doc(db,'meetings',id);
   try{
     const participants=await window.fb.runTransaction(db,async transaction=>{
@@ -588,7 +622,10 @@ async function addParticipant(name){
       const live=snap.data(), current=Array.isArray(live.participants)?live.participants:[];
       if(live.archived) throw new Error('meeting-archived');
       if(current.some(p=>p.name===name)) throw new Error('duplicate-name');
-      const next=[...current,{name,joinedAt:Date.now()}];
+      const participant={name,joinedAt:Date.now()};
+      const avatarEmoji=safeParticipantEmoji(emoji);
+      if(avatarEmoji) participant.emoji=avatarEmoji;
+      const next=[...current,participant];
       transaction.update(mref,{participants:next});
       return next;
     });
@@ -628,7 +665,7 @@ function renderLedger(m){
   }else{
     html+='<div class="participant-list">';
     m.participants.forEach(p=>{
-      html+='<div class="participant-chip"><span class="avatar-mini" aria-hidden="true"><svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3"/><path d="M3.8 17a6.2 6.2 0 0 1 12.4 0"/></svg></span><span>'+esc(p.name)+'</span></div>';
+      html+='<div class="participant-chip">'+renderParticipantAvatar(p)+'<span>'+esc(p.name)+'</span></div>';
     });
     html+='</div>';
   }
@@ -637,7 +674,11 @@ function renderLedger(m){
     html+='<section class="surface people-manage"><div class="row"><b>管理參加者</b><button class="btn-sm" type="button" onclick="togglePeople()">完成</button></div>';
     if(!m.participants.length) html+='<p class="small">目前沒有參加者。</p>';
     m.participants.forEach(p=>{
-      html+='<div class="row"><span>'+esc(p.name)+'</span><span><button class="btn-sm" type="button" onclick="renameParticipant('+jsArg(p.name)+')">改名</button> <button class="btn-sm danger" type="button" onclick="removeParticipant('+jsArg(p.name)+')">移除</button></span></div>';
+      if(S.editParticipant&&S.editParticipant.originalName===p.name){
+        html+='<div class="participant-edit-row">'+renderParticipantEditForm()+'</div>';
+      }else{
+        html+='<div class="row participant-manage-row"><span class="participant-manage-name">'+renderParticipantAvatar(p)+'<span>'+esc(p.name)+'</span></span><span><button class="btn-sm" type="button" onclick="beginEditParticipant('+jsArg(p.name)+')">改名</button> <button class="btn-sm danger" type="button" onclick="removeParticipant('+jsArg(p.name)+')">移除</button></span></div>';
+      }
     });
     html+='</section>';
   }
@@ -658,15 +699,57 @@ function renderLedger(m){
   html+='</lumen-card></section>';
   return html;
 }
+
+const PARTICIPANT_EMOJIS=['😀','😎','🥳','🤓','🐱','🐶','🐻','🐼','🦊','🐰','🐸','🐥'];
+const PERSON_AVATAR_SVG='<svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3"/><path d="M3.8 17a6.2 6.2 0 0 1 12.4 0"/></svg>';
+function safeParticipantEmoji(value){return PARTICIPANT_EMOJIS.includes(value)?value:'';}
+function applyParticipantEmoji(participant,emoji){
+  const next={...participant}, safeEmoji=safeParticipantEmoji(emoji);
+  if(safeEmoji) next.emoji=safeEmoji; else delete next.emoji;
+  return next;
+}
+function renderParticipantAvatar(participant){
+  const emoji=safeParticipantEmoji(participant&&participant.emoji);
+  return '<span class="avatar-mini'+(emoji?' avatar-emoji':'')+'" aria-hidden="true">'+(emoji?emoji:PERSON_AVATAR_SVG)+'</span>';
+}
+function renderAvatarPicker(target,selected,disabled=false){
+  const emoji=safeParticipantEmoji(selected), noneId=target+'-emoji-none', randomId=target+'-emoji-random';
+  const disabledAttr=disabled?' disabled':'';
+  let html='<div class="avatar-picker" role="group" aria-label="選擇頭像（可選）"><div class="avatar-picker-heading"><b>頭像（可選）</b><span class="small">可留空</span></div><div class="avatar-picker-options">';
+  html+='<button type="button" id="'+noneId+'" class="avatar-choice avatar-choice-default'+(emoji?'':' selected')+'" aria-label="使用預設頭像" aria-pressed="'+(!emoji)+'" onclick="setParticipantEmoji(\''+target+'\',\'\',\''+noneId+'\')"'+disabledAttr+'>'+renderParticipantAvatar(null)+'<span>預設</span></button>';
+  html+='<button type="button" id="'+randomId+'" class="avatar-choice avatar-choice-random" aria-label="隨機選擇頭像" onclick="randomParticipantEmoji(\''+target+'\')"'+disabledAttr+'>🎲 <span>隨機</span></button>';
+  PARTICIPANT_EMOJIS.forEach((option,index)=>{
+    const id=target+'-emoji-'+index, selectedClass=emoji===option?' selected':'';
+    html+='<button type="button" id="'+id+'" class="avatar-choice'+selectedClass+'" aria-label="使用 '+option+' 作為頭像" aria-pressed="'+(emoji===option)+'" onclick="setParticipantEmoji(\''+target+'\',\''+option+'\',\''+id+'\')"'+disabledAttr+'>'+option+'</button>';
+  });
+  return html+'</div><p class="small avatar-hint">不選 emoji 會沿用原本頭像樣式。</p></div>';
+}
+function setParticipantEmoji(target,value,focusId){
+  const emoji=safeParticipantEmoji(value);
+  if(target==='new') S.newParticipantEmoji=emoji;
+  else if(target==='edit'&&S.editParticipant) S.editParticipant.emoji=emoji;
+  render();
+  if(focusId) window.requestAnimationFrame(()=>document.getElementById(focusId)?.focus());
+}
+function randomParticipantEmoji(target){
+  const emoji=PARTICIPANT_EMOJIS[Math.floor(Math.random()*PARTICIPANT_EMOJIS.length)];
+  setParticipantEmoji(target,emoji,target+'-emoji-random');
+}
+function updateEditParticipantName(value){if(S.editParticipant) S.editParticipant.draftName=value;}
+function renderParticipantEditForm(){
+  const edit=S.editParticipant;
+  if(!edit) return '';
+  return '<div class="participant-edit-form"><label for="editParticipantName">參加者名稱</label><input type="text" id="editParticipantName" value="'+esc(edit.draftName||'')+'" oninput="updateEditParticipantName(this.value)" '+(renamingParticipant?'disabled':'')+'>'+
+    renderAvatarPicker('edit',edit.emoji,renamingParticipant)+
+    '<div class="row" style="margin-top:4px"><button type="button" class="btn-sm" onclick="cancelEditParticipant()" '+(renamingParticipant?'disabled':'')+'>取消</button><button type="button" class="btn-main" style="flex:1;margin-left:8px" onclick="saveParticipantChanges()" '+(renamingParticipant?'disabled':'')+'>'+(renamingParticipant?'儲存中…':'儲存修改')+'</button></div></div>';
+}
+
 function renderAddParticipantForm(){
-  return `<lumen-card variant="glass" glass="strong" class="add-form-card" id="participantAddForm" role="group" aria-label="新增參加者">
-    <label>參加者名稱</label>
-    <input type="text" id="newParticipantName" value="${esc(S.newParticipantName||'')}" placeholder="輸入名字" oninput="updateParticipantDraft(this.value)" ${addingParticipant?'disabled':''}>
-    <div class="row" style="margin-top:4px">
-      <button class="btn-sm" onclick="cancelAddParticipant()" ${addingParticipant?'disabled':''}>取消</button>
-      <button class="btn-main" id="addParticipantButton" style="flex:1;margin-left:8px" onclick="submitParticipant()" ${addingParticipant?'disabled':''}>${addingParticipant?'加入中…':'加入參加者'}</button>
-    </div>
-  </lumen-card>`;
+  return '<lumen-card variant="glass" glass="strong" class="add-form-card" id="participantAddForm" role="group" aria-label="新增參加者">'+
+    '<label for="newParticipantName">參加者名稱</label><input type="text" id="newParticipantName" value="'+esc(S.newParticipantName||'')+'" placeholder="輸入名字" oninput="updateParticipantDraft(this.value)" '+(addingParticipant?'disabled':'')+'>'+
+    renderAvatarPicker('new',S.newParticipantEmoji,addingParticipant)+
+    '<div class="row" style="margin-top:4px"><button type="button" class="btn-sm" onclick="cancelAddParticipant()" '+(addingParticipant?'disabled':'')+'>取消</button><button type="button" class="btn-main" id="addParticipantButton" style="flex:1;margin-left:8px" onclick="submitParticipant()" '+(addingParticipant?'disabled':'')+'>'+(addingParticipant?'加入中…':'加入參加者')+'</button></div>'+
+    '</lumen-card>';
 }
 function toggleAdd(){
   if(S.showAdd){
@@ -683,40 +766,61 @@ function editExpense(id){
   S.editExpenseId=id; S.showAdd=true; S.showAddPerson=false; S.newParticipantName=''; S.showPeople=false; render();
 }
 function toggleExp(id){ S.expId = S.expId===id ? null : id; render(); }
-function setView(v){ S.view=v; S.showAdd=false; S.editExpenseId=null; S.newExpense=null; S.showAddPerson=false; S.newParticipantName=''; S.showTransitPicker=false; render(); }
+function setView(v){ S.view=v; S.showAdd=false; S.editExpenseId=null; S.newExpense=null; S.showAddPerson=false; S.newParticipantName=''; S.newParticipantEmoji=''; S.editParticipant=null; S.showTransitPicker=false; render(); }
 function togglePeople(){ S.showPeople=!S.showPeople; render(); }
 function toggleAddParticipant(){
   if(addingParticipant) return;
   if(S.showAddPerson){
-    S.showAddPerson=false; S.newParticipantName='';
+    S.showAddPerson=false; S.newParticipantName=''; S.newParticipantEmoji='';
   }else{
-    S.showAddPerson=true; S.newParticipantName='';
-    S.showPeople=false;
+    S.showAddPerson=true; S.newParticipantName=''; S.newParticipantEmoji='';
+    S.showPeople=false; S.editParticipant=null;
   }
   render();
 }
 function updateParticipantDraft(value){S.newParticipantName=value;}
 function cancelAddParticipant(){
   if(addingParticipant) return;
-  S.showAddPerson=false; S.newParticipantName=''; render();
+  S.showAddPerson=false; S.newParticipantName=''; S.newParticipantEmoji=''; render();
 }
 async function submitParticipant(){
   if(addingParticipant) return;
-  const name=(S.newParticipantName||'').trim();
+  const name=(S.newParticipantName||'').trim(), emoji=safeParticipantEmoji(S.newParticipantEmoji);
   if(!name){alert('請輸入參加者名稱');return;}
   if((S.meeting.participants||[]).some(p=>p.name===name)){alert('這個名字已存在');return;}
   addingParticipant=true; render();
   try{
-    const added=await addParticipant(name);
-    if(added){S.showAddPerson=false;S.newParticipantName='';}
+    const added=await addParticipant(name,emoji);
+    if(added){S.showAddPerson=false;S.newParticipantName='';S.newParticipantEmoji='';}
   }finally{
     addingParticipant=false; render();
   }
 }
-async function renameParticipant(name){
-  const next=prompt('請輸入新的參加者名稱',name);
-  if(next===null) return;
-  const newName=next.trim(); if(!newName||newName===name) return;
+async 
+function beginEditParticipant(name){
+  const participant=(S.meeting?.participants||[]).find(p=>p.name===name);
+  if(!participant) return;
+  S.editParticipant={originalName:name,draftName:name,emoji:safeParticipantEmoji(participant.emoji)};
+  S.showAddPerson=false; S.newParticipantName=''; S.newParticipantEmoji='';
+  render();
+  window.requestAnimationFrame(()=>document.getElementById('editParticipantName')?.focus());
+}
+function cancelEditParticipant(){
+  if(renamingParticipant) return;
+  S.editParticipant=null;
+  render();
+}
+async function saveParticipantChanges(){
+  if(renamingParticipant||!S.editParticipant) return;
+  const edit={...S.editParticipant}, originalName=edit.originalName, newName=(edit.draftName||'').trim(), emoji=safeParticipantEmoji(edit.emoji);
+  if(!newName){alert('請輸入參加者名稱');return;}
+  const currentParticipant=(S.meeting.participants||[]).find(p=>p.name===originalName);
+  if(!currentParticipant){alert('參加者名單已更新，請重新整理後再試。');return;}
+  if(newName!==originalName&&(S.meeting.participants||[]).some(p=>p.name===newName)){alert('這個名字已被使用。');return;}
+  if(newName===originalName&&emoji===safeParticipantEmoji(currentParticipant.emoji)){
+    S.editParticipant=null; render(); return;
+  }
+  renamingParticipant=true; render();
   const id=meetingId(), meetingRef=window.fb.doc(db,'meetings',id);
   try{
     const [expenseSnap,transferSnap]=await Promise.all([
@@ -729,35 +833,35 @@ async function renameParticipant(name){
       if(!meetingSnap.exists()) throw new Error('meeting-not-found');
       const live=meetingSnap.data(), current=Array.isArray(live.participants)?live.participants:[];
       if(live.archived) throw new Error('meeting-archived');
-      if(!current.some(p=>p.name===name)) throw new Error('participant-not-found');
-      if(current.some(p=>p.name===newName)) throw new Error('duplicate-name');
+      if(!current.some(p=>p.name===originalName)) throw new Error('participant-not-found');
+      if(newName!==originalName&&current.some(p=>p.name===newName)) throw new Error('duplicate-name');
       const [expenseDocs,transferDocs]=await Promise.all([
         Promise.all(expenseRefs.map(ref=>transaction.get(ref))),
         Promise.all(transferRefs.map(ref=>transaction.get(ref)))
       ]);
-      const participants=current.map(p=>p.name===name?{...p,name:newName}:p);
-      const transitId=live.transitId===name?newName:(live.transitId||null);
-      transaction.update(meetingRef,{participants,...(live.transitId===name?{transitId:newName}:{})});
+      const participants=current.map(p=>p.name===originalName?applyParticipantEmoji({...p,name:newName},emoji):p);
+      const transitId=live.transitId===originalName?newName:(live.transitId||null);
+      transaction.update(meetingRef,{participants,...(live.transitId===originalName?{transitId:newName}:{})});
       const expenses=expenseDocs.filter(s=>s.exists()).map(s=>{
         const e={id:s.id,...s.data()}, patch={};
-        if(e.payer===name) patch.payer=newName;
-        if((e.shareWith||[]).includes(name)) patch.shareWith=e.shareWith.map(n=>n===name?newName:n);
+        if(e.payer===originalName) patch.payer=newName;
+        if((e.shareWith||[]).includes(originalName)) patch.shareWith=e.shareWith.map(n=>n===originalName?newName:n);
         if(Object.keys(patch).length) transaction.update(s.ref,patch);
         return {...e,...patch};
       });
       const transfers=transferDocs.filter(s=>s.exists()).map(s=>{
         const t={id:s.id,...s.data()}, patch={};
-        if(t.from===name) patch.from=newName;
-        if(t.to===name) patch.to=newName;
+        if(t.from===originalName) patch.from=newName;
+        if(t.to===originalName) patch.to=newName;
         if(Object.keys(patch).length) transaction.update(s.ref,patch);
         return {...t,...patch};
       });
       return {participants,transitId,expenses,transfers};
     });
     S.meeting={...S.meeting,participants:result.participants,transitId:result.transitId};
-    S.expenses=S.expenses.map(e=>({...e,payer:e.payer===name?newName:e.payer,shareWith:(e.shareWith||[]).map(n=>n===name?newName:n)}));
-    S.transfers=S.transfers.map(t=>({...t,from:t.from===name?newName:t.from,to:t.to===name?newName:t.to}));
-    render();
+    S.expenses=S.expenses.map(e=>({...e,payer:e.payer===originalName?newName:e.payer,shareWith:(e.shareWith||[]).map(n=>n===originalName?newName:n)}));
+    S.transfers=S.transfers.map(t=>({...t,from:t.from===originalName?newName:t.from,to:t.to===originalName?newName:t.to}));
+    S.editParticipant=null;
   }catch(err){
     const messages={
       'duplicate-name':'這個名字已被使用。',
@@ -765,7 +869,10 @@ async function renameParticipant(name){
       'meeting-archived':'此聚會已封存，無法修改。',
       'meeting-not-found':'找不到這場聚會。'
     };
-    alert(messages[err.message]||'修改名稱失敗，請檢查網絡後再試。');
+    alert(messages[err.message]||'修改參加者失敗，請檢查網絡後再試。');
+  }finally{
+    renamingParticipant=false;
+    render();
   }
 }
 async function removeParticipant(name){
@@ -828,7 +935,7 @@ function renderAddExpenseForm(m){
     <label>實際付款人</label>
     <div>`;
   m.participants.forEach(p=>{
-    html += `<span class="pill ${ne.payer===p.name?'on':''}" style="cursor:pointer" onclick="setPayer(${jsArg(p.name)})">${esc(p.name)}</span>`;
+    html += `<span class="pill ${ne.payer===p.name?'on':''}" style="cursor:pointer" onclick="setPayer(${jsArg(p.name)})">${renderParticipantAvatar(p)}<span>${esc(p.name)}</span></span>`;
   });
   html += `</div>`;
   if(!ne.editShare){
@@ -837,7 +944,7 @@ function renderAddExpenseForm(m){
     html += `<p class="small" style="margin-top:10px">分攤對象 · <span class="btn-ghost" style="cursor:pointer" onclick="selectAllShare()">全選</span> · <span class="btn-ghost" style="cursor:pointer" onclick="toggleEditShare()">收起</span></p>`;
     m.participants.forEach(p=>{
       const checked = ne.shareWith.includes(p.name);
-      html += `<div class="checkline"><input type="checkbox" ${checked?'checked':''} onchange="toggleShareName(${jsArg(p.name)})"> ${esc(p.name)}</div>`;
+      html += `<div class="checkline"><input type="checkbox" ${checked?'checked':''} onchange="toggleShareName(${jsArg(p.name)})"> ${renderParticipantAvatar(p)} <span>${esc(p.name)}</span></div>`;
     });
   }
   html += `<div class="row" style="margin-top:12px">
@@ -951,7 +1058,8 @@ function renderSettle(m){
     const v=Math.round(rnet[n]);
     const tone=v>0?'positive':(v<0?'negative':'neutral');
     const status=v>0?'應收款':(v<0?'待付款':'已結清');
-    summaryHtml+='<lumen-card variant="glass" glass="subtle" class="balance-card" role="article" aria-label="'+esc(n)+' 的結算"><div class="balance-card-top"><span class="avatar-mini" aria-hidden="true"><svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3"/><path d="M3.8 17a6.2 6.2 0 0 1 12.4 0"/></svg></span><span class="balance-name">'+esc(n)+'</span></div><div class="balance-net '+tone+'"><span>'+status+'</span><b>'+(v!==0?fmt(Math.abs(v)):'—')+'</b></div><div class="balance-paid"><span>已代墊</span><b>'+fmt(paid[n]||0)+'</b></div><div class="balance-due"><span>應付分攤</span><strong>'+fmt(owed[n]||0)+'</strong></div></lumen-card>';
+    const avatar=renderParticipantAvatar((m.participants||[]).find(p=>p.name===n));
+    summaryHtml+='<lumen-card variant="glass" glass="subtle" class="balance-card" role="article" aria-label="'+esc(n)+' 的結算"><div class="balance-card-top">'+avatar+'<span class="balance-name">'+esc(n)+'</span></div><div class="balance-net '+tone+'"><span>'+status+'</span><b>'+(v!==0?fmt(Math.abs(v)):'—')+'</b></div><div class="balance-paid"><span>已代墊</span><b>'+fmt(paid[n]||0)+'</b></div><div class="balance-due"><span>應付分攤</span><strong>'+fmt(owed[n]||0)+'</strong></div></lumen-card>';
   });
   summaryHtml+='</div></section>';
   let html='<section class="settle-section"><div class="section-heading"><div><span class="section-kicker">TRANSFER PLAN</span><h2>中轉人結算</h2><p>中轉人集中收款與付款，其他人只需按安排轉帳。</p></div></div>';
@@ -965,8 +1073,9 @@ function renderSettle(m){
     const choices=names.filter(n=>n!==transit);
     html+='<div class="transit-picker" id="transitPicker"><p class="small">選擇另一位參加者作為中轉人。</p><div class="transit-options">';
     if(!choices.length) html+='<span class="small">目前沒有其他參加者可選。</span>';
-    choices.forEach(n=>{
-      html+='<button type="button" class="transit-option" onclick="setTransit('+jsArg(n)+')"><span class="avatar-mini" aria-hidden="true"><svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3"/><path d="M3.8 17a6.2 6.2 0 0 1 12.4 0"/></svg></span><span class="transit-option-name">'+esc(n)+'</span><span class="transit-option-action">選擇</span></button>';
+    m.participants.filter(p=>p.name!==transit).forEach(p=>{
+      const n=p.name;
+      html+='<button type="button" class="transit-option" onclick="setTransit('+jsArg(n)+')">'+renderParticipantAvatar(p)+'<span class="transit-option-name">'+esc(n)+'</span><span class="transit-option-action">選擇</span></button>';
     });
     html+='</div></div>';
   }
