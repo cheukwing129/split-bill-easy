@@ -376,7 +376,10 @@ function isDefaultAllExpense(e,participants){
   const existed=people.filter(p=>!Number.isFinite(Number(p.joinedAt))||!Number.isFinite(created)||Number(p.joinedAt)<=created).map(p=>p.name);
   const shares=Array.isArray(e.shareWith)?e.shareWith:[];
   const currentNames=new Set(people.map(p=>p.name));
-  return existed.length>0 && existed.every(n=>shares.includes(n)) && shares.every(n=>currentNames.has(n));
+  const later=people.filter(p=>Number.isFinite(Number(p.joinedAt))&&Number.isFinite(created)&&Number(p.joinedAt)>created);
+  const latestJoinAt=later.reduce((latest,p)=>Math.max(latest,Number(p.joinedAt)),-Infinity);
+  const olderLateJoinMissing=later.some(p=>Number(p.joinedAt)<latestJoinAt&&!shares.includes(p.name));
+  return existed.length>0 && existed.every(n=>shares.includes(n)) && shares.every(n=>currentNames.has(n)) && !olderLateJoinMissing;
 }
 async function syncAllSplitExpenses(id,participants,archived){
   if(archived||!participants.length) return;
