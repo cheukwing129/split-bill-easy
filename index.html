@@ -421,6 +421,18 @@ async function syncAllSplitExpenses(id,participants,archived){
 async function boot(){
   unsub.forEach(u=>u()); unsub=[];
   const id=meetingId();
+  if(id==='lumen-demo'){
+    S={meeting:{id,name:'週末聚餐 · 設計試看',participants:[{name:'A'},{name:'B'},{name:'C'}],transitId:'A',archived:true},
+      expId:null,expenses:[
+        {id:'demo-meal',item:'晚餐',amount:9000,payer:'A',shareWith:['A','B','C'],createdAt:1},
+        {id:'demo-taxi',item:'交通',amount:6000,payer:'B',shareWith:['A','B','C'],createdAt:2}
+      ],
+      transfers:[{id:'demo-paid-1',from:'C',to:'A',amount:5000,completedAt:3}],
+      view:'settle',showAdd:false,editExpenseId:null,showPeople:false,splitSyncKey:'',newExpense:null,
+      showAddPerson:false,newParticipantName:'',showTransitPicker:false};
+    render();
+    return;
+  }
   db = db || await waitFb();
   if(!db){ document.getElementById('app').innerHTML='<p class="warn">尚未連上資料庫：請在程式碼開頭填入你的 Firebase 設定（firebaseConfig）。</p>'; return; }
   if(!id){ S={meeting:null,view:'home'}; renderHome(); return; }
@@ -501,7 +513,7 @@ function render(){
   if(S.meeting===false){ document.getElementById('app').innerHTML='<p class="warn">找不到這場聚會，連結可能有誤。</p>'; return; }
   const m = S.meeting;
   const total=S.expenses.reduce((sum,e)=>sum+e.amount,0);
-  const liveLabel=m.archived?'唯讀封存':'即時共同編輯';
+  const liveLabel=m.id==='lumen-demo'?'介面試看':(m.archived?'唯讀封存':'即時共同編輯');
   let html = `<main class="meeting-page">
     <header class="meeting-hero">
       <div class="meeting-topline">
@@ -525,7 +537,8 @@ function render(){
         <div class="stat-tile"><span>花費紀錄</span><strong>${S.expenses.length} 項</strong><span class="stat-hint">代墊項目總數</span></div>
       </div>
     </header>
-    ${m.archived?'<p class="warn">此聚會已封存為唯讀，無法再編輯。</p>':''}
+    ${m.archived&&m.id!=='lumen-demo'?'<p class="warn">此聚會已封存為唯讀，無法再編輯。</p>':''}
+    ${m.id==='lumen-demo'?'<p class="notice">示範資料 · 此頁只供介面預覽，不會寫入資料庫。</p>':''}
     <nav class="tabs" role="tablist" aria-label="聚會內容">
       <button type="button" role="tab" aria-selected="${S.view==='ledger'}" class="tab ${S.view==='ledger'?'active':''}" onclick="setView('ledger')">
         <span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M5 2.8h7l3 3v11.4H5z"/><path d="M12 2.8v3h3M7.5 9h5M7.5 12h5M7.5 15h3"/></svg></span>帳目
