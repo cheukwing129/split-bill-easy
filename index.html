@@ -1,16 +1,30 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-Hant" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>埋單有數</title>
 <link rel="icon" type="image/svg+xml" href="./favicon.svg" sizes="any">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://esm.sh" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@santi020k/lumen@3.0.0/styles.css">
+<script type="module">
+import { defineLumenCard } from "https://esm.sh/@santi020k/lumen-elements@3.0.0/components/card?bundle";
+import { defineLumenBadge } from "https://esm.sh/@santi020k/lumen-elements@3.0.0/components/badge?bundle";
+defineLumenCard();
+defineLumenBadge();
+</script>
 <style>:root{
   color-scheme:light;
-  --ink:#202747;--ink-soft:#344166;--muted:#68738f;--muted-light:#8992aa;
-  --accent:#6558e8;--accent-dark:#5144d1;--accent-soft:#efedff;
-  --line:rgba(77,88,134,.13);--mint:#16896c;--mint-soft:#e7f7f1;
-  --amber:#a65c27;--amber-soft:#fff2e6;--surface:rgba(255,255,255,.64);
+  --canvas:227 42% 96%;--surface:0 0% 100%;--surface-muted:220 14% 96%;--surface-strong:220 13% 91%;
+  --line:228 22% 86%;--ink:222 35% 18%;--ink-soft:215 16% 32%;--ink-muted:215 12% 48%;
+  --brand:246 75% 63%;--brand-solid:246 60% 54%;--brand-soft:246 100% 96%;--on-brand:0 0% 100%;
+  --accent:163 72% 31%;--success:142 71% 36%;--warning:38 92% 50%;--danger:0 84% 60%;--on-danger:0 0% 100%;
+  --ui-font:Inter,-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;
+  --app-ink:#202747;--app-ink-soft:#344166;--muted:#68738f;--muted-light:#8992aa;
+  --app-accent:#6558e8;--app-accent-dark:#5144d1;--app-accent-soft:#efedff;
+  --app-line:rgba(77,88,134,.13);--mint:#16896c;--mint-soft:#e7f7f1;
+  --amber:#a65c27;--amber-soft:#fff2e6;--app-surface:rgba(255,255,255,.64);
   --bg:#f4f5fb;--shadow:0 18px 48px rgba(39,48,92,.09),inset 0 1px 0 rgba(255,255,255,.92);
   --shadow-small:0 8px 24px rgba(39,48,92,.07),inset 0 1px 0 rgba(255,255,255,.92)
 }
@@ -18,7 +32,7 @@
 html{min-height:100%;scroll-padding-top:env(safe-area-inset-top,0px);background:#f4f5fb}
 body{
   position:relative;isolation:isolate;
-  margin:0;min-height:100vh;color:var(--ink);background:transparent;
+  margin:0;min-height:100vh;color:var(--app-ink);background:transparent;
   font-family:Inter,-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;
   font-size:17px;line-height:1.5;font-feature-settings:"tnum" 1;font-variant-numeric:tabular-nums
 }
@@ -33,14 +47,14 @@ body::before{
 }
 #app{width:min(100%,1040px);margin:0 auto;padding:clamp(18px,4vw,42px) clamp(16px,4vw,34px) 64px}
 h1,h2,h3,p{margin-top:0}
-h1,h2{color:var(--ink);letter-spacing:-.025em}
+h1,h2{color:var(--app-ink);letter-spacing:-.025em}
 h1{font-size:clamp(30px,5vw,42px);line-height:1.12;font-weight:750;margin-bottom:0}
 h2{font-size:22px;line-height:1.2;font-weight:700;margin:0}
 p.sub{color:var(--muted);font-size:15px;line-height:1.55;margin:8px 0 20px}
 .small{font-size:13px;color:var(--muted);line-height:1.5}
 .amt{font-weight:750;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
 .row{display:flex;justify-content:space-between;align-items:center;gap:12px}
-.surface,.card{background:var(--surface);backdrop-filter:blur(22px) saturate(150%);-webkit-backdrop-filter:blur(22px) saturate(150%);border:1px solid rgba(255,255,255,.72);border-radius:20px;box-shadow:var(--shadow-small)}
+.surface,.card{background:var(--app-surface);backdrop-filter:blur(22px) saturate(150%);-webkit-backdrop-filter:blur(22px) saturate(150%);border:1px solid rgba(255,255,255,.72);border-radius:20px;box-shadow:var(--shadow-small)}
 .card{padding:22px;margin:0 0 18px}
 button{font-family:inherit;font-size:15px;font-weight:650;line-height:1.2;border:1px solid transparent;border-radius:12px;padding:11px 15px;cursor:pointer;transition:transform .16s ease,background-color .16s ease,border-color .16s ease,color .16s ease,box-shadow .16s ease}
 button:hover:not(:disabled){transform:translateY(-1px)}
@@ -49,15 +63,15 @@ button:focus-visible,input:focus-visible{outline:3px solid rgba(101,88,232,.3);o
 button:disabled{opacity:.58;cursor:wait}
 .btn-main{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:50px;padding:14px 18px;color:#fff;background:linear-gradient(135deg,#7568f2,#584bd9);box-shadow:0 8px 18px rgba(101,88,232,.24);font-weight:750}
 .btn-main:hover:not(:disabled){background:linear-gradient(135deg,#8176f6,#6255e4);box-shadow:0 10px 22px rgba(101,88,232,.3)}
-.btn-sm{min-height:36px;padding:8px 12px;background:rgba(255,255,255,.68);border:1px solid rgba(89,100,150,.18);color:var(--ink-soft);font-size:14px;font-weight:650;box-shadow:0 2px 8px rgba(44,52,90,.04)}
-.btn-sm:hover:not(:disabled){background:#fff;border-color:rgba(101,88,232,.35);color:var(--accent)}
+.btn-sm{min-height:36px;padding:8px 12px;background:rgba(255,255,255,.68);border:1px solid rgba(89,100,150,.18);color:var(--app-ink-soft);font-size:14px;font-weight:650;box-shadow:0 2px 8px rgba(44,52,90,.04)}
+.btn-sm:hover:not(:disabled){background:#fff;border-color:rgba(101,88,232,.35);color:var(--app-accent)}
 .btn-sm.danger{color:#ad5360}
-.btn-ghost{background:transparent;color:var(--accent);font-size:14px;padding:5px 2px;text-decoration:none;border:0;border-radius:8px;font-weight:700}
-.btn-ghost:hover{background:var(--accent-soft);color:var(--accent-dark)}
-input[type=text],input[type=number]{display:block;width:100%;min-height:48px;padding:13px 14px;margin:6px 0 16px;border:1px solid rgba(86,96,143,.18);border-radius:12px;background:rgba(255,255,255,.92);color:var(--ink);font-family:inherit;font-size:17px;font-weight:500;line-height:1.3;transition:border-color .16s ease,box-shadow .16s ease}
+.btn-ghost{background:transparent;color:var(--app-accent);font-size:14px;padding:5px 2px;text-decoration:none;border:0;border-radius:8px;font-weight:700}
+.btn-ghost:hover{background:var(--app-accent-soft);color:var(--app-accent-dark)}
+input[type=text],input[type=number]{display:block;width:100%;min-height:48px;padding:13px 14px;margin:6px 0 16px;border:1px solid rgba(86,96,143,.18);border-radius:12px;background:rgba(255,255,255,.92);color:var(--app-ink);font-family:inherit;font-size:17px;font-weight:500;line-height:1.3;transition:border-color .16s ease,box-shadow .16s ease}
 input[type=text]:focus,input[type=number]:focus{border-color:rgba(101,88,232,.65);box-shadow:0 0 0 4px rgba(101,88,232,.09);outline:0}
 input::placeholder{color:#9098ad;opacity:1}
-label{display:block;font-size:14px;font-weight:700;color:var(--ink-soft);margin:9px 0 5px}
+label{display:block;font-size:14px;font-weight:700;color:var(--app-ink-soft);margin:9px 0 5px}
 .home-shell{max-width:760px;margin:clamp(12px,4vh,42px) auto 0}
 .home-hero,.meeting-hero{position:relative;isolation:isolate;overflow:hidden;color:#fff;background:linear-gradient(128deg,#1f294d 0%,#3d3b7c 54%,#6657ce 100%);border:1px solid rgba(255,255,255,.32);border-radius:28px;box-shadow:0 24px 62px rgba(48,51,109,.22),inset 0 1px 0 rgba(255,255,255,.18)}
 .home-hero{min-height:340px;padding:clamp(26px,5vw,44px);margin-bottom:18px}
@@ -78,9 +92,9 @@ label{display:block;font-size:14px;font-weight:700;color:var(--ink-soft);margin:
 .hero-glass-card span::before{content:"";width:7px;height:7px;border-radius:50%;background:#7be0be;box-shadow:0 0 12px rgba(123,224,190,.65)}
 .home-card{padding:clamp(20px,4vw,30px);margin-bottom:14px}
 .card-heading{display:flex;align-items:center;gap:13px;margin:0 0 21px}
-.card-heading-icon{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;border:1px solid rgba(101,88,232,.14);border-radius:15px;background:var(--accent-soft);color:var(--accent);font-size:22px}
+.card-heading-icon{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;border:1px solid rgba(101,88,232,.14);border-radius:15px;background:var(--app-accent-soft);color:var(--app-accent);font-size:22px}
 .card-heading-copy{display:flex;flex-direction:column;gap:3px}
-.card-heading-copy strong{font-size:19px;font-weight:750;color:var(--ink);letter-spacing:-.02em}
+.card-heading-copy strong{font-size:19px;font-weight:750;color:var(--app-ink);letter-spacing:-.02em}
 .card-heading-copy .small{font-size:13px}
 .home-submit{justify-content:space-between;padding-inline:18px}
 .home-submit span:last-child{font-size:20px;line-height:1}
@@ -108,8 +122,8 @@ label{display:block;font-size:14px;font-weight:700;color:var(--ink-soft);margin:
 .warn,.notice{padding:13px 15px;border-radius:14px;background:rgba(255,246,229,.9);border:1px solid rgba(209,153,76,.24);color:#67451f;font-size:14px;line-height:1.5;margin:0 0 16px}
 .tabs{display:flex;gap:5px;width:max-content;max-width:100%;padding:5px;margin:0 0 20px;border:1px solid rgba(255,255,255,.86);border-radius:15px;background:rgba(255,255,255,.63);box-shadow:0 8px 20px rgba(39,48,92,.06);backdrop-filter:blur(16px)}
 .tab{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:10px 17px;border:0;border-radius:11px;background:transparent;color:var(--muted);font-size:15px;font-weight:700;cursor:pointer}
-.tab:hover{background:rgba(255,255,255,.62);color:var(--ink)}
-.tab.active{background:#fff;color:var(--accent-dark);box-shadow:0 3px 10px rgba(49,53,106,.1)}
+.tab:hover{background:rgba(255,255,255,.62);color:var(--app-ink)}
+.tab.active{background:#fff;color:var(--app-accent-dark);box-shadow:0 3px 10px rgba(49,53,106,.1)}
 .tab-icon{display:inline-flex;width:17px;height:17px;align-items:center;justify-content:center}
 .tab-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .actions-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:0 0 19px;align-items:start}
@@ -119,85 +133,85 @@ label{display:block;font-size:14px;font-weight:700;color:var(--ink-soft);margin:
 .add-section-toggle:hover:not(:disabled){color:#fff;filter:brightness(1.08)}
 .add-section-toggle-icon{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border-radius:11px;color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);font-size:21px;font-weight:450}
 .add-section-toggle-icon:empty{display:none}
-.add-form-card{margin:12px 0 0;padding:17px;background:rgba(255,255,255,.72);border:1px solid rgba(101,88,232,.2);border-radius:17px;box-shadow:var(--shadow-small)}
+.add-form-card{display:block;margin:12px 0 0;padding:17px;border-radius:17px}
 .add-form-card .row{gap:9px}
-.pill{display:inline-flex;align-items:center;max-width:100%;white-space:normal;overflow-wrap:anywhere;margin:3px 5px 3px 0;padding:7px 11px;border:1px solid rgba(91,101,148,.17);border-radius:999px;background:rgba(255,255,255,.78);color:var(--ink-soft);font-size:14px;font-weight:650;transition:background-color .16s ease,border-color .16s ease,color .16s ease}
-.pill.on{background:var(--accent-soft);color:var(--accent-dark);border-color:rgba(101,88,232,.24)}
-.checkline{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:15px;color:var(--ink-soft)}
-.checkline input{accent-color:var(--accent);width:18px;height:18px}
+.pill{display:inline-flex;align-items:center;max-width:100%;white-space:normal;overflow-wrap:anywhere;margin:3px 5px 3px 0;padding:7px 11px;border:1px solid rgba(91,101,148,.17);border-radius:999px;background:rgba(255,255,255,.78);color:var(--app-ink-soft);font-size:14px;font-weight:650;transition:background-color .16s ease,border-color .16s ease,color .16s ease}
+.pill.on{background:var(--app-accent-soft);color:var(--app-accent-dark);border-color:rgba(101,88,232,.24)}
+.checkline{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:15px;color:var(--app-ink-soft)}
+.checkline input{accent-color:var(--app-accent);width:18px;height:18px}
 .people-card{padding:19px 20px;margin:0 0 20px}
 .people-card-header,.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .people-card-header{margin-bottom:15px}
 .people-title{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:750}
-.people-count{padding:4px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent-dark);font-size:12px;font-weight:750}
+.people-count{padding:4px 8px;border-radius:999px;background:var(--app-accent-soft);color:var(--app-accent-dark);font-size:12px;font-weight:750}
 .participant-list{display:flex;flex-wrap:wrap;gap:8px}
-.participant-chip{display:inline-flex;align-items:center;gap:8px;max-width:100%;padding:7px 11px 7px 7px;border:1px solid rgba(81,94,143,.12);border-radius:999px;background:rgba(255,255,255,.56);color:var(--ink-soft);font-size:14px;font-weight:650;overflow-wrap:anywhere}
-.avatar-mini{display:grid;place-items:center;flex:0 0 27px;width:27px;height:27px;border-radius:50%;background:linear-gradient(145deg,#e8e5ff,#d9f1ec);color:var(--accent-dark)}
+.participant-chip{display:inline-flex;align-items:center;gap:8px;max-width:100%;padding:7px 11px 7px 7px;border:1px solid rgba(81,94,143,.12);border-radius:999px;background:rgba(255,255,255,.56);color:var(--app-ink-soft);font-size:14px;font-weight:650;overflow-wrap:anywhere}
+.avatar-mini{display:grid;place-items:center;flex:0 0 27px;width:27px;height:27px;border-radius:50%;background:linear-gradient(145deg,#e8e5ff,#d9f1ec);color:var(--app-accent-dark)}
 .avatar-mini svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .people-manage{padding:17px 19px;margin:-7px 0 20px}
-.people-manage .row{padding:10px 0;border-bottom:1px solid var(--line)}
+.people-manage .row{padding:10px 0;border-bottom:1px solid var(--app-line)}
 .people-manage .row:last-child{border-bottom:0}
 .section-heading{margin:26px 2px 12px}
 .section-heading p{margin:4px 0 0;color:var(--muted);font-size:13px}
 .section-count{flex:0 0 auto;padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.72);border:1px solid rgba(87,97,142,.12);color:var(--muted);font-size:12px;font-weight:700}
 .expense-list{padding:5px 18px}
-.exp-item{display:flex;align-items:flex-start;gap:13px;padding:16px 2px;border-bottom:1px solid var(--line)}
+.exp-item{display:flex;align-items:flex-start;gap:13px;padding:16px 2px;border-bottom:1px solid var(--app-line)}
 .exp-item:first-child{padding-top:13px}
 .exp-item:last-child{border-bottom:0}
-.expense-icon{display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;border-radius:13px;background:linear-gradient(145deg,#efedff,#e5f5f0);color:var(--accent)}
+.expense-icon{display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;border-radius:13px;background:linear-gradient(145deg,#efedff,#e5f5f0);color:var(--app-accent)}
 .expense-icon svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .expense-main{flex:1;min-width:0}
 .expense-head{align-items:flex-start;gap:10px}
 .expense-head b{min-width:0;font-size:15px;font-weight:750;overflow-wrap:anywhere}
-.exp-item .amt{flex:0 0 auto;font-size:16px;white-space:nowrap;color:var(--ink)}
+.exp-item .amt{flex:0 0 auto;font-size:16px;white-space:nowrap;color:var(--app-ink)}
 .expense-meta{display:flex;align-items:center;flex-wrap:wrap;gap:7px 11px;margin-top:7px}
 .meta-tag{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:12px}
 .meta-dot{width:6px;height:6px;border-radius:50%;background:#887dee}
-.share-toggle{padding:0;border:0;background:transparent;color:var(--accent-dark);font-size:12px;font-weight:700;text-align:left}
+.share-toggle{padding:0;border:0;background:transparent;color:var(--app-accent-dark);font-size:12px;font-weight:700;text-align:left}
 .share-toggle:hover:not(:disabled){background:transparent;text-decoration:underline}
 .share-names{margin-top:8px;color:var(--muted);font-size:13px;overflow-wrap:anywhere}
 .expense-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:10px}
 .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:150px;padding:22px;text-align:center}
-.empty-icon{display:grid;place-items:center;width:46px;height:46px;margin-bottom:10px;border-radius:16px;background:var(--accent-soft);color:var(--accent);font-size:21px}
-.empty-state strong{font-size:15px;color:var(--ink)}
+.empty-icon{display:grid;place-items:center;width:46px;height:46px;margin-bottom:10px;border-radius:16px;background:var(--app-accent-soft);color:var(--app-accent);font-size:21px}
+.empty-state strong{font-size:15px;color:var(--app-ink)}
 .empty-state p{max-width:34ch;margin:5px 0 0;color:var(--muted);font-size:13px;line-height:1.5}
 .settle-section{margin:0 0 24px}
 .settle-section .section-heading{margin:0 2px 13px}
-.section-kicker{display:block;margin-bottom:4px;color:var(--accent);font-size:11px;font-weight:800;letter-spacing:.14em}
+.section-kicker{display:block;margin-bottom:4px;color:var(--app-accent);font-size:11px;font-weight:800;letter-spacing:.14em}
 .section-caption{color:var(--muted);font-size:13px}
 .balance-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:11px}
-.balance-card{padding:16px;border-radius:17px;background:rgba(255,255,255,.64);border:1px solid rgba(255,255,255,.78);box-shadow:var(--shadow-small)}
+.balance-card{display:block;padding:16px;border-radius:17px}
 .balance-card-top{display:flex;align-items:center;gap:9px;margin-bottom:14px}
 .balance-card .avatar-mini{width:32px;height:32px;flex-basis:32px}
 .balance-card .avatar-mini svg{width:16px;height:16px}
 .balance-name{min-width:0;font-size:15px;font-weight:750;overflow-wrap:anywhere}
-.balance-net{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-bottom:12px;border-bottom:1px solid var(--line);font-size:14px;font-weight:750}
+.balance-net{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-bottom:12px;border-bottom:1px solid var(--app-line);font-size:14px;font-weight:750}
 .balance-net b{font-size:22px;font-weight:800;letter-spacing:-.025em;white-space:nowrap}
 .balance-net.positive{color:var(--mint)}
 .balance-net.negative{color:var(--amber)}
 .balance-net.neutral{color:var(--muted)}
 .balance-paid{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:9px;color:var(--muted);font-size:12px}
-.balance-paid b{color:var(--ink-soft);font-size:13px;font-weight:750;white-space:nowrap}
+.balance-paid b{color:var(--app-ink-soft);font-size:13px;font-weight:750;white-space:nowrap}
 .balance-due{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:6px;font-size:12px}
 .balance-due span{color:var(--muted)}
-.balance-due strong{color:var(--ink-soft);font-size:13px;font-weight:750;white-space:nowrap}
+.balance-due strong{color:var(--app-ink-soft);font-size:13px;font-weight:750;white-space:nowrap}
 .transfer-control{padding:17px 19px;margin-bottom:14px}
 .transit-current{display:flex;align-items:center;justify-content:space-between;gap:14px}
 .transit-person{display:flex;align-items:center;gap:11px;min-width:0}
-.transit-person-icon{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border:1px solid rgba(101,88,232,.16);border-radius:13px;background:linear-gradient(145deg,#efedff,#e5f5f0);color:var(--accent);font-size:19px}
+.transit-person-icon{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border:1px solid rgba(101,88,232,.16);border-radius:13px;background:linear-gradient(145deg,#efedff,#e5f5f0);color:var(--app-accent);font-size:19px}
 .transit-person-copy{display:flex;flex-direction:column;gap:2px;min-width:0}
-.transit-person-copy strong{color:var(--ink);font-size:16px;overflow-wrap:anywhere}
+.transit-person-copy strong{color:var(--app-ink);font-size:16px;overflow-wrap:anywhere}
 .transit-change{display:inline-flex;align-items:center;gap:8px;flex:0 0 auto;white-space:nowrap}
 .transit-change svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;transition:transform .16s ease}
 .transit-change[aria-expanded="true"] svg{transform:rotate(180deg)}
-.transit-picker{margin-top:14px;padding-top:13px;border-top:1px solid var(--line)}
+.transit-picker{margin-top:14px;padding-top:13px;border-top:1px solid var(--app-line)}
 .transit-picker p{margin:0;color:var(--muted);font-size:13px}
 .transit-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin-top:10px}
-.transit-option{display:flex;align-items:center;gap:9px;width:100%;min-width:0;padding:8px 10px;border:1px solid rgba(81,94,143,.13);border-radius:13px;background:rgba(255,255,255,.55);color:var(--ink-soft);text-align:left}
-.transit-option:hover:not(:disabled){background:rgba(255,255,255,.82);border-color:rgba(101,88,232,.3);color:var(--accent-dark)}
+.transit-option{display:flex;align-items:center;gap:9px;width:100%;min-width:0;padding:8px 10px;border:1px solid rgba(81,94,143,.13);border-radius:13px;background:rgba(255,255,255,.55);color:var(--app-ink-soft);text-align:left}
+.transit-option:hover:not(:disabled){background:rgba(255,255,255,.82);border-color:rgba(101,88,232,.3);color:var(--app-accent-dark)}
 .transit-option .avatar-mini{flex:0 0 29px;width:29px;height:29px}
 .transit-option-name{min-width:0;flex:1;overflow-wrap:anywhere;font-size:14px;font-weight:700}
-.transit-option-action{flex:0 0 auto;color:var(--accent);font-size:12px;font-weight:750}
+.transit-option-action{flex:0 0 auto;color:var(--app-accent);font-size:12px;font-weight:750}
 .transfer-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;align-items:start}
 .transfer-group{min-width:0;padding:16px;border-radius:18px;border:1px solid transparent;margin:0;box-shadow:var(--shadow-small)}
 .transfer-group.receive{background:linear-gradient(145deg,rgba(232,249,243,.82),rgba(255,255,255,.66));border-color:rgba(39,164,125,.16)}
@@ -205,19 +219,19 @@ label{display:block;font-size:14px;font-weight:700;color:var(--ink-soft);margin:
 .transfer-group.receive .transfer-total,.transfer-group.receive .transfer-subtitle{color:var(--mint)}
 .transfer-group.pay .transfer-total,.transfer-group.pay .transfer-subtitle{color:var(--amber)}
 .transfer-heading{font-size:14px;font-weight:750}
-.transfer-total{font-weight:800;font-variant-numeric:tabular-nums;color:var(--ink);font-size:14px}
+.transfer-total{font-weight:800;font-variant-numeric:tabular-nums;color:var(--app-ink);font-size:14px}
 .transfer-subtitle{font-size:12px;font-weight:750;margin-top:14px}
 .transfer-row{align-items:center;padding:11px 0;border-top:1px solid rgba(73,87,130,.12);gap:8px}
-.status-icon{display:inline-block;flex:0 0 17px;width:17px;height:17px;color:var(--muted);vertical-align:-3px}
+.transfer-status-badge{flex:0 0 auto;font-size:11px;line-height:1.2;white-space:nowrap}
 .status-icon.is-paid{color:var(--mint)}
 .status-icon.is-pending{color:var(--amber)}
-.transfer-flow{display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0;line-height:1.45}
-.transfer-description{flex:1;min-width:0;overflow-wrap:anywhere;font-size:13px;color:var(--ink-soft)}
+.transfer-flow{display:flex;align-items:center;gap:8px;flex:1;min-width:0;line-height:1.45}
+.transfer-description{flex:1;min-width:0;overflow-wrap:anywhere;font-size:13px;color:var(--app-ink-soft)}
 .transfer-row .btn-sm{flex:0 0 auto;min-height:32px;padding:7px 9px;font-size:12px}
 .transfer-group .small{margin:10px 0 0}
 .settled-note{display:flex;align-items:center;gap:11px;padding:18px;border-radius:16px;background:var(--mint-soft);color:#256a58;font-size:14px;font-weight:650}
 .settled-note .empty-icon{width:34px;height:34px;flex:0 0 34px;margin:0;background:rgba(255,255,255,.75);font-size:17px}
-.transfer-group:not(.receive):not(.pay){margin-top:13px;background:rgba(255,255,255,.75);border-color:var(--line)}
+.transfer-group:not(.receive):not(.pay){margin-top:13px;background:rgba(255,255,255,.75);border-color:var(--app-line)}
 .footer{margin-top:28px;padding:15px 4px 0;border-top:1px solid rgba(80,91,137,.12);text-align:center;font-size:13px;color:var(--muted)}
 @media(max-width:680px){
   #app{padding-left:15px;padding-right:15px}
@@ -594,7 +608,7 @@ function renderLedger(m){
     html+='</div>';
   }
   const peopleManageButton=m.archived?'':'<button class="btn-sm" type="button" onclick="togglePeople()">'+(S.showPeople?'收起管理':'管理名單')+'</button>';
-  html+='<section class="surface people-card"><div class="people-card-header"><div class="people-title">參加者 <span class="people-count">'+m.participants.length+' 人</span></div>'+peopleManageButton+'</div>';
+  html+='<lumen-card variant="glass" glass="strong" class="people-card" role="region" aria-label="參加者"><div class="people-card-header"><div class="people-title">參加者 <span class="people-count">'+m.participants.length+' 人</span></div>'+peopleManageButton+'</div>';
   if(!m.participants.length){
     html+='<div class="small">尚未加入參加者。使用上方「新增參加者」開始建立名單。</div>';
   }else{
@@ -604,7 +618,7 @@ function renderLedger(m){
     });
     html+='</div>';
   }
-  html+='</section>';
+  html+='</lumen-card>';
   if(S.showPeople&&!m.archived){
     html+='<section class="surface people-manage"><div class="row"><b>管理參加者</b><button class="btn-sm" type="button" onclick="togglePeople()">完成</button></div>';
     if(!m.participants.length) html+='<p class="small">目前沒有參加者。</p>';
@@ -613,7 +627,7 @@ function renderLedger(m){
     });
     html+='</section>';
   }
-  html+='<section class="expenses-section"><div class="section-heading"><div><h2>花費紀錄</h2><p>每筆花費可指定實際付款人與分攤對象。</p></div><span class="section-count">'+S.expenses.length+' 筆</span></div><div class="surface expense-list">';
+  html+='<section class="expenses-section"><div class="section-heading"><div><h2>花費紀錄</h2><p>每筆花費可指定實際付款人與分攤對象。</p></div><span class="section-count">'+S.expenses.length+' 筆</span></div><lumen-card variant="glass" glass="strong" class="expense-list" role="region" aria-label="花費紀錄">';
   if(S.expenses.length===0){
     html+='<div class="empty-state"><span class="empty-icon" aria-hidden="true">＋</span><strong>還沒有花費紀錄</strong><p>由任何一位參加者記下代墊項目，系統會同步更新分攤。</p></div>';
   }
@@ -627,18 +641,18 @@ function renderLedger(m){
     if(!m.archived) html+='<div class="expense-actions"><button class="btn-sm" type="button" onclick="editExpense('+jsArg(e.id)+')">修改</button><button class="btn-sm danger" type="button" onclick="deleteExpense('+jsArg(e.id)+')">刪除</button></div>';
     html+='</div></article>';
   });
-  html+='</div></section>';
+  html+='</lumen-card></section>';
   return html;
 }
 function renderAddParticipantForm(){
-  return `<div class="card add-form-card" id="participantAddForm">
+  return `<lumen-card variant="glass" glass="strong" class="add-form-card" id="participantAddForm" role="group" aria-label="新增參加者">
     <label>參加者名稱</label>
     <input type="text" id="newParticipantName" value="${esc(S.newParticipantName||'')}" placeholder="輸入名字" oninput="updateParticipantDraft(this.value)" ${addingParticipant?'disabled':''}>
     <div class="row" style="margin-top:4px">
       <button class="btn-sm" onclick="cancelAddParticipant()" ${addingParticipant?'disabled':''}>取消</button>
       <button class="btn-main" id="addParticipantButton" style="flex:1;margin-left:8px" onclick="submitParticipant()" ${addingParticipant?'disabled':''}>${addingParticipant?'加入中…':'加入參加者'}</button>
     </div>
-  </div>`;
+  </lumen-card>`;
 }
 function toggleAdd(){
   if(S.showAdd){
@@ -794,7 +808,7 @@ async function removeParticipant(name){
 }
 function renderAddExpenseForm(m){
   const ne=S.newExpense;
-  let html = `<div class="card add-form-card" id="expenseAddForm">
+  let html = `<lumen-card variant="glass" glass="strong" class="add-form-card" id="expenseAddForm" role="group" aria-label="新增花費">
     <label>項目名稱</label><input type="text" id="ex_item" value="${esc(ne.item)}">
     <label>金額（HK$）</label><input type="number" step="0.01" id="ex_amount" value="${esc(ne.amount)}">
     <label>實際付款人</label>
@@ -815,7 +829,7 @@ function renderAddExpenseForm(m){
   html += `<div class="row" style="margin-top:12px">
       <button class="btn-sm" onclick="cancelAdd()">取消</button>
       <button class="btn-main" id="expenseSaveButton" style="flex:1;margin-left:8px" ${expenseSaving?'disabled':''} onclick="submitExpense()">${expenseSaving?'儲存中…':(S.editExpenseId?'儲存修改':'儲存花費')}</button>
-    </div></div>`;
+    </div></lumen-card>`;
   return html;
 }
 function setPayer(name){ S.newExpense.payer=name; syncFormInputs(); render(); }
@@ -874,11 +888,9 @@ async function submitExpense(){
     }
   }
 }
-function renderTransferStatusIcon(status){
-  if(status==='paid'){
-    return '<svg class="status-icon is-paid" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3.25 8.2 6.25 11.1 12.8 4.9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  }
-  return '<svg class="status-icon is-pending" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6.1" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 4.4v3.8l2.5 1.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function renderTransferBadge(status){
+  const paid=status==='paid';
+  return '<lumen-badge class="transfer-status-badge" variant="'+(paid?'success':'warning')+'">'+(paid?'已付款':'待付款')+'</lumen-badge>';
 }
 function renderTransferGroup(kind,pendingItems,doneItems,transit,archived){
   const incoming=kind==='receive', noun=incoming?'收款':'付款';
@@ -888,7 +900,7 @@ function renderTransferGroup(kind,pendingItems,doneItems,transit,archived){
     html+=`<div class="transfer-subtitle">待${noun}（${pendingItems.length}筆）</div>`;
     pendingItems.forEach(t=>{
       const busy=markingTransferKeys.has(transferKey(t.from,t.to,t.amount));
-      html+=`<div class="row transfer-row"><span class="transfer-flow">${renderTransferStatusIcon('pending')}<span class="transfer-description">${esc(t.from)} → ${esc(t.to)}：<b>${fmt(t.amount)}</b></span></span>${archived?'':`<button class="btn-sm" ${busy?'disabled':''} onclick="markPaid(${jsArg(t.from)},${jsArg(t.to)},${t.amount})">${busy?'記錄中…':'標記已付款'}</button>`}</div>`;
+      html+=`<div class="row transfer-row"><span class="transfer-flow">${renderTransferBadge('pending')}<span class="transfer-description">${esc(t.from)} → ${esc(t.to)}：<b>${fmt(t.amount)}</b></span></span>${archived?'':`<button class="btn-sm" ${busy?'disabled':''} onclick="markPaid(${jsArg(t.from)},${jsArg(t.to)},${t.amount})">${busy?'記錄中…':'標記已付款'}</button>`}</div>`;
     });
   }else{
     html+=`<p class="small">目前沒有待${noun}</p>`;
@@ -896,7 +908,7 @@ function renderTransferGroup(kind,pendingItems,doneItems,transit,archived){
   if(doneItems.length){
     html+=`<div class="transfer-subtitle">已完成（${doneItems.length}筆）</div>`;
     doneItems.forEach(t=>{
-      html+=`<div class="row transfer-row"><span class="transfer-flow">${renderTransferStatusIcon('paid')}<span class="transfer-description">${esc(t.from)} → ${esc(t.to)}：<b>${fmt(t.amount)}</b></span></span>${archived?'':`<button class="btn-sm" onclick="unmarkPaid(${jsArg(t.id)})">取消</button>`}</div>`;
+      html+=`<div class="row transfer-row"><span class="transfer-flow">${renderTransferBadge('paid')}<span class="transfer-description">${esc(t.from)} → ${esc(t.to)}：<b>${fmt(t.amount)}</b></span></span>${archived?'':`<button class="btn-sm" onclick="unmarkPaid(${jsArg(t.id)})">取消</button>`}</div>`;
     });
   }
   return html+'</section>';
@@ -905,7 +917,7 @@ function renderOtherCompleted(transfers,archived){
   if(!transfers.length) return '';
   let html=`<section class="transfer-group"><div class="row transfer-heading"><b>其他已完成轉帳</b><span class="small">${transfers.length}筆</span></div>`;
   transfers.forEach(t=>{
-    html+=`<div class="row transfer-row"><span class="transfer-flow">${renderTransferStatusIcon('paid')}<span class="transfer-description">${esc(t.from)} → ${esc(t.to)}：<b>${fmt(t.amount)}</b></span></span>${archived?'':`<button class="btn-sm" onclick="unmarkPaid(${jsArg(t.id)})">取消</button>`}</div>`;
+    html+=`<div class="row transfer-row"><span class="transfer-flow">${renderTransferBadge('paid')}<span class="transfer-description">${esc(t.from)} → ${esc(t.to)}：<b>${fmt(t.amount)}</b></span></span>${archived?'':`<button class="btn-sm" onclick="unmarkPaid(${jsArg(t.id)})">取消</button>`}</div>`;
   });
   return html+'</section>';
 }
@@ -925,11 +937,11 @@ function renderSettle(m){
     const v=Math.round(rnet[n]);
     const tone=v>0?'positive':(v<0?'negative':'neutral');
     const status=v>0?'應收款':(v<0?'待付款':'已結清');
-    summaryHtml+='<article class="balance-card"><div class="balance-card-top"><span class="avatar-mini" aria-hidden="true"><svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3"/><path d="M3.8 17a6.2 6.2 0 0 1 12.4 0"/></svg></span><span class="balance-name">'+esc(n)+'</span></div><div class="balance-net '+tone+'"><span>'+status+'</span><b>'+(v!==0?fmt(Math.abs(v)):'—')+'</b></div><div class="balance-paid"><span>已代墊</span><b>'+fmt(paid[n]||0)+'</b></div><div class="balance-due"><span>應付分攤</span><strong>'+fmt(owed[n]||0)+'</strong></div></article>';
+    summaryHtml+='<lumen-card variant="glass" glass="subtle" class="balance-card" role="article" aria-label="'+esc(n)+' 的結算"><div class="balance-card-top"><span class="avatar-mini" aria-hidden="true"><svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3"/><path d="M3.8 17a6.2 6.2 0 0 1 12.4 0"/></svg></span><span class="balance-name">'+esc(n)+'</span></div><div class="balance-net '+tone+'"><span>'+status+'</span><b>'+(v!==0?fmt(Math.abs(v)):'—')+'</b></div><div class="balance-paid"><span>已代墊</span><b>'+fmt(paid[n]||0)+'</b></div><div class="balance-due"><span>應付分攤</span><strong>'+fmt(owed[n]||0)+'</strong></div></lumen-card>';
   });
   summaryHtml+='</div></section>';
   let html='<section class="settle-section"><div class="section-heading"><div><span class="section-kicker">TRANSFER PLAN</span><h2>中轉人結算</h2><p>中轉人集中收款與付款，其他人只需按安排轉帳。</p></div></div>';
-  html+='<div class="surface transfer-control"><div class="transit-current"><div class="transit-person"><span class="transit-person-icon" aria-hidden="true">⇄</span><div class="transit-person-copy"><span class="small">目前中轉人</span><strong>'+esc(transit)+'</strong></div></div>';
+  html+='<lumen-card variant="glass" glass="strong" class="transfer-control"><div class="transit-current"><div class="transit-person"><span class="transit-person-icon" aria-hidden="true">⇄</span><div class="transit-person-copy"><span class="small">目前中轉人</span><strong>'+esc(transit)+'</strong></div></div>';
   if(!m.archived){
     const toggleLabel=S.showTransitPicker?'收起名單':'更換中轉人';
     html+='<button type="button" class="btn-sm transit-change" aria-expanded="'+(S.showTransitPicker?'true':'false')+'" '+(S.showTransitPicker?'aria-controls="transitPicker"':'')+' onclick="toggleTransitPicker()"><span>'+toggleLabel+'</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4 4.5-4"/></svg></button>';
@@ -944,7 +956,7 @@ function renderSettle(m){
     });
     html+='</div></div>';
   }
-  html+='</div>';
+  html+='</lumen-card>';
   if(pending.length===0&&S.transfers.length===0){
     html+='<div class="settled-note"><span class="empty-icon" aria-hidden="true">✓</span><span>目前無需轉帳，所有帳目已平衡。</span></div>';
   }else{
