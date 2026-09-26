@@ -295,7 +295,7 @@ label{display:block;font-size:14px;font-weight:700;color:var(--app-ink-soft);mar
   .meeting-brand small{display:block;font-size:11px}
   .meeting-live-tag{font-size:11px;padding:7px 9px}
   .meeting-topline{gap:10px}
-  .meeting-actions{gap:6px;margin-left:auto}
+  .meeting-actions{gap:6px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end;max-width:100%}
   .meeting-actions .btn-share{padding:8px 9px;font-size:12px}
   .meeting-caption{max-width:30ch}
   .balance-grid{grid-template-columns:1fr}
@@ -331,7 +331,7 @@ window.fbReady = true;
 </head>
 <body>
 <div id="app">載入中…</div>
-<dialog id="shareQrDialog" class="share-qr-dialog" aria-labelledby="shareQrTitle" oncancel="handleMeetingQrClose()" onclose="handleMeetingQrClose()">
+<dialog id="shareQrDialog" class="share-qr-dialog" aria-labelledby="shareQrTitle">
   <div class="share-qr-content">
     <div class="share-qr-header">
       <div>
@@ -694,7 +694,6 @@ function closeMeetingQr(){
   const dialog=document.getElementById('shareQrDialog');
   if(dialog?.open) dialog.close();
 }
-function handleMeetingQrClose(){}
 
 
 async function copySettlementSummary(button){
