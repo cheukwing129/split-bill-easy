@@ -371,10 +371,12 @@ function pendingTransfers(names,transit,rnet){
 function esc(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function jsArg(value){return `decodeURIComponent('${encodeURIComponent(String(value??'')).replace(/'/g,'%27')}')`;}
 function isDefaultAllExpense(e,participants){
+  const people=participants||[];
   const created=Number(e.createdAt);
-  const existed=(participants||[]).filter(p=>!Number.isFinite(Number(p.joinedAt))||!Number.isFinite(created)||Number(p.joinedAt)<=created).map(p=>p.name);
+  const existed=people.filter(p=>!Number.isFinite(Number(p.joinedAt))||!Number.isFinite(created)||Number(p.joinedAt)<=created).map(p=>p.name);
   const shares=Array.isArray(e.shareWith)?e.shareWith:[];
-  return existed.length>0 && existed.every(n=>shares.includes(n)) && shares.every(n=>existed.includes(n));
+  const currentNames=new Set(people.map(p=>p.name));
+  return existed.length>0 && existed.every(n=>shares.includes(n)) && shares.every(n=>currentNames.has(n));
 }
 async function syncAllSplitExpenses(id,participants,archived){
   if(archived||!participants.length) return;
