@@ -125,6 +125,10 @@ label{display:block;font-size:14px;font-weight:700;color:var(--app-ink-soft);mar
 .share-qr-frame [role=status]{color:var(--muted);font-size:14px;text-align:center}
 .share-qr-note{margin:0 0 16px;text-align:center}
 .share-qr-copy{width:100%}
+.expense-undo-toast{position:fixed;z-index:100;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:14px;width:min(520px,calc(100vw - 28px));padding:12px 14px 12px 16px;transform:translateX(-50%);border:1px solid rgba(255,255,255,.22);border-radius:15px;background:rgba(31,41,77,.96);color:#fff;box-shadow:0 14px 38px rgba(31,41,77,.27);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.expense-undo-copy{min-width:0;flex:1;font-size:14px;font-weight:650;line-height:1.4;overflow-wrap:anywhere}
+.expense-undo-action{flex:0 0 auto;min-height:40px;padding:8px 13px;border:1px solid rgba(255,255,255,.24);border-radius:10px;background:rgba(255,255,255,.13);color:#fff;font-size:14px;font-weight:750}
+.expense-undo-action:hover:not(:disabled){background:rgba(255,255,255,.22)}
 
 .btn-new-meeting svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .meeting-heading-row{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:25px 0 21px}
@@ -368,6 +372,10 @@ function cents(v){return Math.round(parseFloat(v||0)*100)||0;}
 function fmt(c){const n=c<0;c=Math.abs(c);return (n?'－':'')+'HK$'+(c/100).toFixed(2);}
 function meetingId(){const m=location.hash.match(/#\/m\/([^\/]+)/);return m?m[1]:null;}
 let expenseSaving=false;
+const EXPENSE_UNDO_MS=10000;
+let expenseUndoStack=[];
+let expenseUndoTimer=null;
+let undoingExpenseKey='';
 const markingTransferKeys=new Set();
 function transferKey(from,to,amount){return JSON.stringify([meetingId(),from,to,Math.round(Number(amount))]);}
 function stableRows(rows,map){
@@ -627,6 +635,7 @@ function render(){
     </nav>
     ${S.view==='settle' ? renderSettle(m) : renderLedger(m)}
     <footer class="footer">${m.archived?'':`<span class="btn-ghost" style="cursor:pointer" onclick="archiveMeeting()">封存此聚會（唯讀）</span>`}</footer>
+    ${renderExpenseUndoToast(m)}
   </main>`;
   document.getElementById('app').innerHTML = html;
 }
@@ -1094,12 +1103,82 @@ function syncFormInputs(){
   if(am) S.newExpense.amount=am.value;
 }
 function cancelAdd(){ S.showAdd=false; S.editExpenseId=null; S.newExpense=null; render(); }
+function pruneExpenseUndoStack(){
+  const now=Date.now();
+  expenseUndoStack=expenseUndoStack.filter(entry=>entry.expiresAt>now||entry.key===undoingExpenseKey);
+}
+function scheduleExpenseUndoExpiry(){
+  if(expenseUndoTimer!==null) window.clearTimeout(expenseUndoTimer);
+  expenseUndoTimer=null;
+  pruneExpenseUndoStack();
+  const expiries=expenseUndoStack.filter(entry=>entry.key!==undoingExpenseKey).map(entry=>entry.expiresAt);
+  if(!expiries.length) return;
+  expenseUndoTimer=window.setTimeout(()=>{
+    expenseUndoTimer=null;
+    pruneExpenseUndoStack();
+    scheduleExpenseUndoExpiry();
+    render();
+  },Math.max(0,Math.min(...expiries)-Date.now()));
+}
+function renderExpenseUndoToast(m){
+  pruneExpenseUndoStack();
+  if(!m||m.archived) return '';
+  const entry=[...expenseUndoStack].reverse().find(item=>item.meetingId===m.id);
+  if(!entry) return '';
+  const busy=undoingExpenseKey===entry.key;
+  return '<div class="expense-undo-toast" role="status" aria-live="polite" aria-atomic="true"><span class="expense-undo-copy">已刪除「'+esc(entry.expense.item)+'」</span><button type="button" class="expense-undo-action" onclick="undoDeletedExpense('+jsArg(entry.key)+')" '+(busy?'disabled':'')+'>'+(busy?'還原中…':'還原')+'</button></div>';
+}
+async function undoDeletedExpense(key){
+  if(undoingExpenseKey) return;
+  const entry=expenseUndoStack.find(item=>item.key===key);
+  if(!entry) return;
+  if(Date.now()>=entry.expiresAt){
+    scheduleExpenseUndoExpiry();
+    render();
+    return;
+  }
+  if(meetingId()!==entry.meetingId) return;
+  if(S.meeting?.id===entry.meetingId&&S.meeting.archived){
+    alert('此聚會已封存，無法還原花費。');
+    return;
+  }
+  undoingExpenseKey=key;
+  render();
+  const {id:expenseId,...expenseData}=entry.expense;
+  try{
+    await window.fb.setDoc(window.fb.doc(db,'meetings',entry.meetingId,'expenses',expenseId),expenseData);
+    expenseUndoStack=expenseUndoStack.filter(item=>item.key!==key);
+    if(meetingId()===entry.meetingId){
+      S.expenses=S.expenses.filter(item=>item.id!==expenseId);
+      S.expenses.push({id:expenseId,...expenseData});
+      S.expenses.sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+    }
+  }catch(err){
+    console.error('還原花費失敗',err);
+    alert('還原花費失敗，請檢查網絡後再試。');
+  }finally{
+    undoingExpenseKey='';
+    scheduleExpenseUndoExpiry();
+    if(meetingId()===entry.meetingId) render();
+  }
+}
 async function deleteExpense(id){
   const e=S.expenses.find(x=>x.id===id); if(!e) return;
-  if(!confirm('刪除「'+e.item+'」（'+fmt(e.amount)+'）？此操作無法自動還原。')) return;
+  const idAtDelete=meetingId();
+  if(!confirm('刪除「'+e.item+'」（'+fmt(e.amount)+'）？刪除後可在 10 秒內還原。')) return;
+  const savedExpense={...e,id,shareWith:Array.isArray(e.shareWith)?[...e.shareWith]:[]};
   try{
-    await window.fb.deleteDoc(window.fb.doc(db,'meetings',meetingId(),'expenses',id));
-    if(S.editExpenseId===id) cancelAdd();
+    await window.fb.deleteDoc(window.fb.doc(db,'meetings',idAtDelete,'expenses',id));
+    S.expenses=S.expenses.filter(item=>item.id!==id);
+    expenseUndoStack.push({
+      key:idAtDelete+':'+id+':'+Date.now(),
+      meetingId:idAtDelete,
+      expense:savedExpense,
+      expiresAt:Date.now()+EXPENSE_UNDO_MS
+    });
+    if(S.editExpenseId===id){S.showAdd=false;S.editExpenseId=null;S.newExpense=null;}
+    scheduleExpenseUndoExpiry();
+    render();
   }catch(err){ alert('刪除花費失敗，請檢查網絡後再試。'); }
 }
 async function submitExpense(){
