@@ -796,7 +796,6 @@ async function submitParticipant(){
     addingParticipant=false; render();
   }
 }
-async 
 function beginEditParticipant(name){
   const participant=(S.meeting?.participants||[]).find(p=>p.name===name);
   if(!participant) return;
