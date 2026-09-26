@@ -111,6 +111,20 @@ label{display:block;font-size:14px;font-weight:700;color:var(--app-ink-soft);mar
 .btn-share:hover:not(:disabled){background:rgba(255,255,255,.2)}
 .meeting-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
 .meeting-actions .btn-share{flex:0 0 auto;white-space:nowrap}
+.meeting-actions .btn-share svg{flex:0 0 auto}
+.share-qr-dialog{width:min(420px,calc(100vw - 28px));max-height:calc(100vh - 32px);margin:auto;padding:0;overflow:auto;border:1px solid rgba(255,255,255,.78);border-radius:22px;background:rgba(255,255,255,.98);color:var(--app-ink);box-shadow:0 26px 80px rgba(23,30,65,.28)}
+.share-qr-dialog::backdrop{background:rgba(24,29,57,.5);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.share-qr-content{padding:24px}
+.share-qr-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.share-qr-header h2{font-size:21px;margin:0;color:var(--app-ink)}
+.share-qr-close{flex:0 0 auto;min-width:40px;min-height:40px;padding:8px}
+.share-qr-description{margin:6px 0 0}
+.share-qr-frame{display:grid;place-items:center;min-height:276px;margin:18px auto 14px;padding:14px;border:1px solid var(--app-line);border-radius:18px;background:#fff}
+.share-qr-frame img{display:block;width:min(100%,248px);height:auto;image-rendering:pixelated}
+.share-qr-frame [role=status]{color:var(--muted);font-size:14px;text-align:center}
+.share-qr-note{margin:0 0 16px;text-align:center}
+.share-qr-copy{width:100%}
+
 .btn-new-meeting svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .meeting-heading-row{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:25px 0 21px}
 .meeting-heading-row h1{color:#fff;font-size:clamp(27px,4.5vw,38px);overflow-wrap:anywhere}
@@ -281,7 +295,7 @@ label{display:block;font-size:14px;font-weight:700;color:var(--app-ink-soft);mar
   .meeting-brand small{display:block;font-size:11px}
   .meeting-live-tag{font-size:11px;padding:7px 9px}
   .meeting-topline{gap:10px}
-  .meeting-actions{gap:6px;margin-left:auto}
+  .meeting-actions{gap:6px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end;max-width:100%}
   .meeting-actions .btn-share{padding:8px 9px;font-size:12px}
   .meeting-caption{max-width:30ch}
   .balance-grid{grid-template-columns:1fr}
@@ -317,6 +331,24 @@ window.fbReady = true;
 </head>
 <body>
 <div id="app">載入中…</div>
+<dialog id="shareQrDialog" class="share-qr-dialog" aria-labelledby="shareQrTitle">
+  <div class="share-qr-content">
+    <div class="share-qr-header">
+      <div>
+        <h2 id="shareQrTitle">掃碼加入聚會</h2>
+        <p class="small share-qr-description">使用手機相機掃描，即可開啟這場聚會。</p>
+      </div>
+      <button type="button" class="btn-sm share-qr-close" aria-label="關閉 QR Code" onclick="closeMeetingQr()">✕</button>
+    </div>
+    <div class="share-qr-frame">
+      <span id="shareQrLoading" role="status">正在產生 QR Code…</span>
+      <img id="shareQrImage" alt="聚會分享連結 QR Code" hidden>
+      <p id="shareQrError" class="warn" role="alert" hidden></p>
+    </div>
+    <p class="small share-qr-note">掃描後可查看及共同編輯此聚會，請只分享給聚會成員。</p>
+    <button type="button" id="shareQrCopyLink" class="btn-main share-qr-copy" onclick="copyMeetingLink(this)">複製聚會連結</button>
+  </div>
+</dialog>
 <script>
 let db=null;
 let unsub=[];
@@ -327,7 +359,7 @@ async function waitFb(){
 }
 let S={meeting:null,expId:null,expenses:[],transfers:[],view:'home',
   showAdd:false,editExpenseId:null,showPeople:false,splitSyncKey:'',newExpense:null,
-  showAddPerson:false,newParticipantName:'',newParticipantEmoji:'',editParticipant:null,showTransitPicker:false};
+  showAddPerson:false,newParticipantName:'',newParticipantEmoji:'',editParticipant:null,showTransitPicker:false,shareQrDataUrl:''};
 let addingParticipant=false;
 let renamingParticipant=false;
 
@@ -459,14 +491,14 @@ async function boot(){
       ],
       transfers:[{id:'demo-paid-1',from:'C',to:'A',amount:5000,completedAt:3}],
       view:'settle',showAdd:false,editExpenseId:null,showPeople:false,splitSyncKey:'',newExpense:null,
-      showAddPerson:false,newParticipantName:'',newParticipantEmoji:'',editParticipant:null,showTransitPicker:false};
+      showAddPerson:false,newParticipantName:'',newParticipantEmoji:'',editParticipant:null,showTransitPicker:false,shareQrDataUrl:''};
     render();
     return;
   }
   db = db || await waitFb();
   if(!db){ document.getElementById('app').innerHTML='<p class="warn">尚未連上資料庫：請在程式碼開頭填入你的 Firebase 設定（firebaseConfig）。</p>'; return; }
   if(!id){ S={meeting:null,view:'home'}; renderHome(); return; }
-  if(S.meeting?.id!==id){ S.view='home'; S.showTransitPicker=false; }
+  if(S.meeting?.id!==id){ closeMeetingQr(); S.view='home'; S.showTransitPicker=false; S.shareQrDataUrl=''; }
   const chooseDefaultView=S.view==='home';
   renderLoading();
   const mref = window.fb.doc(db,'meetings',id);
@@ -557,6 +589,15 @@ function render(){
             <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4H5.5A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16h9a1.5 1.5 0 0 0 1.5-1.5V12"/><path d="M10 4h6v6M16 4l-7 7"/></svg>
             <span>複製連結</span>
           </button>
+          <button class="btn-share btn-qr-share" type="button" onclick="openMeetingQr()" aria-label="顯示此聚會的 QR Code">
+            <svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round">
+              <rect x="2.8" y="2.8" width="5.4" height="5.4" rx=".7"></rect>
+              <rect x="11.8" y="2.8" width="5.4" height="5.4" rx=".7"></rect>
+              <rect x="2.8" y="11.8" width="5.4" height="5.4" rx=".7"></rect>
+              <path d="M11.8 11.8h2.4v2.4h-2.4zM15.2 11.8h2v2.1M15.2 15.2v2h2"></path>
+            </svg>
+            <span>QR Code</span>
+          </button>
         </div>
       </div>
       <div class="meeting-heading-row">
@@ -611,6 +652,46 @@ async function copyMeetingLink(button){
   }else{
     window.prompt('無法自動複製，請手動複製聚會連結：',link);
   }
+}
+
+let qrLibraryPromise=null;
+async function openMeetingQr(){
+  const id=meetingId(), dialog=document.getElementById('shareQrDialog');
+  if(!id||!dialog) return;
+  if(!dialog.open) dialog.showModal();
+  const img=document.getElementById('shareQrImage');
+  const loading=document.getElementById('shareQrLoading');
+  const error=document.getElementById('shareQrError');
+  error.hidden=true;
+  if(S.shareQrDataUrl){
+    img.src=S.shareQrDataUrl; img.hidden=false; loading.hidden=true;
+    return;
+  }
+  img.hidden=true; loading.hidden=false;
+  try{
+    if(!qrLibraryPromise) qrLibraryPromise=import('https://esm.sh/qrcode@1.5.4?bundle');
+    const qrModule=await qrLibraryPromise;
+    const generateSvg=qrModule.toString||qrModule.default?.toString;
+    if(typeof generateSvg!=='function'||generateSvg===Object.prototype.toString) throw new Error('QR renderer unavailable');
+    const svg=await generateSvg(window.location.href,{
+      type:'svg',errorCorrectionLevel:'M',margin:2,width:240,
+      color:{dark:'#202747',light:'#ffffff'}
+    });
+    if(meetingId()!==id) return;
+    S.shareQrDataUrl='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+    img.src=S.shareQrDataUrl; img.hidden=false; loading.hidden=true;
+  }catch(err){
+    qrLibraryPromise=null;
+    if(meetingId()!==id) return;
+    console.error('產生 QR Code 失敗',err);
+    loading.hidden=true;
+    error.textContent='QR Code 暫時無法載入，請使用下方按鈕複製連結。';
+    error.hidden=false;
+  }
+}
+function closeMeetingQr(){
+  const dialog=document.getElementById('shareQrDialog');
+  if(dialog?.open) dialog.close();
 }
 
 
