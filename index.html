@@ -632,7 +632,7 @@ async function copySettlementSummary(button){
     '',
     '已付款（'+completed.length+'筆）：',
     ...transferLines(completed)
-  ].join('\\n');
+  ].join('\n');
   let copied=false;
   if(navigator.clipboard&&window.isSecureContext){
     try{await navigator.clipboard.writeText(summary);copied=true;}catch(err){}
