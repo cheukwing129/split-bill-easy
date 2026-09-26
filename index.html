@@ -370,7 +370,7 @@ function pendingTransfers(names,transit,rnet){
 
 function esc(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function jsArg(value){return `decodeURIComponent('${encodeURIComponent(String(value??'')).replace(/'/g,'%27')}')`;}
-function isDefaultAllExpense(e,participants){
+function defaultAllExpenseStatus(e,participants){
   const people=participants||[];
   const created=Number(e.createdAt);
   const existed=people.filter(p=>!Number.isFinite(Number(p.joinedAt))||!Number.isFinite(created)||Number(p.joinedAt)<=created).map(p=>p.name);
@@ -379,24 +379,28 @@ function isDefaultAllExpense(e,participants){
   const later=people.filter(p=>Number.isFinite(Number(p.joinedAt))&&Number.isFinite(created)&&Number(p.joinedAt)>created);
   const latestJoinAt=later.reduce((latest,p)=>Math.max(latest,Number(p.joinedAt)),-Infinity);
   const olderLateJoinMissing=later.some(p=>Number(p.joinedAt)<latestJoinAt&&!shares.includes(p.name));
-  return existed.length>0 && existed.every(n=>shares.includes(n)) && shares.every(n=>currentNames.has(n)) && !olderLateJoinMissing;
+  const baseIsAll=existed.length>0&&existed.every(n=>shares.includes(n))&&shares.every(n=>currentNames.has(n));
+  return {isDefaultAll:baseIsAll&&!olderLateJoinMissing,awaitingEarlierJoin:baseIsAll&&olderLateJoinMissing};
 }
+function isDefaultAllExpense(e,participants){return defaultAllExpenseStatus(e,participants).isDefaultAll;}
 async function syncAllSplitExpenses(id,participants,archived){
   if(archived||!participants.length) return;
   const key=id+':'+participants.map(p=>p.name).join('|');
   if(S.splitSyncKey===key) return;
   S.splitSyncKey=key;
+  let retryAfterExpenseUpdate=false;
   try{
     const snap=await window.fb.getDocs(window.fb.collection(db,'meetings',id,'expenses'));
     const names=participants.map(p=>p.name), batch=window.fb.writeBatch(db); let writes=0;
     snap.forEach(d=>{
-      const e=d.data();
-      if(!isDefaultAllExpense(e,participants)) return;
+      const e=d.data(), status=defaultAllExpenseStatus(e,participants);
+      if(!status.isDefaultAll){if(status.awaitingEarlierJoin) retryAfterExpenseUpdate=true;return;}
       const shares=Array.isArray(e.shareWith)?e.shareWith:[];
       const missing=names.filter(n=>!shares.includes(n));
       if(missing.length){batch.update(d.ref,{shareWith:window.fb.arrayUnion(...missing)});writes++;}
     });
     if(writes) await batch.commit();
+    if(retryAfterExpenseUpdate&&S.splitSyncKey===key) S.splitSyncKey='';
   }catch(err){S.splitSyncKey='';console.error('同步預設分攤失敗',err);}
 }
 
