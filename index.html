@@ -175,7 +175,8 @@ label{display:block;font-size:14px;font-weight:700;color:var(--app-ink-soft);mar
 .custom-share-preview{margin:10px 0 0;padding:10px 11px;border-radius:11px;background:rgba(101,88,232,.07);color:var(--app-ink-soft);font-size:13px;line-height:1.55;overflow-wrap:anywhere}
 .custom-share-preview.is-error{background:rgba(220,70,83,.09);color:#9b3947}
 .share-amount-details{margin-top:8px;color:var(--app-ink-soft);font-size:13px;line-height:1.55;overflow-wrap:anywhere}
-@media(max-width:520px){.custom-share-row{grid-template-columns:1fr;gap:6px}.custom-share-input-wrap{padding-left:35px}}
+@media(max-width:600px){.custom-share-row{grid-template-columns:1fr;gap:6px}.custom-share-input-wrap{padding-left:35px}.total-share-row{grid-template-columns:minmax(0,1fr) minmax(135px,1fr)}.total-share-person{grid-column:1/-1}.total-share-value-wrap,.total-share-auto-note{grid-column:2}}
+@media(max-width:390px){.total-share-row{grid-template-columns:1fr}.total-share-person{grid-column:auto}.total-share-value-wrap,.total-share-auto-note{grid-column:auto}}
 .people-card{padding:19px 20px;margin:0 0 20px}
 .people-card-header,.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .transfer-plan-heading{align-items:flex-start;flex-wrap:wrap}
@@ -254,6 +255,28 @@ label{display:block;font-size:14px;font-weight:700;color:var(--app-ink-soft);mar
 .balance-due{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:6px;font-size:12px}
 .balance-due span{color:var(--muted)}
 .balance-due strong{color:var(--app-ink-soft);font-size:13px;font-weight:750;white-space:nowrap}
+.balance-adjustment{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:6px;color:var(--muted);font-size:12px}
+.balance-adjustment b{font-size:13px;font-weight:750;white-space:nowrap}
+.balance-adjustment.positive b{color:var(--app-accent-dark)}
+.balance-adjustment.negative b{color:var(--muted)}
+.total-share-toggle{display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;white-space:nowrap}
+.total-share-toggle svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .16s ease}
+.total-share-toggle[aria-expanded="true"] svg{transform:rotate(180deg)}
+.total-share-panel{margin:0 0 13px;padding:17px 18px}
+.total-share-help{margin:0;color:var(--muted);font-size:13px;line-height:1.55}
+.total-share-rows{margin-top:11px}
+.total-share-row{display:grid;grid-template-columns:minmax(120px,1fr) minmax(150px,.9fr) minmax(135px,.8fr);align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--app-line)}
+.total-share-person{display:flex;align-items:center;gap:8px;min-width:0;font-size:14px;font-weight:700;color:var(--app-ink-soft);overflow-wrap:anywhere}
+.total-share-person .avatar-mini{flex:0 0 29px;width:29px;height:29px}
+.total-share-mode{width:100%;min-height:42px;padding:9px 10px;border:1px solid rgba(86,96,143,.18);border-radius:10px;background:rgba(255,255,255,.9);color:var(--app-ink-soft);font:600 14px var(--ui-font)}
+.total-share-value-wrap{display:flex;align-items:center;gap:8px;min-width:0;padding:0 10px;border:1px solid rgba(86,96,143,.18);border-radius:10px;background:rgba(255,255,255,.92);color:var(--muted);font-size:13px;font-weight:700}
+.total-share-value{flex:1;min-width:0;min-height:40px;margin:0!important;padding:8px 0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;font:600 15px var(--ui-font)!important;font-variant-numeric:tabular-nums}
+.total-share-value:focus{outline:0;box-shadow:none!important}
+.total-share-auto-note{color:var(--muted);font-size:13px}
+.total-share-preview{margin:12px 0 0;padding:10px 12px;border-radius:11px;background:rgba(101,88,232,.07);color:var(--app-ink-soft);font-size:13px;line-height:1.5}
+.total-share-preview.is-error,.total-share-invalid-banner{background:rgba(220,70,83,.09);color:#9b3947}
+.total-share-invalid-banner{margin:0 0 12px;padding:11px 13px;border:1px solid rgba(220,70,83,.14);border-radius:12px;font-size:13px;line-height:1.5}
+.total-share-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:13px}
 .transfer-control{padding:17px 19px;margin-bottom:14px}
 .transit-current{display:flex;align-items:center;justify-content:space-between;gap:14px}
 .transit-person{display:flex;align-items:center;gap:11px;min-width:0}
@@ -378,7 +401,12 @@ async function waitFb(){
 }
 let S={meeting:null,expId:null,expenses:[],transfers:[],view:'home',
   showAdd:false,editExpenseId:null,showPeople:false,splitSyncKey:'',newExpense:null,
-  showAddPerson:false,newParticipantName:'',newParticipantEmoji:'',editParticipant:null,showTransitPicker:false,shareQrDataUrl:''};
+  showAddPerson:false,newParticipantName:'',newParticipantEmoji:'',editParticipant:null,showTransitPicker:false,showTotalShares:false,shareQrDataUrl:''};
+let totalShareDraft=null;
+let totalShareBaseline=null;
+let totalShareDirty=new Set();
+let totalShareDraftMeetingId='';
+let savingTotalShares=false;
 let addingParticipant=false;
 let renamingParticipant=false;
 
@@ -401,8 +429,8 @@ function stableRows(rows,map){
 async function paidTransferId(from,to,amount){
   const state=JSON.stringify({
     meeting:meetingId(),
-    participants:(S.meeting?.participants||[]).map(p=>p.name),
-    expenses:stableRows(S.expenses,e=>[e.id,e.payer,e.amount,[...(e.shareWith||[])].sort()]),
+    participants:stableRows(S.meeting?.participants||[],p=>[p.name,p.totalShare||null]),
+    expenses:stableRows(S.expenses,e=>[e.id,e.payer,e.amount,[...(e.shareWith||[])].sort(),(Array.isArray(e.customShares)?e.customShares:[]).map(s=>[s.participant,s.amount]).sort((a,b)=>String(a[0]).localeCompare(String(b[0])))]),
     transfers:stableRows(S.transfers,t=>[t.id,t.from,t.to,t.amount]),
     payment:[from,to,Math.round(Number(amount))]
   });
@@ -501,16 +529,278 @@ function calculateBalancesFor(meeting,expenses,transit){
   const net={}; names.forEach(n=>{net[n]=(paid[n]||0)-(owed[n]||0);});
   return {names,paid,owed,net};
 }
-function computeBalances(meeting,expenses){
-  const explicitTransit=meeting.transitId;
-  const names=(meeting.participants||[]).map(p=>p.name);
-  if(explicitTransit&&names.includes(explicitTransit)){
-    return {...calculateBalancesFor(meeting,expenses,explicitTransit),transit:explicitTransit};
+
+function normalizeSavedTotalShare(setting){
+  if(setting===undefined||setting===null) return {valid:true,setting:null};
+  if(!setting||typeof setting!=='object') return {valid:false,setting:null};
+  if(setting.mode==='auto') return {valid:true,setting:null};
+  if(setting.mode==='amount'&&Number.isSafeInteger(setting.value)&&setting.value>=0){
+    return {valid:true,setting:{mode:'amount',value:setting.value}};
   }
-  const baseline=calculateBalancesFor(meeting,expenses,null);
-  const transit=defaultTransit(names,baseline.net);
-  return {...calculateBalancesFor(meeting,expenses,transit),transit};
+  if(setting.mode==='percent'&&Number.isSafeInteger(setting.value)&&setting.value>=0&&setting.value<=10000){
+    return {valid:true,setting:{mode:'percent',value:setting.value}};
+  }
+  return {valid:false,setting:null};
 }
+function parsePercentBasisPoints(value){
+  const raw=String(value??'').trim();
+  if(!raw)return {empty:true};
+  const match=/^(\d+)(?:\.(\d{0,2}))?$|^\.(\d{1,2})$/.exec(raw);
+  if(!match)return {error:'請輸入 0 至 100 的百分比，最多兩位小數。'};
+  const whole=Number(match[1]||0),decimal=match[2]??match[3]??'';
+  const basisPoints=whole*100+Number(decimal.padEnd(2,'0')||0);
+  if(!Number.isSafeInteger(basisPoints)||basisPoints<0||basisPoints>10000){
+    return {error:'請輸入 0 至 100 的百分比，最多兩位小數。'};
+  }
+  return {basisPoints};
+}
+function parseTotalShareSetting(setting,name){
+  if(setting===undefined||setting===null||setting.mode==='auto') return {automatic:true};
+  if(!setting||typeof setting!=='object') return {error:(name||'參加者')+'的自訂分攤設定無效。'};
+  if(setting.mode==='amount'){
+    let amount;
+    if(typeof setting.value==='number'){
+      amount=setting.value;
+      if(!Number.isSafeInteger(amount)||amount<0) return {error:(name||'參加者')+'的固定金額無效。'};
+    }else{
+      const parsed=parseMoneyCents(setting.value);
+      if(parsed.empty) return {error:'請輸入 '+(name||'參加者')+'的固定金額。'};
+      if(parsed.error) return {error:(name||'參加者')+'：'+parsed.error};
+      amount=parsed.cents;
+    }
+    return {mode:'amount',value:amount};
+  }
+  if(setting.mode==='percent'){
+    let basisPoints;
+    if(typeof setting.value==='number'){
+      basisPoints=setting.value;
+      if(!Number.isSafeInteger(basisPoints)||basisPoints<0||basisPoints>10000){
+        return {error:(name||'參加者')+'的百分比無效，須介乎 0 至 100%。'};
+      }
+    }else{
+      const parsed=parsePercentBasisPoints(setting.value);
+      if(parsed.empty) return {error:'請輸入 '+(name||'參加者')+'的百分比。'};
+      if(parsed.error) return {error:(name||'參加者')+'：'+parsed.error};
+      basisPoints=parsed.basisPoints;
+    }
+    return {mode:'percent',value:basisPoints};
+  }
+  return {error:(name||'參加者')+'的自訂分攤方式無效。'};
+}
+function readSavedTotalShareSettings(participants){
+  const settings=Object.create(null);
+  for(const p of participants||[]){
+    if(p.totalShare===undefined||p.totalShare===null) continue;
+    const normalized=normalizeSavedTotalShare(p.totalShare);
+    if(!normalized.valid) return {valid:false,settings,message:p.name+'的自訂總額設定無效，請重新設定。'};
+    if(normalized.setting) settings[p.name]=normalized.setting;
+  }
+  return {valid:true,settings};
+}
+function buildTotalSharePlan(totalCents,participants,settings,transit,priorOwed={}){
+  const people=Array.isArray(participants)?participants:[];
+  const names=people.map(p=>p.name);
+  if(!Number.isSafeInteger(totalCents)||totalCents<0){
+    return {valid:false,enabled:true,message:'總開支超出可處理範圍。'};
+  }
+  const automaticNames=[],percentRows=[];
+  const fixedShares=Object.create(null);
+  let customCount=0,fixedTotal=0,percentTotalBps=0;
+  for(let i=0;i<people.length;i++){
+    const name=people[i].name;
+    const setting=settings&&Object.prototype.hasOwnProperty.call(settings,name)?settings[name]:null;
+    const parsed=parseTotalShareSetting(setting,name);
+    if(parsed.error) return {valid:false,enabled:true,message:parsed.error};
+    if(parsed.automatic){automaticNames.push(name);continue;}
+    customCount++;
+    if(parsed.mode==='amount'){
+      fixedShares[name]=parsed.value;
+      fixedTotal+=parsed.value;
+      if(!Number.isSafeInteger(fixedTotal)) return {valid:false,enabled:true,message:'自訂金額合計超出可處理範圍。'};
+    }else{
+      percentTotalBps+=parsed.value;
+      percentRows.push({name,basisPoints:parsed.value,index:i});
+    }
+  }
+  if(customCount===0){
+    return {valid:true,enabled:false,shares:null,customCount:0,automaticNames:names,customTotalCents:0,remainderCents:totalCents,totalCents};
+  }
+  if(percentTotalBps>10000){
+    return {valid:false,enabled:true,message:'自訂百分比合計不可超過 100%。'};
+  }
+  const totalBig=BigInt(totalCents);
+  let percentFloorTotal=0;
+  percentRows.forEach(row=>{
+    const product=totalBig*BigInt(row.basisPoints);
+    row.amount=Number(product/10000n);
+    row.remainder=Number(product%10000n);
+    percentFloorTotal+=row.amount;
+  });
+  const percentTotalCents=Number((totalBig*BigInt(percentTotalBps)+5000n)/10000n);
+  let extraCents=percentTotalCents-percentFloorTotal;
+  percentRows.sort((a,b)=>b.remainder-a.remainder||a.index-b.index);
+  for(let i=0;i<extraCents&&i<percentRows.length;i++) percentRows[i].amount+=1;
+  const shares=Object.create(null);
+  Object.keys(fixedShares).forEach(name=>{shares[name]=fixedShares[name];});
+  percentRows.forEach(row=>{shares[row.name]=row.amount;});
+  const customTotalCents=fixedTotal+percentTotalCents;
+  if(customTotalCents>totalCents){
+    return {valid:false,enabled:true,message:'自訂固定金額及百分比合計超過聚會總開支。'};
+  }
+  const remainderCents=totalCents-customTotalCents;
+  if(!automaticNames.length&&remainderCents>0){
+    return {valid:false,enabled:true,message:'仍有 '+fmt(remainderCents)+' 未分配。請留一人按逐筆分攤，或令自訂金額合計等於總開支。'};
+  }
+  const autoShares=splitAmount(remainderCents,automaticNames,transit,priorOwed);
+  names.forEach(name=>{
+    if(!Object.prototype.hasOwnProperty.call(shares,name)) shares[name]=autoShares[name]||0;
+  });
+  return {
+    valid:true,enabled:true,shares,customCount,automaticNames,
+    customTotalCents,remainderCents,totalCents,percentTotalBps,fixedTotal
+  };
+}
+function draftTotalShareSettings(meeting,draft){
+  const settings=Object.create(null);
+  (meeting?.participants||[]).forEach(p=>{
+    const entry=draft&&draft[p.name];
+    if(entry&&entry.mode&&entry.mode!=='auto') settings[p.name]=entry;
+  });
+  return settings;
+}
+function balancesWithTotalSharePlan(base,plan){
+  const adjustments=Object.create(null);
+  if(!plan.valid||!plan.enabled){
+    base.names.forEach(name=>{adjustments[name]=0;});
+    return {...base,baseOwed:base.owed,totalShareAdjustments:adjustments,totalSharePlan:plan};
+  }
+  const owed=Object.create(null),net=Object.create(null);
+  base.names.forEach(name=>{
+    owed[name]=plan.shares[name]||0;
+    net[name]=(base.paid[name]||0)-owed[name];
+    adjustments[name]=owed[name]-(base.owed[name]||0);
+  });
+  return {...base,owed,net,baseOwed:base.owed,totalShareAdjustments:adjustments,totalSharePlan:plan};
+}
+function computeBalancesWithSettings(meeting,expenses,settings,settingsError=''){
+  const participants=meeting.participants||[];
+  const names=participants.map(p=>p.name);
+  const totalCents=(expenses||[]).reduce((sum,e)=>sum+Number(e.amount||0),0);
+  const calculate=(transit)=>{
+    const base=calculateBalancesFor(meeting,expenses,transit);
+    const plan=settingsError
+      ?{valid:false,enabled:true,message:settingsError}
+      :buildTotalSharePlan(totalCents,participants,settings,transit,base.owed);
+    return balancesWithTotalSharePlan(base,plan);
+  };
+  const explicitTransit=meeting.transitId;
+  if(explicitTransit&&names.includes(explicitTransit)){
+    return {...calculate(explicitTransit),transit:explicitTransit};
+  }
+  const baseline=calculate(null);
+  const transit=defaultTransit(names,baseline.net);
+  return {...calculate(transit),transit};
+}
+function computeBalances(meeting,expenses){
+  const saved=readSavedTotalShareSettings(meeting.participants||[]);
+  return computeBalancesWithSettings(meeting,expenses,saved.settings,saved.valid?'':saved.message);
+}
+function totalShareDraftToStored(entry){
+  if(!entry||entry.mode==='auto') return {valid:true,setting:null};
+  const parsed=parseTotalShareSetting(entry,'參加者');
+  if(parsed.error) return {valid:false,message:parsed.error};
+  return {valid:true,setting:{mode:parsed.mode,value:parsed.value}};
+}
+function ensureTotalShareDraft(meeting){
+  const currentMeetingId=meeting.id||meetingId()||'';
+  if(!totalShareDraft||totalShareDraftMeetingId!==currentMeetingId){
+    totalShareDraft=Object.create(null);
+    totalShareBaseline=Object.create(null);
+    totalShareDirty=new Set();
+    totalShareDraftMeetingId=currentMeetingId;
+  }
+  const participants=meeting.participants||[];
+  const currentNames=new Set(participants.map(p=>p.name));
+  Object.keys(totalShareDraft).forEach(name=>{
+    if(currentNames.has(name)) return;
+    delete totalShareDraft[name];
+    delete totalShareBaseline[name];
+    totalShareDirty.delete(name);
+  });
+  participants.forEach(p=>{
+    const normalized=normalizeSavedTotalShare(p.totalShare);
+    if(Object.prototype.hasOwnProperty.call(totalShareDraft,p.name)){
+      if(totalShareDirty.has(p.name)) return;
+      totalShareBaseline[p.name]=normalized.valid?normalized.setting:null;
+      if(normalized.setting){
+        totalShareDraft[p.name]={mode:normalized.setting.mode,value:(normalized.setting.value/100).toFixed(2)};
+      }else{
+        totalShareDraft[p.name]={mode:'auto',value:''};
+        if(!normalized.valid) totalShareDirty.add(p.name);
+      }
+      return;
+    }
+    totalShareBaseline[p.name]=normalized.valid?normalized.setting:null;
+    if(normalized.setting){
+      totalShareDraft[p.name]={mode:normalized.setting.mode,value:(normalized.setting.value/100).toFixed(2)};
+    }else{
+      totalShareDraft[p.name]={mode:'auto',value:''};
+      if(!normalized.valid) totalShareDirty.add(p.name);
+    }
+  });
+}
+function markTotalShareDraftDirty(name){
+  const parsed=totalShareDraftToStored(totalShareDraft[name]);
+  const baseline=Object.prototype.hasOwnProperty.call(totalShareBaseline||{},name)?totalShareBaseline[name]:null;
+  if(parsed.valid&&JSON.stringify(parsed.setting)===JSON.stringify(baseline||null)){
+    totalShareDirty.delete(name);
+  }else{
+    totalShareDirty.add(name);
+  }
+}
+function totalSharePreviewMessage(plan){
+  if(!plan.valid) return plan.message;
+  if(!plan.enabled) return '尚未設定自訂總額，所有人會按逐筆花費分攤。';
+  if(plan.automaticNames.length){
+    return '自訂部分合計 '+fmt(plan.customTotalCents)+'；餘額 '+fmt(plan.remainderCents)+' 由 '+plan.automaticNames.length+' 人分攤。';
+  }
+  return '自訂金額已分配全部總開支 '+fmt(plan.totalCents)+'。';
+}
+function renderTotalSharePanel(meeting){
+  ensureTotalShareDraft(meeting);
+  const current=computeBalancesWithSettings(
+    meeting,S.expenses,draftTotalShareSettings(meeting,totalShareDraft)
+  );
+  const plan=current.totalSharePlan;
+  let html='<div class="surface total-share-panel" id="totalSharePanel">';
+  html+='<p class="small total-share-help">設定每人的最終應付總額。固定金額不會隨花費改變；百分比會按聚會總開支自動更新。未設定的人會分攤餘額。這項設定不會改動逐筆花費明細。</p>';
+  html+='<div class="total-share-rows">';
+  (meeting.participants||[]).forEach(p=>{
+    const entry=totalShareDraft[p.name]||{mode:'auto',value:''};
+    const mode=entry.mode||'auto';
+    const avatar=renderParticipantAvatar(p);
+    let valueField='<span class="total-share-auto-note">按逐筆分攤</span>';
+    if(mode==='amount'||mode==='percent'){
+      const unit=mode==='amount'?'HK$':'%';
+      const label=mode==='amount'?'固定應付款額':'總開支百分比';
+      const maximum=mode==='percent'?' max="100"':'';
+      const shown=entry.value??'';
+      valueField='<div class="total-share-value-wrap"><input class="total-share-value" data-total-share-name="'+esc(p.name)+'" data-total-share-value type="number" min="0"'+maximum+' step="0.01" inputmode="decimal" aria-label="'+esc(p.name)+' 的'+label+'" value="'+esc(String(shown))+'" oninput="updateTotalShareDraftFromForm()" '+(savingTotalShares?'disabled':'')+'><span>'+unit+'</span></div>';
+    }
+    html+='<div class="total-share-row"><div class="total-share-person">'+avatar+'<span>'+esc(p.name)+'</span></div>';
+    html+='<select class="total-share-mode" data-total-share-name="'+esc(p.name)+'" data-total-share-mode aria-label="'+esc(p.name)+' 的分攤方式" onchange="setTotalShareMode(this.dataset.totalShareName,this.value)" '+(savingTotalShares?'disabled':'')+'>';
+    html+='<option value="auto"'+(mode==='auto'?' selected':'')+'>按逐筆分攤</option>';
+    html+='<option value="amount"'+(mode==='amount'?' selected':'')+'>固定金額</option>';
+    html+='<option value="percent"'+(mode==='percent'?' selected':'')+'>總開支比例</option>';
+    html+='</select>'+valueField+'</div>';
+  });
+  html+='</div>';
+  html+='<p id="totalSharePreview" class="total-share-preview'+(plan.valid?'':' is-error')+'" role="status" aria-live="polite">'+esc(totalSharePreviewMessage(plan))+'</p>';
+  html+='<div class="total-share-actions"><button id="totalShareSaveButton" type="button" class="btn-sm" onclick="saveTotalShareSettings()" '+(!plan.valid||savingTotalShares?'disabled':'')+'>'+(savingTotalShares?'儲存中…':'儲存設定')+'</button><button type="button" class="btn-sm" onclick="cancelTotalShareSettings()" '+(savingTotalShares?'disabled':'')+'>取消</button></div>';
+  html+='</div>';
+  return html;
+}
+
 function expensePreviewTransit(meeting){
   return meeting?computeBalances(meeting,S.expenses).transit:null;
 }
@@ -604,7 +894,7 @@ async function boot(){
   db = db || await waitFb();
   if(!db){ document.getElementById('app').innerHTML='<p class="warn">尚未連上資料庫：請在程式碼開頭填入你的 Firebase 設定（firebaseConfig）。</p>'; return; }
   if(!id){ S={meeting:null,view:'home'}; renderHome(); return; }
-  if(S.meeting?.id!==id){ closeMeetingQr(); S.view='home'; S.showTransitPicker=false; S.shareQrDataUrl=''; }
+  if(S.meeting?.id!==id){ closeMeetingQr(); S.view='home'; S.showTransitPicker=false; S.showTotalShares=false; totalShareDraft=null; totalShareBaseline=null; totalShareDirty=new Set(); totalShareDraftMeetingId=''; S.shareQrDataUrl=''; }
   const chooseDefaultView=S.view==='home';
   renderLoading();
   const mref = window.fb.doc(db,'meetings',id);
@@ -1426,24 +1716,44 @@ function renderOtherCompleted(transfers,archived){
   });
   return html+'</section>';
 }
+function formatTotalShareAdjustment(value){
+  return value>0?'＋'+fmt(value):fmt(value);
+}
 function renderSettle(m){
-  const {names,paid,owed,net,transit:calculatedTransit} = computeBalances(m, S.expenses);
+  const balances=computeBalances(m,S.expenses);
+  const {names,paid,owed,net,transit:calculatedTransit}=balances;
   if(names.length===0) return '<div class="surface empty-state"><span class="empty-icon" aria-hidden="true">＋</span><strong>先新增參加者</strong><p>到「帳目」加入聚會成員，之後便會自動計算每人的分攤。</p></div>';
-  const transit = m.transitId && names.includes(m.transitId) ? m.transitId : calculatedTransit;
-  const rnet = remainingNet(net, S.transfers);
-  const pending = pendingTransfers(names, transit, rnet);
+  const transit=m.transitId&&names.includes(m.transitId)?m.transitId:calculatedTransit;
+  const rnet=remainingNet(net,S.transfers);
+  const pending=pendingTransfers(names,transit,rnet);
   const incoming=pending.filter(t=>t.to===transit);
   const outgoing=pending.filter(t=>t.from===transit);
   const completedIncoming=S.transfers.filter(t=>t.to===transit).sort((a,b)=>(a.completedAt||0)-(b.completedAt||0));
   const completedOutgoing=S.transfers.filter(t=>t.from===transit).sort((a,b)=>(a.completedAt||0)-(b.completedAt||0));
   const completedOther=S.transfers.filter(t=>t.from!==transit&&t.to!==transit).sort((a,b)=>(a.completedAt||0)-(b.completedAt||0));
-  let summaryHtml='<section class="settle-section"><div class="section-heading"><div><span class="section-kicker">BALANCE SUMMARY</span><h2>每人應付款</h2><p>按各筆花費的分攤對象計算，已包含個別分攤設定。</p></div></div><div class="balance-grid">';
+  const plan=balances.totalSharePlan||{valid:true,enabled:false};
+  let summaryHtml='<section class="settle-section"><div class="section-heading total-share-heading"><div><span class="section-kicker">BALANCE SUMMARY</span><h2>每人應付款</h2><p>'+(plan.enabled&&plan.valid?'已按自訂總額調整；逐筆花費明細保持原設定。':'按逐筆花費的分攤對象計算，可在此設定個人總額。')+'</p></div>';
+  if(!m.archived){
+    summaryHtml+='<button type="button" class="btn-sm total-share-toggle" aria-expanded="'+(S.showTotalShares?'true':'false')+'" '+(S.showTotalShares?'aria-controls="totalSharePanel"':'')+' onclick="toggleTotalSharePanel()"><span>'+(S.showTotalShares?'收起':'自訂總額分攤')+'</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4 4.5-4"/></svg></button>';
+  }
+  summaryHtml+='</div>';
+  if(!plan.valid&&plan.enabled){
+    summaryHtml+='<p class="total-share-invalid-banner" role="alert">'+esc(plan.message||'自訂總額無效。')+' 目前仍按逐筆花費計算。</p>';
+  }
+  if(S.showTotalShares&&!m.archived) summaryHtml+=renderTotalSharePanel(m);
+  summaryHtml+='<div class="balance-grid">';
   names.forEach(n=>{
     const v=Math.round(rnet[n]);
     const tone=v>0?'positive':(v<0?'negative':'neutral');
     const status=v>0?'應收款':(v<0?'待付款':'已結清');
     const avatar=renderParticipantAvatar((m.participants||[]).find(p=>p.name===n));
-    summaryHtml+='<lumen-card variant="glass" glass="subtle" class="balance-card" role="article" aria-label="'+esc(n)+' 的結算"><div class="balance-card-top">'+avatar+'<span class="balance-name">'+esc(n)+'</span></div><div class="balance-net '+tone+'"><span>'+status+'</span><b>'+(v!==0?fmt(Math.abs(v)):'—')+'</b></div><div class="balance-paid"><span>已代墊</span><b>'+fmt(paid[n]||0)+'</b></div><div class="balance-due"><span>應付分攤</span><strong>'+fmt(owed[n]||0)+'</strong></div></lumen-card>';
+    const adjustment=balances.totalShareAdjustments?.[n]||0;
+    const adjustmentTone=adjustment>0?'positive':(adjustment<0?'negative':'neutral');
+    summaryHtml+='<lumen-card variant="glass" glass="subtle" class="balance-card" role="article" aria-label="'+esc(n)+' 的結算"><div class="balance-card-top">'+avatar+'<span class="balance-name">'+esc(n)+'</span></div><div class="balance-net '+tone+'"><span>'+status+'</span><b>'+(v!==0?fmt(Math.abs(v)):'—')+'</b></div><div class="balance-paid"><span>已代墊</span><b>'+fmt(paid[n]||0)+'</b></div>';
+    if(plan.enabled&&plan.valid){
+      summaryHtml+='<div class="balance-adjustment '+adjustmentTone+'"><span>總額調整</span><b>'+formatTotalShareAdjustment(adjustment)+'</b></div>';
+    }
+    summaryHtml+='<div class="balance-due"><span>應付分攤</span><strong>'+fmt(owed[n]||0)+'</strong></div></lumen-card>';
   });
   summaryHtml+='</div></section>';
   let html='<section class="settle-section"><div class="section-heading transfer-plan-heading"><div><span class="section-kicker">TRANSFER PLAN</span><h2>中轉人結算</h2><p>中轉人集中收款與付款，其他人只需按安排轉帳。</p></div><button type="button" class="btn-sm settlement-copy-button" onclick="copySettlementSummary(this)">複製結算摘要</button></div>';
@@ -1474,6 +1784,115 @@ function renderSettle(m){
   html+=summaryHtml;
   return html;
 }
+function toggleTotalSharePanel(){
+  if(S.meeting?.archived||savingTotalShares) return;
+  if(!S.showTotalShares) ensureTotalShareDraft(S.meeting);
+  S.showTotalShares=!S.showTotalShares;
+  render();
+}
+function setTotalShareMode(name,mode){
+  if(savingTotalShares||!S.meeting) return;
+  ensureTotalShareDraft(S.meeting);
+  if(!['auto','amount','percent'].includes(mode)) mode='auto';
+  const previous=totalShareDraft[name]||{mode:'auto',value:''};
+  totalShareDraft[name]={mode,value:previous.mode===mode?previous.value:(mode==='auto'?'':'')};
+  markTotalShareDraftDirty(name);
+  render();
+}
+function updateTotalShareDraftFromForm(){
+  if(!S.meeting||!S.showTotalShares||savingTotalShares) return;
+  ensureTotalShareDraft(S.meeting);
+  const selects=Array.from(document.querySelectorAll('[data-total-share-mode]'));
+  const inputs=Array.from(document.querySelectorAll('[data-total-share-value]'));
+  selects.forEach(select=>{
+    const name=select.dataset.totalShareName;
+    const input=inputs.find(element=>element.dataset.totalShareName===name);
+    totalShareDraft[name]={mode:select.value,value:input?input.value:''};
+    markTotalShareDraftDirty(name);
+  });
+  const balances=computeBalancesWithSettings(
+    S.meeting,S.expenses,draftTotalShareSettings(S.meeting,totalShareDraft)
+  );
+  const plan=balances.totalSharePlan;
+  const preview=document.getElementById('totalSharePreview');
+  if(preview){
+    preview.textContent=totalSharePreviewMessage(plan);
+    preview.classList.toggle('is-error',!plan.valid);
+  }
+  const saveButton=document.getElementById('totalShareSaveButton');
+  if(saveButton) saveButton.disabled=!plan.valid||savingTotalShares;
+}
+function cancelTotalShareSettings(){
+  if(savingTotalShares) return;
+  totalShareDraft=null;
+  totalShareBaseline=null;
+  totalShareDirty=new Set();
+  totalShareDraftMeetingId='';
+  S.showTotalShares=false;
+  render();
+}
+async function saveTotalShareSettings(){
+  if(savingTotalShares||!S.meeting||S.meeting.archived) return;
+  updateTotalShareDraftFromForm();
+  const currentPreview=computeBalancesWithSettings(
+    S.meeting,S.expenses,draftTotalShareSettings(S.meeting,totalShareDraft)
+  ).totalSharePlan;
+  if(!currentPreview.valid) return;
+  const dirtyNames=Array.from(totalShareDirty);
+  if(!dirtyNames.length){
+    S.showTotalShares=false;
+    render();
+    return;
+  }
+  const changes=Object.create(null);
+  for(const name of dirtyNames){
+    const parsed=totalShareDraftToStored(totalShareDraft[name]);
+    if(!parsed.valid) return;
+    changes[name]=parsed.setting;
+  }
+  const id=meetingId(),meetingRef=window.fb.doc(db,'meetings',id);
+  savingTotalShares=true;
+  render();
+  try{
+    const participants=await window.fb.runTransaction(db,async transaction=>{
+      const snap=await transaction.get(meetingRef);
+      if(!snap.exists()) throw new Error('meeting-not-found');
+      const live=snap.data(),current=Array.isArray(live.participants)?live.participants:[];
+      if(live.archived) throw new Error('meeting-archived');
+      if(dirtyNames.some(name=>!current.some(p=>p.name===name))) throw new Error('participants-changed');
+      const next=current.map(p=>{
+        if(!Object.prototype.hasOwnProperty.call(changes,p.name)) return p;
+        const updated={...p};
+        delete updated.totalShare;
+        if(changes[p.name]) updated.totalShare=changes[p.name];
+        return updated;
+      });
+      const saved=readSavedTotalShareSettings(next);
+      if(!saved.valid) throw new Error('invalid-total-share');
+      const totalCents=(S.expenses||[]).reduce((sum,e)=>sum+Number(e.amount||0),0);
+      const validation=buildTotalSharePlan(totalCents,next,saved.settings,live.transitId,{});
+      if(!validation.valid) throw new Error('invalid-total-share');
+      transaction.update(meetingRef,{participants:next});
+      return next;
+    });
+    S.meeting={...S.meeting,participants};
+    totalShareDraft=null;
+    totalShareBaseline=null;
+    totalShareDirty=new Set();
+    totalShareDraftMeetingId='';
+    S.showTotalShares=false;
+  }catch(err){
+    console.error('儲存自訂總額失敗',err);
+    if(err.message==='meeting-archived') alert('此聚會已封存，無法修改自訂總額。');
+    else if(err.message==='participants-changed') alert('參加者名單剛有更新，請重新打開自訂總額設定後再儲存。');
+    else if(err.message==='invalid-total-share') alert('自訂金額與目前總開支不相符，請檢查設定後再試。');
+    else alert('儲存自訂總額失敗，請檢查網絡及 Firestore Rules 後再試。');
+  }finally{
+    savingTotalShares=false;
+    if(meetingId()===id) render();
+  }
+}
+
 function toggleTransitPicker(){
   if(S.meeting?.archived) return;
   S.showTransitPicker=!S.showTransitPicker;
