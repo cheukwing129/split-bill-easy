@@ -429,9 +429,9 @@ function splitAmount(amountCents,namesOrdered,transit,priorOwed={}){
 function parseMoneyCents(value){
   const raw=String(value??'').trim();
   if(!raw)return {empty:true};
-  const match=/^(\d+)(?:\.(\d{1,2}))?$/.exec(raw);
+  const match=/^(\d+)(?:\.(\d{0,2}))?$|^\.(\d{1,2})$/.exec(raw);
   if(!match)return {error:'請輸入有效金額，最多兩位小數。'};
-  const whole=Number(match[1]), fractional=Number((match[2]||'').padEnd(2,'0')||0);
+  const whole=Number(match[1]||0), decimal=match[2]??match[3]??'', fractional=Number(decimal.padEnd(2,'0')||0);
   const cents=whole*100+fractional;
   if(!Number.isSafeInteger(cents))return {error:'金額超出可處理範圍。'};
   return {cents};
