@@ -1342,7 +1342,7 @@ async function undoDeletedExpense(key){
 async function deleteExpense(id){
   const e=S.expenses.find(x=>x.id===id); if(!e) return;
   const idAtDelete=meetingId();
-  if(!confirm('刪除「'+e.item+'」（'+fmt(e.amount)+'）？刪除後可在 10 秒內還原。')) return;
+  if(!confirm('確定刪除「'+e.item+'」嗎？')) return;
   const savedExpense={...e,id,shareWith:Array.isArray(e.shareWith)?[...e.shareWith]:[]};
   try{
     await window.fb.deleteDoc(window.fb.doc(db,'meetings',idAtDelete,'expenses',id));
