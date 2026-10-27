@@ -1,11 +1,28 @@
 # 餐飲分單 Firestore 規則
 
-餐飲分單使用獨立的 `diningSessions` 集合，聚會分帳仍沿用 `meetings`、`expenses` 和 `transfers`。部署餐飲模式前，請把以下 helper functions 和 `match /diningSessions/{diningId}` 區塊加入 Firebase Console 的既有 Firestore Rules；不要以此片段取代原有規則。將內容放在既有 `match /databases/{database}/documents` 區塊內、最終的右大括號之前。
+餐飲分單使用獨立的 `diningSessions` 集合，聚會分帳仍沿用 `meetings`、`expenses` 和 `transfers`。折扣分配設定使用 `discountAllocation`（`proportional`、`equal`、`person`）及 `discountRecipient`。舊餐單沒有這兩個欄位時會沿用按比例分攤。部署新版前，請把以下 helper functions 和 `match /diningSessions/{diningId}` 區塊加入 Firebase Console 的既有 Firestore Rules；不要以此片段取代原有規則。將內容放在既有 `match /databases/{database}/documents` 區塊內、最終的右大括號之前。
 
 ```firestore
 function validDiningAdjustment(mode, value) {
   return (mode == 'percent' && value is int && value >= 0 && value <= 10000)
     || (mode == 'amount' && value is int && value >= 0 && value <= 100000000);
+}
+
+function validDiningDiscountAllocation(data) {
+  let hasAllocation = data.keys().hasAny(['discountAllocation']);
+  let hasRecipient = data.keys().hasAny(['discountRecipient']);
+  return (!hasAllocation && !hasRecipient)
+    || (hasAllocation
+      && data.discountAllocation == 'proportional'
+      && (!hasRecipient || data.discountRecipient == null))
+    || (hasAllocation
+      && data.discountAllocation == 'equal'
+      && (!hasRecipient || data.discountRecipient == null))
+    || (hasAllocation
+      && data.discountAllocation == 'person'
+      && hasRecipient
+      && data.discountRecipient is string
+      && data.participants.hasAny([data.discountRecipient]));
 }
 
 function validDiningSession(data) {
@@ -15,13 +32,15 @@ function validDiningSession(data) {
     ])
     && data.keys().hasOnly([
       'name', 'participants', 'payer', 'serviceMode', 'serviceValue',
-      'discountMode', 'discountValue', 'archived', 'createdAt'
+      'discountMode', 'discountValue', 'discountAllocation', 'discountRecipient',
+      'archived', 'createdAt'
     ])
     && data.name is string && data.name.size() > 0 && data.name.size() <= 100
     && data.participants is list && data.participants.size() <= 100
     && (data.payer == null || (data.payer is string && data.participants.hasAny([data.payer])))
     && validDiningAdjustment(data.serviceMode, data.serviceValue)
     && validDiningAdjustment(data.discountMode, data.discountValue)
+    && validDiningDiscountAllocation(data)
     && data.archived is bool
     && data.createdAt is int && data.createdAt > 0;
 }
@@ -58,7 +77,7 @@ match /diningSessions/{diningId} {
   allow update: if resource.data.archived == false
     && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
       'name', 'participants', 'payer', 'serviceMode', 'serviceValue',
-      'discountMode', 'discountValue', 'archived'
+      'discountMode', 'discountValue', 'discountAllocation', 'discountRecipient', 'archived'
     ])
     && validDiningSession(request.resource.data);
   allow delete: if false;
