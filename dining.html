@@ -341,7 +341,7 @@ function renderPeopleManage(people){
 }
 function renderAssignees(people){
   if(!people.length)return '<span class="helper">先加入參加者。</span>';
-  return people.map(function(name){return '<label class="assign-choice"><input type="checkbox" value="'+esc(name)+'" '+(state.selected.has(name)?'checked':'')+' onchange="toggleAssignee(this)" '+(state.session&&state.session.archived?'disabled':'')+'><span>'+avatar(name)+esc(name)+'</span></label>';}).join('');
+  return people.map(function(name){return '<label class="assign-choice"><input type="checkbox" value="'+esc(name)+'" '+(state.selected.has(name)?'checked':'')+' onchange="toggleAssignee(this)" '+(state.session&&state.session.archived?'disabled':'')+'><span>'+esc(name)+'</span></label>';}).join('');
 }
 function renderItems(){
   if(!state.items.length)return '<div class="empty-state">尚未加入餐點。輸入金額並選擇負責人後，即可開始分攤。</div>';
