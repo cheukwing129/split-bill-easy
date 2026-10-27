@@ -60,6 +60,12 @@ input::placeholder{color:#9199ad}
 .assign-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .assign-actions{display:flex;gap:6px}
 .tiny-btn{min-height:31px;padding:6px 10px;border:1px solid rgba(22,137,108,.15);background:rgba(255,255,255,.75);color:#176b56;font-size:12px}
+.danger-btn{border-color:rgba(196,91,102,.2);background:#fff5f5;color:#a84956}
+.heading-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:7px}
+.amount-entry{display:flex;align-items:center;gap:8px}
+.amount-entry input{min-width:0;flex:1}
+.amount-entry button{flex:0 0 auto}
+button:disabled{opacity:.5;cursor:not-allowed}
 .assign-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
 .assign-choice{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid rgba(86,96,143,.16);border-radius:999px;background:rgba(255,255,255,.8);color:#4c5874;font-size:13px;font-weight:650;cursor:pointer}
 .assign-choice:has(input:checked){border-color:rgba(22,137,108,.35);background:#e7f6ef;color:#176b56}
@@ -140,7 +146,7 @@ input::placeholder{color:#9199ad}
 <script type="module">
 import { defineLumenCard } from "https://esm.sh/@santi020k/lumen-elements@3.0.0/components/card?bundle";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-import { getFirestore, doc, collection, setDoc, updateDoc, deleteDoc, addDoc, onSnapshot, query, orderBy, runTransaction } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import { getFirestore, doc, collection, setDoc, updateDoc, deleteDoc, addDoc, onSnapshot, query, orderBy, runTransaction, getDocsFromServer, writeBatch, limit } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 defineLumenCard();
 
 const firebaseConfig={
@@ -154,7 +160,7 @@ const firebaseConfig={
 const db=getFirestore(initializeApp(firebaseConfig));
 const STORAGE_KEY='split-bill-dining-participants-v1';
 const appEl=document.getElementById('app');
-let state={session:null,items:[],selected:new Set(),editItemId:null,itemDraft:'',showPeopleManage:false,setupParticipants:loadSavedParticipants(),unsub:[],qrData:''};
+let state={session:null,items:[],selected:new Set(),editItemId:null,itemDraft:'',bulkAction:false,showPeopleManage:false,setupParticipants:loadSavedParticipants(),unsub:[],qrData:''};
 let qrPromise=null;
 
 function diningId(){const m=location.hash.match(/#\/d\/([^\/?#]+)/);return m?decodeURIComponent(m[1]):null;}
@@ -196,7 +202,7 @@ function renderHome(){
     '<div class="meta-grid"><div><label for="sessionName">餐單名稱</label><input id="sessionName" type="text" maxlength="100" placeholder="例如：週五晚飯"></div><div><label>資料同步</label><div class="notice">餐單資料會即時同步；本機儲存的參加者名單只在此瀏覽器使用。</div></div></div>'+
     '<div class="people-row"><span class="people-label">參加者</span><div id="setupPeople" class="people-list"></div>'+
     '<form class="add-person-form" onsubmit="addSetupParticipant(event)"><input id="setupPersonName" type="text" maxlength="30" placeholder="新增參加者" aria-label="新增參加者名稱"><button type="submit">加入</button></form></div>'+
-    '<div class="local-tools"><button type="button" class="secondary-btn" onclick="saveSetupRoster()">儲存本機名單</button><button type="button" class="secondary-btn" onclick="loadSetupRoster()">載入本機名單</button><span id="status" class="status"></span></div>'+
+    '<div class="local-tools"><button type="button" class="secondary-btn" onclick="saveSetupRoster()">儲存本機名單</button><button type="button" class="secondary-btn" onclick="loadSetupRoster()">載入本機名單</button><button id="clearSetupPeople" type="button" class="secondary-btn danger-btn" onclick="clearSetupParticipants()">清空所有參加者</button><span id="status" class="status"></span></div>'+
     '<div class="row" style="margin-top:16px"><span class="helper">參加者可建立後再補上。</span><button type="button" class="primary-btn" onclick="createDiningSession()">建立餐單</button></div>'+
     '</lumen-card></main>';
   renderSetupPeople();
@@ -205,6 +211,7 @@ function renderSetupPeople(){
   const target=document.getElementById('setupPeople');if(!target)return;
   const names=state.setupParticipants;
   target.innerHTML=names.length?names.map(function(name){return '<span class="person-chip"><span class="avatar" aria-hidden="true">'+esc(Array.from(name)[0]||'?')+'</span>'+esc(name)+'<button type="button" class="tiny-btn" aria-label="移除 '+esc(name)+'" onclick="removeSetupParticipant('+jsArg(name)+')">×</button></span>';}).join(''):'<span class="helper">尚未加入參加者</span>';
+  const clearButton=document.getElementById('clearSetupPeople');if(clearButton)clearButton.disabled=!names.length;
 }
 function addSetupParticipant(event){
   event.preventDefault();const input=document.getElementById('setupPersonName');const name=(input.value||'').trim();
@@ -213,6 +220,10 @@ function addSetupParticipant(event){
   state.setupParticipants.push(name);input.value='';renderSetupPeople();input.focus();
 }
 function removeSetupParticipant(name){state.setupParticipants=state.setupParticipants.filter(function(row){return row!==name;});renderSetupPeople();}
+function clearSetupParticipants(){
+  if(!state.setupParticipants.length||!confirm('確定清空所有參加者？已儲存的本機名單會保留。'))return;
+  state.setupParticipants=[];renderSetupPeople();setStatus('已清空所有參加者。');
+}
 function saveSetupRoster(){saveRoster(state.setupParticipants);}
 function loadSetupRoster(){
   const saved=loadSavedParticipants();if(!saved.length){setStatus('此瀏覽器尚未儲存參加者名單。');return;}
@@ -338,11 +349,11 @@ function renderActive(){
     '<div class="people-row"><span class="people-label">參加者 · '+people.length+' 人</span><div class="people-list">'+people.map(function(name){return '<span class="person-chip">'+avatar(name)+esc(name)+'</span>';}).join('')+'</div>'+
     (isArchived?'':'<form class="add-person-form" onsubmit="addParticipant(event)"><input id="newParticipant" type="text" maxlength="30" placeholder="新增參加者" aria-label="新增參加者名稱"><button type="submit">加入</button></form>')+
     '</div>'+
-    (isArchived?'':'<div class="local-tools"><button type="button" class="secondary-btn" onclick="saveCurrentRoster()">儲存本機名單</button><button type="button" class="secondary-btn" onclick="loadRosterIntoSession()">載入並加入名單</button><button type="button" class="secondary-btn" onclick="togglePeopleManage()">'+(state.showPeopleManage?'完成名單管理':'管理名單')+'</button><span id="status" class="status"></span></div>')+
+    (isArchived?'':'<div class="local-tools"><button type="button" class="secondary-btn" onclick="saveCurrentRoster()">儲存本機名單</button><button type="button" class="secondary-btn" onclick="loadRosterIntoSession()">載入並加入名單</button><button type="button" class="secondary-btn" onclick="togglePeopleManage()">'+(state.showPeopleManage?'完成名單管理':'管理名單')+'</button><button type="button" class="secondary-btn danger-btn" onclick="clearAllParticipants()" '+(!people.length||state.bulkAction?'disabled':'')+'>清空所有參加者</button><span id="status" class="status"></span></div>')+
     (state.showPeopleManage&&!isArchived?renderPeopleManage(people):'')+'</lumen-card>'+
     '<div class="layout"><div class="stack">'+
-    '<lumen-card variant="glass" glass="strong" class="card"><div class="panel-heading"><div><h2>餐點金額</h2><p>不需輸入食物名稱，只需輸入金額並選擇負責分攤的人。</p></div><span class="count-pill">'+state.items.length+' 項</span></div>'+
-    (isArchived?'':'<form class="item-form" onsubmit="saveItem(event)"><div class="field-full"><label for="itemAmount">金額（HK$）</label><input id="itemAmount" type="text" inputmode="text" maxlength="256" autocomplete="off" spellcheck="false" placeholder="例如 38+42 或 58x2" value="'+esc(state.itemDraft)+'" aria-describedby="itemCalculation" oninput="previewAmount(this,\'item\')" required><p id="itemCalculation" class="helper" role="status" aria-live="polite"></p></div>'+
+    '<lumen-card variant="glass" glass="strong" class="card"><div class="panel-heading"><div><h2>餐點金額</h2><p>不需輸入食物名稱，只需輸入金額並選擇負責分攤的人。</p></div><div class="heading-actions"><span class="count-pill">'+state.items.length+' 項</span>'+(isArchived?'':'<button type="button" class="tiny-btn danger-btn" onclick="clearDiningAmounts()" '+(state.bulkAction||(!state.items.length&&!m.serviceValue&&!m.discountValue)?'disabled':'')+'>清空金額</button>')+'</div></div>'+
+    (isArchived?'':'<form class="item-form" onsubmit="saveItem(event)"><div class="field-full"><label for="itemAmount">金額（HK$）</label><div class="amount-entry"><input id="itemAmount" type="text" inputmode="text" maxlength="256" autocomplete="off" spellcheck="false" placeholder="例如 38+42 或 58x2" value="'+esc(state.itemDraft)+'" aria-describedby="itemCalculation" oninput="previewAmount(this,\'item\')" required><button type="button" class="tiny-btn" onclick="clearAmountInput()">清空輸入</button></div><p id="itemCalculation" class="helper" role="status" aria-live="polite"></p></div>'+
     '<div class="field-full"><div class="assign-heading"><label>負責人（選多人即平均分攤）</label><div class="assign-actions"><button type="button" class="tiny-btn" onclick="selectAllAssignees()">全選</button><button type="button" class="tiny-btn" onclick="clearAssignees()">清除</button></div></div><div id="assigneeList" class="assign-list">'+renderAssignees(people)+'</div></div>'+
     '<div class="field-full"><button class="primary-btn" type="submit" '+(!people.length?'disabled':'')+'>'+(state.editItemId?'儲存餐點':'加入餐點')+'</button>'+(state.editItemId?'<button type="button" class="secondary-btn" onclick="cancelItemEdit()">取消編輯</button>':'')+'</div></form>')+
     '<div id="itemList" class="item-list">'+renderItems()+'</div></lumen-card>'+
@@ -358,6 +369,7 @@ function renderActive(){
     '</lumen-card><lumen-card variant="glass" glass="strong" class="card settlement-card"><div class="panel-heading"><div><h2>代付與應付</h2><p class="settlement-lead">餐飲分單獨立結算，不會併入聚會開支。</p></div></div><div id="settlementSummary">'+renderSettlement(m,result)+'</div></lumen-card></aside></div>'+
     '<p class="footer-note">所有持有餐單連結的人均可共同編輯；參加者名單的本機保存只影響目前瀏覽器。</p></main>';
   ['item','service','discount'].forEach(function(kind){const input=document.getElementById(kind==='item'?'itemAmount':kind+'Value');if(input)previewAmount(input,kind);});
+  if(state.bulkAction)appEl.querySelectorAll('button,input,select').forEach(function(control){control.disabled=true;});
 }
 function renderPeopleManage(people){
   if(!people.length)return '<div class="people-manage"><p class="helper">目前沒有參加者。</p></div>';
@@ -413,6 +425,41 @@ function clearSubscriptions(){state.unsub.forEach(function(unsub){unsub();});sta
 function toggleAssignee(input){if(input.checked)state.selected.add(input.value);else state.selected.delete(input.value);}
 function selectAllAssignees(){state.selected=new Set(state.session.participants||[]);renderActive();}
 function clearAssignees(){state.selected.clear();renderActive();}
+function clearAmountInput(){
+  const input=document.getElementById('itemAmount');state.itemDraft='';
+  if(input){input.value='';previewAmount(input,'item');input.focus();}
+}
+async function clearDiningAmounts(){
+  if(!state.session||state.session.archived||state.bulkAction)return;
+  if(!confirm('確定清空這張餐單的所有餐點金額，並將服務費及折扣歸零？參加者名單會保留。此操作不能復原。'))return;
+  const id=diningId();state.bulkAction=true;renderActive();setStatus('正在清空金額…');
+  try{
+    const snapshot=await getDocsFromServer(collection(db,'diningSessions',id,'items'));
+    // Keep each batch below Firestore's write limit, including the final session update.
+    for(let offset=0;offset<snapshot.docs.length;offset+=450){
+      const batch=writeBatch(db);
+      snapshot.docs.slice(offset,offset+450).forEach(function(row){batch.delete(row.ref);});
+      if(offset+450>=snapshot.docs.length)batch.update(doc(db,'diningSessions',id),{serviceValue:0,discountValue:0});
+      await batch.commit();
+    }
+    if(!snapshot.docs.length)await updateDoc(doc(db,'diningSessions',id),{serviceValue:0,discountValue:0});
+    if(diningId()===id){state.itemDraft='';state.editItemId=null;}
+  }catch(error){showWriteError('清空金額未能全部完成，請重新檢查餐單後再試',error);}
+  finally{state.bulkAction=false;if(diningId()===id)renderActive();}
+}
+async function clearAllParticipants(){
+  if(!state.session||state.session.archived||state.bulkAction||!state.session.participants.length)return;
+  if(state.items.length){alert('請先按「清空金額」移除所有餐點，再清空參加者，以免留下無人分攤的餐點。');return;}
+  if(!confirm('確定清空這張餐單的所有參加者及代付人？已儲存的本機名單會保留。此操作不能復原。'))return;
+  const id=diningId();state.bulkAction=true;renderActive();
+  try{
+    const items=await getDocsFromServer(query(collection(db,'diningSessions',id,'items'),limit(1)));
+    if(!items.empty){alert('餐單中仍有餐點，請先按「清空金額」再清空參加者。');return;}
+    await updateDoc(doc(db,'diningSessions',id),{participants:[],payer:null});
+    if(diningId()===id)state.selected.clear();
+  }catch(error){showWriteError('清空參加者失敗',error);}
+  finally{state.bulkAction=false;if(diningId()===id)renderActive();}
+}
 async function addParticipant(event){
   event.preventDefault();const input=document.getElementById('newParticipant'),name=(input.value||'').trim();
   if(!name){input.focus();return;}if(name.length>30){alert('參加者名稱不可超過30個字。');return;}
@@ -526,7 +573,7 @@ function showWriteError(action,error){
   if(error&&error.code==='permission-denied'){alert(action+'：Firestore Rules 尚未開放餐飲分單資料，請更新 Rules 後再試。');return;}
   alert(action+'，請檢查網絡後再試。');
 }
-Object.assign(window,{previewAmount,addSetupParticipant,saveSetupRoster,loadSetupRoster,removeSetupParticipant,createDiningSession,addParticipant,removeParticipant,togglePeopleManage,saveCurrentRoster,loadRosterIntoSession,saveSessionName,savePayer,saveAdjustment,selectAllAssignees,clearAssignees,toggleAssignee,saveItem,cancelItemEdit,editItem,removeItem,copyLink,openQr,closeQr,copyDiningLink});
+Object.assign(window,{clearAmountInput,clearDiningAmounts,clearAllParticipants,clearSetupParticipants,previewAmount,addSetupParticipant,saveSetupRoster,loadSetupRoster,removeSetupParticipant,createDiningSession,addParticipant,removeParticipant,togglePeopleManage,saveCurrentRoster,loadRosterIntoSession,saveSessionName,savePayer,saveAdjustment,selectAllAssignees,clearAssignees,toggleAssignee,saveItem,cancelItemEdit,editItem,removeItem,copyLink,openQr,closeQr,copyDiningLink});
 window.addEventListener('hashchange',boot);
 boot();
 </script>
