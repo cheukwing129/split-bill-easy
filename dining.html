@@ -3,15 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>餐飲分單試看｜埋單有數</title>
+<title>餐飲分單｜埋單有數</title>
 <link rel="icon" type="image/svg+xml" href="./favicon.svg" sizes="any">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://esm.sh" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@santi020k/lumen@3.0.0/styles.css">
-<script type="module">
-import { defineLumenCard } from "https://esm.sh/@santi020k/lumen-elements@3.0.0/components/card?bundle";
-defineLumenCard();
-</script>
 <style>
 :root{color-scheme:light;--ink:#202747;--muted:#68738f;--line:rgba(77,88,134,.14);--green:#16896c;--green-dark:#126c57;--green-soft:#e8f7f1;--purple:#6558e8;--ui-font:Inter,-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif}
 *{box-sizing:border-box}
@@ -24,19 +20,19 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
 .shell{width:min(1120px,100%);margin:0 auto;padding:26px clamp(15px,4vw,34px) 54px}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
 .brand{display:flex;align-items:center;gap:10px;font-weight:780;letter-spacing:-.01em}
-.brand-mark{display:grid;place-items:center;width:38px;height:38px;border-radius:13px;color:#fff;background:linear-gradient(140deg,#1b8b70,#126653);box-shadow:0 7px 16px rgba(18,108,87,.2);font-size:21px}
+.brand-mark{display:grid;place-items:center;width:38px;height:38px;border-radius:13px;color:#fff;background:linear-gradient(140deg,#1b8b70,#126653);box-shadow:0 7px 16px rgba(18,108,87,.2)}
 .brand-mark svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .brand small{display:block;color:var(--muted);font-size:12px;font-weight:600;letter-spacing:0}
-.back-link,.reset-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:8px 13px;border:1px solid rgba(86,96,143,.17);border-radius:12px;background:rgba(255,255,255,.72);color:#40506b;text-decoration:none;font-size:14px;font-weight:700}
-.back-link:hover,.reset-btn:hover{background:#fff}
+.back-link,.action-btn,.reset-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:8px 13px;border:1px solid rgba(86,96,143,.17);border-radius:12px;background:rgba(255,255,255,.72);color:#40506b;text-decoration:none;font-size:14px;font-weight:700}
+.back-link:hover,.action-btn:hover,.reset-btn:hover{background:#fff}
 .hero{position:relative;overflow:hidden;padding:clamp(22px,4vw,36px);margin-bottom:18px;border:1px solid rgba(255,255,255,.3);border-radius:26px;color:#fff;background:linear-gradient(128deg,#153d45 0%,#176b61 55%,#2d9d80 100%);box-shadow:0 22px 56px rgba(17,79,74,.19),inset 0 1px 0 rgba(255,255,255,.18)}
 .hero:after{content:"";position:absolute;width:360px;height:360px;right:-90px;top:-200px;border-radius:50%;background:radial-gradient(circle,rgba(181,255,226,.3),transparent 70%);pointer-events:none}
 .hero-content{position:relative;z-index:1;max-width:740px}
 .eyebrow{margin:0 0 10px;color:rgba(255,255,255,.74);font-size:12px;font-weight:800;letter-spacing:.15em}
 .hero h1{margin:0;color:#fff;font-size:clamp(30px,5vw,43px);line-height:1.12;letter-spacing:-.035em}
 .hero p{max-width:62ch;margin:12px 0 0;color:rgba(255,255,255,.84);font-size:15px;line-height:1.65}
-.preview-tag{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;margin-top:17px;border:1px solid rgba(255,255,255,.23);border-radius:999px;background:rgba(255,255,255,.1);color:#fff;font-size:12px;font-weight:700}
-.preview-tag:before{content:"";width:7px;height:7px;border-radius:50%;background:#9bf2ce;box-shadow:0 0 9px rgba(155,242,206,.65)}
+.live-tag{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;margin-top:17px;border:1px solid rgba(255,255,255,.23);border-radius:999px;background:rgba(255,255,255,.1);color:#fff;font-size:12px;font-weight:700}
+.live-tag:before{content:"";width:7px;height:7px;border-radius:50%;background:#9bf2ce;box-shadow:0 0 9px rgba(155,242,206,.65)}
 .card{padding:20px;border:1px solid rgba(255,255,255,.76);border-radius:19px;background:rgba(255,255,255,.69);box-shadow:0 12px 30px rgba(39,48,92,.07),inset 0 1px 0 rgba(255,255,255,.9);backdrop-filter:blur(18px) saturate(145%);-webkit-backdrop-filter:blur(18px) saturate(145%)}
 .meta-card{margin-bottom:18px}
 .meta-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(200px,.55fr);gap:14px}
@@ -45,11 +41,12 @@ input[type=text],input[type=number],select{width:100%;min-height:45px;padding:10
 input::placeholder{color:#9199ad}
 .people-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:15px}
 .people-label{margin-right:4px;color:#485574;font-size:13px;font-weight:750}
+.people-list{display:flex;flex-wrap:wrap;gap:7px}
 .person-chip{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border:1px solid rgba(22,137,108,.15);border-radius:999px;background:rgba(232,247,241,.78);color:#285c52;font-size:13px;font-weight:700}
 .avatar{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#d6f0e5;color:#176b56;font-size:11px;font-weight:800}
 .add-person-form{display:flex;gap:7px;max-width:260px;margin-left:auto}
 .add-person-form input{flex:1;min-width:0;width:auto;min-height:36px;padding:7px 10px;font-size:13px}
-.add-person-form button,.primary-btn,.secondary-btn,.remove-btn{border:0;border-radius:10px;font-weight:750}
+.add-person-form button,.primary-btn,.secondary-btn,.remove-btn,.tiny-btn{border:0;border-radius:10px;font-weight:750}
 .add-person-form button{flex:0 0 auto;min-width:48px;white-space:nowrap;padding:7px 11px;background:#e6f5ef;color:#176b56;font-size:13px}
 .layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(310px,.85fr);gap:18px;align-items:start}
 .stack{display:grid;gap:16px;min-width:0}
@@ -57,16 +54,20 @@ input::placeholder{color:#9199ad}
 .panel-heading h2{margin:0;color:var(--ink);font-size:20px;letter-spacing:-.02em}
 .panel-heading p{margin:5px 0 0;color:var(--muted);font-size:13px;line-height:1.5}
 .count-pill{flex:0 0 auto;padding:5px 9px;border-radius:999px;background:rgba(101,88,232,.08);color:#5d53c2;font-size:12px;font-weight:750}
-.item-form{display:grid;grid-template-columns:minmax(0,1fr) 145px;gap:10px;align-items:end;padding:14px;margin-bottom:14px;border:1px solid rgba(22,137,108,.15);border-radius:15px;background:rgba(245,252,249,.75)}
+.item-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;padding:14px;margin-bottom:14px;border:1px solid rgba(22,137,108,.15);border-radius:15px;background:rgba(245,252,249,.75)}
 .field-full{grid-column:1/-1}
 .item-form input{margin:0}
+.assign-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.assign-actions{display:flex;gap:6px}
+.tiny-btn{min-height:31px;padding:6px 10px;border:1px solid rgba(22,137,108,.15);background:rgba(255,255,255,.75);color:#176b56;font-size:12px}
 .assign-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
 .assign-choice{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid rgba(86,96,143,.16);border-radius:999px;background:rgba(255,255,255,.8);color:#4c5874;font-size:13px;font-weight:650;cursor:pointer}
 .assign-choice:has(input:checked){border-color:rgba(22,137,108,.35);background:#e7f6ef;color:#176b56}
 .assign-choice input{width:15px;height:15px;margin:0;accent-color:var(--green)}
 .helper{margin:7px 0 0;color:var(--muted);font-size:12px;line-height:1.5}
 .primary-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:11px 15px;background:linear-gradient(135deg,#249b7c,#16765f);color:#fff;box-shadow:0 6px 15px rgba(22,137,108,.17);font-size:14px}
-.primary-btn:hover{filter:brightness(1.06)}
+.primary-btn:hover:not(:disabled){filter:brightness(1.06)}
+.primary-btn:disabled{opacity:.5;cursor:not-allowed}
 .secondary-btn{min-height:38px;padding:8px 12px;border:1px solid rgba(86,96,143,.16);background:rgba(255,255,255,.76);color:#46536f;font-size:13px}
 .item-list{display:grid;gap:9px}
 .item-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 13px;border:1px solid rgba(86,96,143,.11);border-radius:13px;background:rgba(255,255,255,.64)}
@@ -75,6 +76,7 @@ input::placeholder{color:#9199ad}
 .item-name{min-width:0;color:#293451;font-size:14px;font-weight:750;overflow-wrap:anywhere}
 .item-price{flex:0 0 auto;color:#293451;font-size:14px;font-weight:800}
 .item-share-note{margin-top:3px;color:var(--muted);font-size:12px}
+.item-actions{display:flex;gap:5px}
 .remove-btn{width:34px;height:34px;padding:0;border:1px solid rgba(196,91,102,.13);background:#fff5f5;color:#a84956;font-size:18px}
 .empty-state{padding:24px 14px;border:1px dashed rgba(86,96,143,.22);border-radius:13px;color:var(--muted);text-align:center;font-size:14px}
 .adjust-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -106,327 +108,384 @@ input::placeholder{color:#9199ad}
 .transfer-row strong{color:#273653}
 .zero-state{padding:12px;color:var(--muted);font-size:13px;text-align:center}
 .warning{margin:10px 0 0;padding:10px 12px;border:1px solid rgba(196,121,45,.2);border-radius:11px;background:#fff8ed;color:#7d5227;font-size:12px;line-height:1.5}
+.notice{padding:12px 14px;margin:0 0 14px;border:1px solid rgba(101,88,232,.13);border-radius:13px;background:rgba(255,255,255,.5);color:#52607a;font-size:13px;line-height:1.55}
 .footer-note{margin:18px 4px 0;color:var(--muted);font-size:12px;line-height:1.55;text-align:center}
 .footer-note b{color:#485574}
+.status{min-height:1.4em;margin:8px 0 0;color:var(--muted);font-size:12px}
+.local-tools{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:10px}
+.people-manage{display:grid;gap:7px;margin-top:12px}
+.people-manage-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.55)}
+.qr-dialog{width:min(420px,calc(100vw - 28px));max-height:calc(100vh - 32px);margin:auto;padding:0;overflow:auto;border:1px solid rgba(255,255,255,.78);border-radius:22px;background:rgba(255,255,255,.98);color:var(--ink);box-shadow:0 26px 80px rgba(23,30,65,.28)}
+.qr-dialog::backdrop{background:rgba(24,29,57,.5);backdrop-filter:blur(5px)}
+.qr-content{padding:24px}
+.qr-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.qr-frame{display:grid;place-items:center;min-height:260px;margin:16px auto;padding:14px;border:1px solid var(--line);border-radius:18px;background:#fff}
+.qr-frame img{display:block;width:min(100%,240px);height:auto;image-rendering:pixelated}
+.share-qr-copy{width:100%}
 @media(max-width:780px){.layout{grid-template-columns:1fr}.summary-column{order:-1}.summary-card{padding:17px}.hero{border-radius:22px}}
-@media(max-width:540px){.shell{padding-top:16px}.topbar{align-items:flex-start}.back-link{min-height:38px;padding:7px 10px;font-size:12px}.brand-mark{width:34px;height:34px}.brand{font-size:14px}.hero{padding:22px 19px}.meta-grid{grid-template-columns:1fr}.add-person-form{width:100%;max-width:none;margin:4px 0 0}.item-form{grid-template-columns:1fr 115px;padding:11px}.field-full{grid-column:1/-1}.adjust-grid{grid-template-columns:1fr}.card{padding:16px}.person-total-detail{font-size:10px}}
+@media(max-width:540px){.shell{padding-top:16px}.topbar{align-items:flex-start}.back-link,.action-btn{min-height:38px;padding:7px 10px;font-size:12px}.brand-mark{width:34px;height:34px}.brand{font-size:14px}.hero{padding:22px 19px}.meta-grid{grid-template-columns:1fr}.add-person-form{width:100%;max-width:none;margin:4px 0 0}.item-form{grid-template-columns:1fr 115px;padding:11px}.field-full{grid-column:1/-1}.adjust-grid{grid-template-columns:1fr}.card{padding:16px}.person-total-detail{font-size:10px}.local-tools>*{flex:1}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
 </style>
 </head>
 <body>
-<main class="shell">
-  <div class="topbar">
-    <div class="brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 18h17M5 18a7 7 0 0 1 14 0M8.5 9h7M10.5 5.5h3"/></svg></span><span>埋單有數<small>餐飲分單模式</small></span></div>
-    <a class="back-link" href="./index.html" aria-label="返回模式選擇">← <span>選擇其他模式</span></a>
+<div id="app"><p class="helper">載入餐飲分單…</p></div>
+<dialog id="qrDialog" class="qr-dialog" aria-labelledby="qrTitle">
+  <div class="qr-content">
+    <div class="qr-head"><div><h2 id="qrTitle">掃碼加入餐單</h2><p class="helper">掃描後即可查看及共同編輯這張餐單。</p></div><button type="button" class="secondary-btn" onclick="closeQr()" aria-label="關閉 QR Code">✕</button></div>
+    <div class="qr-frame"><span id="qrLoading" role="status">正在產生 QR Code…</span><img id="qrImage" alt="餐單分享連結 QR Code" hidden></div>
+    <p id="qrError" class="warning" role="alert" hidden></p>
+    <button type="button" class="primary-btn share-qr-copy" onclick="copyDiningLink()">複製餐單連結</button>
   </div>
-  <header class="hero">
-    <div class="hero-content">
-      <p class="eyebrow">DINING BILL · ITEM BY ITEM</p>
-      <h1>餐點逐項記，<br>每人埋單有數。</h1>
-      <p>個人點餐和共享食物分開記錄；服務費與折扣會按每人的餐點小計比例分攤，餐單和結算均獨立於聚會分帳。</p>
-      <span class="preview-tag">互動試看版 · 資料只保存在此裝置</span>
-    </div>
-  </header>
+</dialog>
+<script type="module">
+import { defineLumenCard } from "https://esm.sh/@santi020k/lumen-elements@3.0.0/components/card?bundle";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getFirestore, doc, collection, setDoc, updateDoc, deleteDoc, addDoc, onSnapshot, query, orderBy, runTransaction } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+defineLumenCard();
 
-  <lumen-card variant="glass" glass="strong" class="card meta-card">
-    <div class="meta-grid">
-      <div><label for="billName">餐單名稱</label><input type="text" id="billName" maxlength="60" oninput="changeBillName(this.value)"></div>
-      <div><label for="payerSelect">整張帳單由誰代付？</label><select id="payerSelect" onchange="changePayer(this.value)"></select></div>
-    </div>
-    <div class="people-row"><span class="people-label">參加者</span><span id="peopleList"></span>
-      <form class="add-person-form" onsubmit="addParticipant(event)"><input type="text" id="newPersonName" maxlength="30" placeholder="新增參加者" aria-label="新增參加者名稱"><button type="submit">加入</button></form>
-    </div>
-  </lumen-card>
-
-  <div class="layout">
-    <div class="stack">
-      <lumen-card variant="glass" glass="strong" class="card">
-        <div class="panel-heading"><div><h2>餐點明細</h2><p>選一人代表個人點餐；選多人代表共享菜式，由所選人士平均分攤。</p></div><span id="itemCount" class="count-pill"></span></div>
-        <form class="item-form" onsubmit="addItem(event)">
-          <div><label for="itemName">食物或飲品</label><input type="text" id="itemName" maxlength="60" placeholder="例如：牛肉飯" required></div>
-          <div><label for="itemAmount">總金額（HK$）</label><input type="number" id="itemAmount" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required></div>
-          <div class="field-full"><label>由誰負擔這項餐點？</label><div id="assigneeList" class="assign-list"></div><p class="helper">份量不同時，將該菜式拆成多項記錄。</p></div>
-          <div class="field-full"><button class="primary-btn" type="submit">＋ 加入餐點</button></div>
-        </form>
-        <div id="itemList" class="item-list"></div>
-      </lumen-card>
-
-      <lumen-card variant="glass" glass="strong" class="card">
-        <div class="panel-heading"><div><h2>服務費與折扣</h2><p>兩者都按各人的餐點小計比例分攤；折扣以餐點小計計算。</p></div></div>
-        <div class="adjust-grid">
-          <div class="adjust-box">
-            <div class="adjust-title"><strong>服務費</strong><span>加入應付總額</span></div>
-            <div class="adjust-input"><input id="serviceValue" type="number" min="0" step="0.01" inputmode="decimal" aria-label="服務費數值" oninput="changeAdjustment('service','value',this.value)"><select id="serviceMode" aria-label="服務費輸入方式" onchange="changeAdjustment('service','mode',this.value)"><option value="percent">百分比</option><option value="amount">實際金額</option></select></div>
-            <div class="adjust-value">分攤服務費：<b id="serviceTotal"></b></div>
-          </div>
-          <div class="adjust-box">
-            <div class="adjust-title"><strong>折扣</strong><span>從應付總額扣除</span></div>
-            <div class="adjust-input"><input id="discountValue" type="number" min="0" step="0.01" inputmode="decimal" aria-label="折扣數值" oninput="changeAdjustment('discount','value',this.value)"><select id="discountMode" aria-label="折扣輸入方式" onchange="changeAdjustment('discount','mode',this.value)"><option value="percent">百分比</option><option value="amount">實際金額</option></select></div>
-            <div class="adjust-value">分攤折扣：<b id="discountTotal"></b></div>
-          </div>
-        </div>
-        <p id="adjustmentWarning" class="warning" hidden></p>
-      </lumen-card>
-    </div>
-
-    <aside class="stack summary-column">
-      <lumen-card variant="glass" glass="strong" class="card summary-card">
-        <div class="panel-heading"><div><h2>每人餐飲金額</h2><p>各人分攤的餐點、服務費和折扣</p></div></div>
-        <div class="summary-total"><span id="billNameSummary">餐飲總額</span><strong id="grandTotal"></strong></div>
-        <div class="summary-breakdown">
-          <div class="breakdown-line"><span>餐點小計</span><strong id="subtotalValue"></strong></div>
-          <div class="breakdown-line"><span>服務費</span><strong id="serviceValueSummary"></strong></div>
-          <div class="breakdown-line"><span>折扣</span><strong id="discountValueSummary"></strong></div>
-        </div>
-        <div id="personTotals" class="person-totals"></div>
-      </lumen-card>
-
-      <lumen-card variant="glass" glass="strong" class="card settlement-card">
-        <div class="panel-heading"><div><h2>代付與應付</h2><p class="settlement-lead">餐飲分單只結算這張餐單，不會併入聚會開支。</p></div></div>
-        <div id="settlementSummary"></div>
-      </lumen-card>
-
-      <div class="row"><span class="helper">例子可任意修改，會自動保存在本機。</span><button type="button" class="reset-btn" onclick="resetDemo()">重設試看</button></div>
-    </aside>
-  </div>
-  <p class="footer-note"><b>互動試看版：</b>新增或修改內容只保存在目前裝置，不會同步給其他人。餐飲模式正式連接共同編輯前，會另行建立獨立餐單資料與分享流程。</p>
-</main>
-
-<script>
-const STORAGE_KEY='split-bill-dining-preview-v1';
-const DEFAULT_STATE={
-  name:'週五晚飯',payer:'A',
-  people:[{name:'A',emoji:'🙂'},{name:'B',emoji:'🐱'},{name:'C',emoji:'🐼'}],
-  items:[
-    {id:'sample-a',name:'牛肉飯',amount:12000,people:['A']},
-    {id:'sample-b',name:'海鮮炒飯',amount:8000,people:['B']},
-    {id:'sample-share',name:'芝士薯條（共享）',amount:9000,people:['A','B','C']}
-  ],
-  service:{mode:'percent',value:'10'},
-  discount:{mode:'percent',value:'5'}
+const firebaseConfig={
+  apiKey:"AIzaSyBpW-txlA_f0u9SH2N6Usp8AuO-p11yyGE",
+  authDomain:"split-bill-easy.firebaseapp.com",
+  projectId:"split-bill-easy",
+  storageBucket:"split-bill-easy.firebasestorage.app",
+  messagingSenderId:"926268274788",
+  appId:"1:926268274788:web:5b0a933db3dc6ff8ee8771"
 };
-function cloneDefault(){return JSON.parse(JSON.stringify(DEFAULT_STATE));}
-function loadState(){
-  try{
-    const raw=localStorage.getItem(STORAGE_KEY);
-    if(!raw)return cloneDefault();
-    const saved=JSON.parse(raw);
-    if(!saved||!Array.isArray(saved.people)||!Array.isArray(saved.items))return cloneDefault();
-    return Object.assign(cloneDefault(),saved);
-  }catch(error){return cloneDefault();}
-}
-let state=loadState();
-let selectedPeople=new Set(state.people.length?[state.people[0].name]:[]);
-function persist(){
-  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
-  catch(error){console.warn('本機儲存無法使用',error);}
-}
-function escapeHtml(value){
-  return String(value==null?'':value).replace(/[&<>"']/g,function(char){
-    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char];
+const db=getFirestore(initializeApp(firebaseConfig));
+const STORAGE_KEY='split-bill-dining-participants-v1';
+const appEl=document.getElementById('app');
+let state={session:null,items:[],selected:new Set(),editItemId:null,showPeopleManage:false,setupParticipants:loadSavedParticipants(),unsub:[],qrData:''};
+let qrPromise=null;
+
+function diningId(){const m=location.hash.match(/#\/d\/([^\/?#]+)/);return m?decodeURIComponent(m[1]):null;}
+function fmt(cents){const negative=cents<0;const n=Math.abs(Number(cents)||0);return (negative?'−':'')+'HK$'+(n/100).toFixed(2);}
+function amountText(cents){return (Number(cents||0)/100).toFixed(2);}
+function esc(value){return String(value==null?'':value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function jsArg(value){return JSON.stringify(String(value)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function uniqueNames(values){
+  const seen=new Set(),out=[];
+  (Array.isArray(values)?values:[]).forEach(function(value){
+    const name=String(value==null?'':value).trim();
+    const key=name.toLocaleLowerCase();
+    if(name&&name.length<=30&&!seen.has(key)){seen.add(key);out.push(name);}
   });
+  return out;
 }
-function money(cents){
-  const value=Number(cents)||0;
-  return (value<0?'−':'')+'HK$'+(Math.abs(value)/100).toFixed(2);
+function loadSavedParticipants(){
+  try{return uniqueNames(JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'));}catch(error){return [];}
 }
-function parseMoney(value){
-  const raw=String(value==null?'':value).trim();
-  if(!raw)return {cents:0};
-  const match=/^(\d+)(?:\.(\d{0,2}))?$|^\.(\d{1,2})$/.exec(raw);
-  if(!match)return {error:'請輸入有效金額，最多兩位小數。'};
-  const whole=Number(match[1]||0);
-  const decimal=match[2]===undefined?(match[3]||''):(match[2]||'');
-  const cents=whole*100+Number(decimal.padEnd(2,'0')||0);
+function saveRoster(names){
+  const clean=uniqueNames(names);
+  if(!clean.length){alert('目前沒有參加者可儲存。');return false;}
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(clean));setStatus('已儲存 '+clean.length+' 位參加者至此瀏覽器。');return true;}
+  catch(error){alert('無法在此瀏覽器儲存名單。');return false;}
+}
+function setStatus(message){
+  const el=document.getElementById('status');
+  if(el)el.textContent=message||'';
+}
+function modeHeader(){
+  return '<div class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 18h17M5 18a7 7 0 0 1 14 0M8.5 9h7M10.5 5.5h3"/></svg></span><span>埋單有數<small>餐飲分單模式</small></span></div><a class="back-link" href="./index.html">← 選擇其他模式</a></div>'+
+    '<header class="hero"><div class="hero-content"><p class="eyebrow">DINING BILL · ITEM BY ITEM</p><h1>餐點逐項記，<br>每人埋單有數。</h1><p>記錄每項金額和分攤對象，共享菜式可選多人平均分；服務費和折扣按各人餐點小計比例分配。</p><span class="live-tag">餐單獨立儲存 · 可分享連結共同編輯</span></div></header>';
+}
+function renderHome(){
+  state.setupParticipants=loadSavedParticipants();
+  const names=state.setupParticipants;
+  appEl.innerHTML='<main class="shell">'+modeHeader()+
+    '<lumen-card variant="glass" glass="strong" class="card"><div class="panel-heading"><div><h2>建立餐單</h2><p>建立後會產生獨立連結，參加者可開啟同一張餐單共同編輯。</p></div></div>'+
+    '<div class="meta-grid"><div><label for="sessionName">餐單名稱</label><input id="sessionName" type="text" maxlength="100" placeholder="例如：週五晚飯"></div><div><label>資料同步</label><div class="notice">餐單資料會即時同步；本機儲存的參加者名單只在此瀏覽器使用。</div></div></div>'+
+    '<div class="people-row"><span class="people-label">參加者</span><div id="setupPeople" class="people-list"></div>'+
+    '<form class="add-person-form" onsubmit="addSetupParticipant(event)"><input id="setupPersonName" type="text" maxlength="30" placeholder="新增參加者" aria-label="新增參加者名稱"><button type="submit">加入</button></form></div>'+
+    '<div class="local-tools"><button type="button" class="secondary-btn" onclick="saveSetupRoster()">儲存本機名單</button><button type="button" class="secondary-btn" onclick="loadSetupRoster()">載入本機名單</button><span id="status" class="status"></span></div>'+
+    '<div class="row" style="margin-top:16px"><span class="helper">參加者可建立後再補上。</span><button type="button" class="primary-btn" onclick="createDiningSession()">建立餐單</button></div>'+
+    '</lumen-card></main>';
+  renderSetupPeople();
+}
+function renderSetupPeople(){
+  const target=document.getElementById('setupPeople');if(!target)return;
+  const names=state.setupParticipants;
+  target.innerHTML=names.length?names.map(function(name){return '<span class="person-chip"><span class="avatar" aria-hidden="true">'+esc(Array.from(name)[0]||'?')+'</span>'+esc(name)+'<button type="button" class="tiny-btn" aria-label="移除 '+esc(name)+'" onclick="removeSetupParticipant('+jsArg(name)+')">×</button></span>';}).join(''):'<span class="helper">尚未加入參加者</span>';
+}
+function addSetupParticipant(event){
+  event.preventDefault();const input=document.getElementById('setupPersonName');const name=(input.value||'').trim();
+  if(!name){input.focus();return;}if(name.length>30){alert('參加者名稱不可超過30個字。');return;}
+  if(state.setupParticipants.some(function(row){return row.toLocaleLowerCase()===name.toLocaleLowerCase();})){alert('這個名字已存在。');input.focus();return;}
+  state.setupParticipants.push(name);input.value='';renderSetupPeople();input.focus();
+}
+function removeSetupParticipant(name){state.setupParticipants=state.setupParticipants.filter(function(row){return row!==name;});renderSetupPeople();}
+function saveSetupRoster(){saveRoster(state.setupParticipants);}
+function loadSetupRoster(){
+  const saved=loadSavedParticipants();if(!saved.length){setStatus('此瀏覽器尚未儲存參加者名單。');return;}
+  state.setupParticipants=saved;renderSetupPeople();setStatus('已載入 '+saved.length+' 位參加者。');
+}
+async function createDiningSession(){
+  const input=document.getElementById('sessionName'),name=(input.value||'').trim()||'未命名餐單';
+  const participants=uniqueNames(state.setupParticipants);
+  if(participants.length>100){alert('參加者最多100人。');return;}
+  try{
+    const ref=doc(collection(db,'diningSessions'));
+    await setDoc(ref,{name:name,participants:participants,payer:participants[0]||null,serviceMode:'percent',serviceValue:0,discountMode:'percent',discountValue:0,archived:false,createdAt:Date.now()});
+    location.hash='#/d/'+encodeURIComponent(ref.id);
+  }catch(error){showWriteError('建立餐單失敗',error);}
+}
+function showLoading(){appEl.innerHTML='<main class="shell">'+modeHeader()+'<lumen-card variant="glass" glass="strong" class="card"><p class="helper">正在載入餐單…</p></lumen-card></main>';}
+
+function moneyCents(value){
+  const raw=String(value==null?'':value).trim();if(!raw)return {empty:true};
+  const m=/^(\d+)(?:\.(\d{0,2}))?$|^\.(\d{1,2})$/.exec(raw);
+  if(!m)return {error:'請輸入有效金額，最多兩位小數。'};
+  const cents=Number(m[1]||0)*100+Number((m[2]===undefined?(m[3]||''):m[2]||'').padEnd(2,'0')||0);
   if(!Number.isSafeInteger(cents))return {error:'金額超出可處理範圍。'};
   return {cents:cents};
 }
-function parsePercent(value){
-  const raw=String(value==null?'':value).trim();
-  if(!raw)return {cents:0};
-  const match=/^(\d+)(?:\.(\d{0,2}))?$|^\.(\d{1,2})$/.exec(raw);
-  if(!match)return {error:'百分比最多可輸入兩位小數。'};
-  const whole=Number(match[1]||0);
-  const decimal=match[2]===undefined?(match[3]||''):(match[2]||'');
-  const basisPoints=whole*100+Number(decimal.padEnd(2,'0')||0);
-  if(!Number.isSafeInteger(basisPoints)||basisPoints>10000)return {error:'百分比須介乎 0 至 100%。'};
-  return {basisPoints:basisPoints};
+function percentBps(value){
+  const raw=String(value==null?'':value).trim();if(!raw)return {empty:true};
+  const m=/^(\d+)(?:\.(\d{0,2}))?$|^\.(\d{1,2})$/.exec(raw);
+  if(!m)return {error:'百分比最多可輸入兩位小數。'};
+  const valueBps=Number(m[1]||0)*100+Number((m[2]===undefined?(m[3]||''):m[2]||'').padEnd(2,'0')||0);
+  if(!Number.isSafeInteger(valueBps)||valueBps>10000)return {error:'百分比須介乎0至100%。'};
+  return {basisPoints:valueBps};
 }
-function allocateProportionally(total,weights){
+function allocate(total,weights){
   const names=Object.keys(weights).filter(function(name){return Number(weights[name])>0;});
-  const result={};Object.keys(weights).forEach(function(name){result[name]=0;});
+  const out=Object.create(null);Object.keys(weights).forEach(function(name){out[name]=0;});
   const weightTotal=names.reduce(function(sum,name){return sum+Number(weights[name]);},0);
-  if(!names.length||!total||weightTotal<=0)return result;
-  const totalBig=BigInt(total),weightBig=BigInt(weightTotal);
-  const parts=names.map(function(name,index){
-    const product=totalBig*BigInt(weights[name]);
-    return {name:name,index:index,cents:Number(product/weightBig),remainder:product%weightBig};
-  });
-  let rest=total-parts.reduce(function(sum,row){return sum+row.cents;},0);
-  parts.sort(function(a,b){if(a.remainder===b.remainder)return a.index-b.index;return a.remainder>b.remainder?-1:1;});
-  for(let i=0;i<rest&&i<parts.length;i++)parts[i].cents+=1;
-  parts.forEach(function(row){result[row.name]=row.cents;});
-  return result;
+  if(!names.length||!total||weightTotal<=0)return out;
+  const denom=BigInt(weightTotal),sum=BigInt(total);
+  const rows=names.map(function(name,index){const product=sum*BigInt(weights[name]);return{name:name,index:index,cents:Number(product/denom),remainder:product%denom};});
+  let rest=total-rows.reduce(function(acc,row){return acc+row.cents;},0);
+  rows.sort(function(a,b){if(a.remainder===b.remainder)return a.index-b.index;return a.remainder>b.remainder?-1:1;});
+  for(let i=0;i<rest&&i<rows.length;i++)rows[i].cents++;
+  rows.forEach(function(row){out[row.name]=row.cents;});return out;
 }
-function readAdjustment(setting,subtotal){
-  const raw=String(setting.value==null?'':setting.value).trim();
-  if(!raw)return {cents:0};
-  if(setting.mode==='percent'){
-    const parsed=parsePercent(raw);
-    if(parsed.error)return parsed;
-    return {cents:Number((BigInt(subtotal)*BigInt(parsed.basisPoints)+5000n)/10000n)};
-  }
-  return parseMoney(raw);
+function readAdjustment(mode,value,subtotal){
+  if(mode==='percent')return {cents:Number((BigInt(subtotal)*BigInt(value||0)+5000n)/10000n)};
+  return {cents:Number(value||0)};
 }
 function calculate(){
-  const base={};state.people.forEach(function(person){base[person.name]=0;});
+  const session=state.session,people=(session&&Array.isArray(session.participants)?session.participants:[]);
+  const base=Object.create(null);people.forEach(function(name){base[name]=0;});
   state.items.forEach(function(item){
-    const selected=(item.people||[]).filter(function(name){return Object.prototype.hasOwnProperty.call(base,name);});
-    const shares={};selected.forEach(function(name){shares[name]=1;});
-    const allocation=allocateProportionally(Number(item.amount)||0,shares);
-    selected.forEach(function(name){base[name]+=allocation[name]||0;});
+    const recipients=uniqueNames(item.responsible).filter(function(name){return Object.prototype.hasOwnProperty.call(base,name);});
+    const weights=Object.create(null);recipients.forEach(function(name){weights[name]=1;});
+    const parts=allocate(Number(item.amount)||0,weights);recipients.forEach(function(name){base[name]+=parts[name]||0;});
   });
   const subtotal=Object.keys(base).reduce(function(sum,name){return sum+base[name];},0);
-  const serviceResult=readAdjustment(state.service||{mode:'percent',value:'0'},subtotal);
-  const discountResult=readAdjustment(state.discount||{mode:'percent',value:'0'},subtotal);
+  const serviceResult=readAdjustment(session&&session.serviceMode,session&&session.serviceValue,subtotal);
+  const discountResult=readAdjustment(session&&session.discountMode,session&&session.discountValue,subtotal);
   const errors=[];
-  if(serviceResult.error)errors.push('服務費：'+serviceResult.error);
-  if(discountResult.error)errors.push('折扣：'+discountResult.error);
-  const serviceTotal=serviceResult.cents||0;
-  const discountTotal=discountResult.cents||0;
-  if(discountTotal>subtotal)errors.push('折扣不能多於餐點小計。');
-  const service=allocateProportionally(serviceTotal,base);
-  const discount=allocateProportionally(discountTotal,base);
-  const due={};
-  state.people.forEach(function(person){due[person.name]=(base[person.name]||0)+(service[person.name]||0)-(discount[person.name]||0);});
-  const grandTotal=subtotal+serviceTotal-discountTotal;
-  return {base:base,subtotal:subtotal,serviceTotal:serviceTotal,discountTotal:discountTotal,service:service,discount:discount,due:due,grandTotal:grandTotal,errors:errors};
+  if(discountResult.cents>subtotal)errors.push('折扣不可多於餐點小計。');
+  const service=allocate(serviceResult.cents,base);
+  const discount=allocate(discountResult.cents,base);
+  const due=Object.create(null);people.forEach(function(name){due[name]=(base[name]||0)+(service[name]||0)-(discount[name]||0);});
+  return{base:base,subtotal:subtotal,serviceTotal:serviceResult.cents,discountTotal:discountResult.cents,service:service,discount:discount,due:due,total:subtotal+serviceResult.cents-discountResult.cents,errors:errors};
 }
-function initials(name){return Array.from(String(name||'?'))[0]||'?';}
-function personByName(name){return state.people.find(function(person){return person.name===name;})||{name:name,emoji:''};}
-function renderPeople(){
-  const peopleHtml=state.people.map(function(person){
-    return '<span class="person-chip"><span class="avatar" aria-hidden="true">'+escapeHtml(person.emoji||initials(person.name))+'</span>'+escapeHtml(person.name)+'</span>';
-  }).join('');
-  document.getElementById('peopleList').innerHTML=peopleHtml||'<span class="helper">尚未加入參加者</span>';
-  document.getElementById('payerSelect').innerHTML=state.people.map(function(person){
-    return '<option value="'+escapeHtml(person.name)+'" '+(state.payer===person.name?'selected':'')+'>'+escapeHtml(person.name)+'</option>';
-  }).join('');
-  const picker=state.people.map(function(person){
-    const checked=selectedPeople.has(person.name)?' checked':'';
-    return '<label class="assign-choice"><input type="checkbox" value="'+escapeHtml(person.name)+'"'+checked+' onchange="toggleAssignee(this)"><span>'+escapeHtml(person.emoji||initials(person.name))+' '+escapeHtml(person.name)+'</span></label>';
-  }).join('');
-  document.getElementById('assigneeList').innerHTML=picker||'<span class="helper">請先加入參加者。</span>';
-  document.getElementById('payerSelect').disabled=!state.people.length;
-  document.getElementById('itemCount').textContent=state.items.length+' 項';
+
+function avatar(name){return '<span class="avatar" aria-hidden="true">'+esc(Array.from(name||'?')[0]||'?')+'</span>';}
+function renderActive(){
+  const m=state.session;if(!m)return;
+  const people=Array.isArray(m.participants)?m.participants:[];
+  const result=calculate();
+  const isArchived=!!m.archived;
+  appEl.innerHTML='<main class="shell">'+modeHeader()+
+    (isArchived?'<div class="warning">此餐單已封存，只能查看。</div>':'')+
+    '<lumen-card variant="glass" glass="strong" class="card meta-card"><div class="meta-grid">'+
+    '<div><label for="activeName">餐單名稱</label><input id="activeName" type="text" maxlength="100" value="'+esc(m.name||'')+'" onchange="saveSessionName(this.value)" '+(isArchived?'disabled':'')+'></div>'+
+    '<div><label for="payerSelect">整張帳單由誰代付？</label><select id="payerSelect" onchange="savePayer(this.value)" '+(isArchived?'disabled':'')+'>'+people.map(function(name){return '<option value="'+esc(name)+'" '+(m.payer===name?'selected':'')+'>'+esc(name)+'</option>';}).join('')+'</select></div></div>'+
+    '<div class="people-row"><span class="people-label">參加者 · '+people.length+' 人</span><div class="people-list">'+people.map(function(name){return '<span class="person-chip">'+avatar(name)+esc(name)+'</span>';}).join('')+'</div>'+
+    (isArchived?'':'<form class="add-person-form" onsubmit="addParticipant(event)"><input id="newParticipant" type="text" maxlength="30" placeholder="新增參加者" aria-label="新增參加者名稱"><button type="submit">加入</button></form>')+
+    '</div>'+
+    (isArchived?'':'<div class="local-tools"><button type="button" class="secondary-btn" onclick="saveCurrentRoster()">儲存本機名單</button><button type="button" class="secondary-btn" onclick="loadRosterIntoSession()">載入並加入名單</button><button type="button" class="secondary-btn" onclick="togglePeopleManage()">'+(state.showPeopleManage?'完成名單管理':'管理名單')+'</button><span id="status" class="status"></span></div>')+
+    (state.showPeopleManage&&!isArchived?renderPeopleManage(people):'')+'</lumen-card>'+
+    '<div class="layout"><div class="stack">'+
+    '<lumen-card variant="glass" glass="strong" class="card"><div class="panel-heading"><div><h2>餐點金額</h2><p>不需輸入食物名稱，只需輸入金額並選擇負責分攤的人。</p></div><span class="count-pill">'+state.items.length+' 項</span></div>'+
+    (isArchived?'':'<form class="item-form" onsubmit="saveItem(event)"><div><label for="itemAmount">金額（HK$）</label><input id="itemAmount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required></div>'+
+    '<div class="field-full"><div class="assign-heading"><label>負責人（選多人即平均分攤）</label><div class="assign-actions"><button type="button" class="tiny-btn" onclick="selectAllAssignees()">全選</button><button type="button" class="tiny-btn" onclick="clearAssignees()">清除</button></div></div><div id="assigneeList" class="assign-list">'+renderAssignees(people)+'</div></div>'+
+    '<div class="field-full"><button class="primary-btn" type="submit" '+(!people.length?'disabled':'')+'>'+(state.editItemId?'儲存餐點':'加入餐點')+'</button>'+(state.editItemId?'<button type="button" class="secondary-btn" onclick="cancelItemEdit()">取消編輯</button>':'')+'</div></form>')+
+    '<div id="itemList" class="item-list">'+renderItems()+'</div></lumen-card>'+
+    '<lumen-card variant="glass" glass="strong" class="card"><div class="panel-heading"><div><h2>服務費與折扣</h2><p>按每人餐點小計比例分攤；折扣以餐點小計計算。</p></div></div>'+
+    '<div class="adjust-grid">'+renderAdjustmentControl('service','服務費',m.serviceMode,m.serviceValue,isArchived)+renderAdjustmentControl('discount','折扣',m.discountMode,m.discountValue,isArchived)+'</div>'+
+    (result.errors.length?'<p class="warning">'+esc(result.errors.join(' '))+'</p>':'')+
+    '</lumen-card></div>'+
+    '<aside class="stack summary-column"><lumen-card variant="glass" glass="strong" class="card summary-card">'+
+    '<div class="panel-heading"><div><h2>每人餐飲金額</h2><p>餐點、服務費及折扣即時試算</p></div></div>'+
+    '<div class="summary-total"><span>'+esc(m.name||'餐飲總額')+'</span><strong>'+fmt(result.total)+'</strong></div>'+
+    '<div class="summary-breakdown"><div class="breakdown-line"><span>餐點小計</span><strong>'+fmt(result.subtotal)+'</strong></div><div class="breakdown-line"><span>服務費</span><strong>+'+fmt(result.serviceTotal)+'</strong></div><div class="breakdown-line"><span>折扣</span><strong>−'+fmt(result.discountTotal)+'</strong></div></div>'+
+    '<div class="person-totals">'+(people.length?people.map(function(name){return '<div class="person-total"><div class="person-total-name">'+avatar(name)+esc(name)+'</div><strong class="person-total-number">'+fmt(result.due[name]||0)+'</strong><div class="person-total-detail"><span>餐點 '+fmt(result.base[name]||0)+'</span><span>服務 '+fmt(result.service[name]||0)+' · 折扣 −'+fmt(result.discount[name]||0)+'</span></div></div>';}).join(''):'<div class="empty-state">加入參加者後，便可查看每人的分攤金額。</div>')+'</div>'+
+    '</lumen-card><lumen-card variant="glass" glass="strong" class="card settlement-card"><div class="panel-heading"><div><h2>代付與應付</h2><p class="settlement-lead">餐飲分單獨立結算，不會併入聚會開支。</p></div></div><div id="settlementSummary">'+renderSettlement(m,result)+'</div></lumen-card></aside></div>'+
+    '<p class="footer-note">所有持有餐單連結的人均可共同編輯；參加者名單的本機保存只影響目前瀏覽器。</p></main>';
+}
+function renderPeopleManage(people){
+  if(!people.length)return '<div class="people-manage"><p class="helper">目前沒有參加者。</p></div>';
+  return '<div class="people-manage">'+people.map(function(name){return '<div class="people-manage-row"><span>'+avatar(name)+esc(name)+'</span><button type="button" class="tiny-btn" onclick="removeParticipant('+jsArg(name)+')">移除</button></div>';}).join('')+'</div>';
+}
+function renderAssignees(people){
+  if(!people.length)return '<span class="helper">先加入參加者。</span>';
+  return people.map(function(name){return '<label class="assign-choice"><input type="checkbox" value="'+esc(name)+'" '+(state.selected.has(name)?'checked':'')+' onchange="toggleAssignee(this)" '+(state.session&&state.session.archived?'disabled':'')+'><span>'+avatar(name)+esc(name)+'</span></label>';}).join('');
 }
 function renderItems(){
-  const target=document.getElementById('itemList');
-  if(!state.items.length){
-    target.innerHTML='<div class="empty-state">尚未加入餐點。從上方輸入第一項食物或飲品。</div>';
-    return;
-  }
-  target.innerHTML=state.items.map(function(item){
-    const names=(item.people||[]).map(function(name){return escapeHtml(name);});
-    const note=names.length>1?names.join('、')+' · 共享平均分攤':(names[0]||'未指定')+' · 個人點餐';
-    return '<div class="item-row"><div class="item-main"><div class="item-name-line"><span class="item-name">'+escapeHtml(item.name)+'</span><span class="item-price">'+money(item.amount)+'</span></div><div class="item-share-note">'+note+'</div></div><button type="button" class="remove-btn" data-remove="'+escapeHtml(item.id)+'" aria-label="移除 '+escapeHtml(item.name)+'">×</button></div>';
+  if(!state.items.length)return '<div class="empty-state">尚未加入餐點。輸入金額並選擇負責人後，即可開始分攤。</div>';
+  return state.items.map(function(item,index){
+    const names=uniqueNames(item.responsible);
+    return '<div class="item-row"><div class="item-main"><div class="item-name-line"><span class="item-name">餐點 '+(index+1)+'</span><span class="item-price">'+fmt(item.amount)+'</span></div><div class="item-share-note">'+(names.length?esc(names.join('、'))+(names.length>1?' · 平均分攤':' · 個人負責'):'未指定負責人')+'</div></div>'+
+      (state.session.archived?'':'<div class="item-actions"><button type="button" class="tiny-btn" aria-label="編輯餐點 '+(index+1)+'" onclick="editItem('+jsArg(item.id)+')">編輯</button><button type="button" class="remove-btn" aria-label="移除餐點 '+(index+1)+'" onclick="removeItem('+jsArg(item.id)+')">×</button></div>')+'</div>';
   }).join('');
-  target.querySelectorAll('[data-remove]').forEach(function(button){
-    button.addEventListener('click',function(){removeItem(button.getAttribute('data-remove'));});
-  });
 }
-function updateSummary(){
-  const result=calculate();
-  document.getElementById('billNameSummary').textContent=state.name||'餐飲總額';
-  document.getElementById('grandTotal').textContent=money(result.grandTotal);
-  document.getElementById('subtotalValue').textContent=money(result.subtotal);
-  document.getElementById('serviceValueSummary').textContent='+'+money(result.serviceTotal);
-  document.getElementById('discountValueSummary').textContent='−'+money(result.discountTotal);
-  document.getElementById('serviceTotal').textContent=money(result.serviceTotal);
-  document.getElementById('discountTotal').textContent=money(result.discountTotal);
-  const warning=document.getElementById('adjustmentWarning');
-  warning.hidden=!result.errors.length;
-  warning.textContent=result.errors.join(' ');
-  const personTotals=document.getElementById('personTotals');
-  if(!state.people.length){
-    personTotals.innerHTML='<div class="empty-state">先加入參加者，再記錄餐點。</div>';
-  }else{
-    personTotals.innerHTML=state.people.map(function(person){
-      const name=person.name;
-      return '<div class="person-total"><div class="person-total-name"><span class="avatar" aria-hidden="true">'+escapeHtml(person.emoji||initials(name))+'</span>'+escapeHtml(name)+'</div><strong class="person-total-number">'+money(result.due[name]||0)+'</strong><div class="person-total-detail"><span>餐點 '+money(result.base[name]||0)+'</span><span>服務 '+money(result.service[name]||0)+' · 折扣 −'+money(result.discount[name]||0)+'</span></div></div>';
-    }).join('');
-  }
-  const settlement=document.getElementById('settlementSummary');
-  if(result.errors.length){
-    settlement.innerHTML='<div class="warning">請先修正服務費或折扣，結算金額暫不適用。</div>';
-  }else if(!state.items.length){
-    settlement.innerHTML='<div class="zero-state">加入餐點後會顯示各人的應付安排。</div>';
-  }else{
-    const payer=state.people.some(function(person){return person.name===state.payer;})?state.payer:(state.people[0]&&state.people[0].name)||'';
-    const collected=state.people.reduce(function(sum,person){return sum+(person.name===payer?0:(result.due[person.name]||0));},0);
-    let rows=state.people.filter(function(person){return person.name!==payer&&(result.due[person.name]||0)>0;}).map(function(person){
-      return '<div class="transfer-row"><span>'+escapeHtml(person.name)+' <span aria-hidden="true">→</span> '+escapeHtml(payer)+'</span><strong>'+money(result.due[person.name])+'</strong></div>';
-    }).join('');
-    if(!rows)rows='<div class="zero-state">目前無需轉帳。</div>';
-    settlement.innerHTML='<div class="payer-line"><span>'+escapeHtml(payer)+' 代付餐飲帳單</span><strong>'+money(result.grandTotal)+'</strong></div><div class="transfer-list">'+rows+'</div><p class="helper">其餘參加者合共應付 '+money(collected)+'；付款人自己的餐點費用已從代付額扣除。</p>';
-  }
+function renderAdjustmentControl(kind,title,mode,value,disabled){
+  const number=mode==='percent'?(Number(value||0)/100).toFixed(2).replace(/\.?0+$/,''):amountText(value);
+  return '<div class="adjust-box"><div class="adjust-title"><strong>'+title+'</strong><span>'+(kind==='service'?'加入應付總額':'從應付總額扣除')+'</span></div>'+
+    '<div class="adjust-input"><input type="number" min="0" step="0.01" inputmode="decimal" id="'+kind+'Value" value="'+esc(number)+'" aria-label="'+title+'數值" onchange="saveAdjustment(\''+kind+'\')" '+(disabled?'disabled':'')+'>'+
+    '<select id="'+kind+'Mode" aria-label="'+title+'輸入方式" onchange="saveAdjustment(\''+kind+'\')" '+(disabled?'disabled':'')+'><option value="percent" '+(mode==='percent'?'selected':'')+'>百分比</option><option value="amount" '+(mode==='amount'?'selected':'')+'>實際金額</option></select></div>'+
+    '<div class="adjust-value">分攤'+title+'：<b>'+fmt(kind==='service'?calculate().serviceTotal:calculate().discountTotal)+'</b></div></div>';
 }
-function renderAll(){
-  document.getElementById('billName').value=state.name||'';
-  document.getElementById('serviceMode').value=(state.service&&state.service.mode)||'percent';
-  document.getElementById('serviceValue').value=(state.service&&state.service.value)||'';
-  document.getElementById('discountMode').value=(state.discount&&state.discount.mode)||'percent';
-  document.getElementById('discountValue').value=(state.discount&&state.discount.value)||'';
-  renderPeople();renderItems();updateSummary();
+function renderSettlement(m,result){
+  if(result.errors.length)return '<div class="warning">請先修正折扣設定，暫不能確認結算。</div>';
+  if(!state.items.length)return '<div class="zero-state">加入餐點後會顯示各人的應付安排。</div>';
+  const people=m.participants||[],payer=people.includes(m.payer)?m.payer:(people[0]||'');
+  if(!payer)return '<div class="zero-state">加入參加者並選定代付人後，會顯示轉帳安排。</div>';
+  const lines=people.filter(function(name){return name!==payer&&(result.due[name]||0)>0;}).map(function(name){return '<div class="transfer-row"><span>'+esc(name)+' → '+esc(payer)+'</span><strong>'+fmt(result.due[name])+'</strong></div>';}).join('');
+  const amount=people.reduce(function(sum,name){return sum+(name===payer?0:(result.due[name]||0));},0);
+  return '<div class="payer-line"><span>'+esc(payer)+' 代付餐飲帳單</span><strong>'+fmt(result.total)+'</strong></div><div class="transfer-list">'+(lines||'<div class="zero-state">目前無需轉帳。</div>')+'</div><p class="helper">其餘參加者合共應付 '+fmt(amount)+'；付款人的餐點費用已從代付額扣除。</p>';
 }
-function changeBillName(value){state.name=value;persist();updateSummary();}
-function changePayer(value){state.payer=value;persist();updateSummary();}
-function changeAdjustment(kind,field,value){
-  state[kind][field]=value;persist();updateSummary();
+
+function renderError(message){appEl.innerHTML='<main class="shell">'+modeHeader()+'<lumen-card variant="glass" glass="strong" class="card"><div class="warning">'+esc(message)+'</div></lumen-card></main>';}
+async function boot(){
+  clearSubscriptions();state.session=null;state.items=[];state.selected=new Set();state.editItemId=null;state.showPeopleManage=false;
+  const id=diningId();if(!id){renderHome();return;}
+  showLoading();const sessionRef=doc(db,'diningSessions',id);
+  state.unsub.push(onSnapshot(sessionRef,function(snapshot){
+    if(!snapshot.exists()){state.session=false;renderError('找不到這張餐單，請檢查分享連結。');return;}
+    state.session=Object.assign({id:id},snapshot.data());
+    if(!Array.isArray(state.session.participants))state.session.participants=[];
+    renderActive();
+  },function(error){console.error(error);renderError(error.code==='permission-denied'?'Firestore Rules 尚未開放餐飲分單資料，請先更新資料庫 Rules。':'載入餐單失敗，請檢查網絡後再試。');}));
+  const itemsQuery=query(collection(db,'diningSessions',id,'items'),orderBy('createdAt','asc'));
+  state.unsub.push(onSnapshot(itemsQuery,function(snapshot){
+    state.items=snapshot.docs.map(function(row){return Object.assign({id:row.id},row.data());}).sort(function(a,b){return Number(a.createdAt||0)-Number(b.createdAt||0)||String(a.id).localeCompare(String(b.id));});
+    if(state.session)renderActive();
+  },function(error){console.error(error);renderError(error.code==='permission-denied'?'Firestore Rules 尚未開放餐飲分單餐點資料，請先更新資料庫 Rules。':'載入餐點失敗，請檢查網絡後再試。');}));
 }
-function toggleAssignee(input){
-  if(input.checked)selectedPeople.add(input.value);else selectedPeople.delete(input.value);
+function clearSubscriptions(){state.unsub.forEach(function(unsub){unsub();});state.unsub=[];}
+function toggleAssignee(input){if(input.checked)state.selected.add(input.value);else state.selected.delete(input.value);}
+function selectAllAssignees(){state.selected=new Set(state.session.participants||[]);renderActive();}
+function clearAssignees(){state.selected.clear();renderActive();}
+async function addParticipant(event){
+  event.preventDefault();const input=document.getElementById('newParticipant'),name=(input.value||'').trim();
+  if(!name){input.focus();return;}if(name.length>30){alert('參加者名稱不可超過30個字。');return;}
+  try{
+    await runTransaction(db,async function(tx){
+      const ref=doc(db,'diningSessions',diningId()),snap=await tx.get(ref);
+      if(!snap.exists())throw new Error('missing');
+      const current=uniqueNames(snap.data().participants);
+      if(current.some(function(row){return row.toLocaleLowerCase()===name.toLocaleLowerCase();}))throw new Error('duplicate');
+      if(current.length>=100)throw new Error('max');
+      const next=current.concat([name]);
+      tx.update(ref,{participants:next,payer:snap.data().payer||name});
+    });
+  }catch(error){if(error.message==='duplicate')alert('這個名字已存在。');else if(error.message==='max')alert('參加者最多100人。');else showWriteError('新增參加者失敗',error);return;}
+  state.selected=new Set(state.selected);state.selected.add(name);
 }
-function addParticipant(event){
+async function removeParticipant(name){
+  if(state.items.some(function(item){return (item.responsible||[]).includes(name);})) {alert('這位參加者已有負責的餐點，請先移除或更改相關餐點分攤。');return;}
+  const people=state.session.participants||[];
+  if(people.length<=1){alert('餐單至少需要保留一位參加者。');return;}
+  if(!confirm('確定移除參加者「'+name+'」？'))return;
+  const next=people.filter(function(row){return row!==name;});
+  const payer=state.session.payer===name?(next[0]||null):state.session.payer;
+  try{await updateDoc(doc(db,'diningSessions',diningId()),{participants:next,payer:payer});}
+  catch(error){showWriteError('移除參加者失敗',error);}
+}
+function togglePeopleManage(){state.showPeopleManage=!state.showPeopleManage;renderActive();}
+async function saveCurrentRoster(){
+  const people=uniqueNames(state.session&&state.session.participants);
+  if(!people.length){setStatus('目前沒有參加者可儲存。');return;}
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(people));setStatus('已儲存 '+people.length+' 位參加者至此瀏覽器。');}
+  catch(error){setStatus('無法在此瀏覽器儲存名單。');}
+}
+async function loadRosterIntoSession(){
+  const saved=loadSavedParticipants();if(!saved.length){setStatus('此瀏覽器尚未儲存參加者名單。');return;}
+  try{
+    await runTransaction(db,async function(tx){
+      const ref=doc(db,'diningSessions',diningId()),snap=await tx.get(ref);
+      if(!snap.exists())throw new Error('missing');
+      const current=uniqueNames(snap.data().participants),next=uniqueNames(current.concat(saved));
+      if(next.length>100)throw new Error('max');
+      tx.update(ref,{participants:next,payer:snap.data().payer||next[0]||null});
+    });
+    setStatus('已把本機名單中尚未加入的人員加入餐單。');
+  }catch(error){if(error.message==='max')setStatus('載入後人數會超過100人。');else showWriteError('載入名單失敗',error);}
+}
+async function saveSessionName(value){
+  const name=(value||'').trim();if(!name){alert('餐單名稱不可留空。');renderActive();return;}
+  try{await updateDoc(doc(db,'diningSessions',diningId()),{name:name.slice(0,100)});}catch(error){showWriteError('修改餐單名稱失敗',error);}
+}
+async function savePayer(value){
+  if(!(state.session.participants||[]).includes(value)){alert('請選擇餐單中的參加者。');return;}
+  try{await updateDoc(doc(db,'diningSessions',diningId()),{payer:value});}catch(error){showWriteError('修改代付人失敗',error);}
+}
+async function saveAdjustment(kind){
+  const modeEl=document.getElementById(kind+'Mode'),valueEl=document.getElementById(kind+'Value');
+  if(!modeEl||!valueEl)return;
+  const mode=modeEl.value,parsed=mode==='percent'?percentBps(valueEl.value):moneyCents(valueEl.value);
+  if(parsed.error||parsed.empty){alert(parsed.error||'請輸入數值。');renderActive();return;}
+  const value=mode==='percent'?parsed.basisPoints:parsed.cents;
+  if(kind==='discount'&&mode==='amount'&&value>calculate().subtotal){alert('折扣不可多於餐點小計。');renderActive();return;}
+  try{await updateDoc(doc(db,'diningSessions',diningId()),{[kind+'Mode']:mode,[kind+'Value']:value});}
+  catch(error){showWriteError('儲存設定失敗',error);}
+}
+async function saveItem(event){
   event.preventDefault();
-  const input=document.getElementById('newPersonName');
-  const name=(input.value||'').trim();
-  if(!name){input.focus();return;}
-  if(state.people.some(function(person){return person.name.toLowerCase()===name.toLowerCase();})){
-    alert('這個名字已存在。');input.focus();return;
-  }
-  state.people.push({name:name,emoji:''});
-  if(!selectedPeople.size)selectedPeople.add(name);
-  if(!state.payer)state.payer=name;
-  input.value='';persist();renderPeople();updateSummary();
+  const input=document.getElementById('itemAmount'),parsed=moneyCents(input.value);
+  const people=(state.session.participants||[]).filter(function(name){return state.selected.has(name);});
+  if(parsed.error||parsed.empty||parsed.cents<=0){alert(parsed.error||'請輸入大於 HK$0.00 的金額。');return;}
+  if(!people.length){alert('請至少選一位負責人；共享餐點可選多位或按「全選」。');return;}
+  const data={amount:parsed.cents,responsible:people};
+  try{
+    if(state.editItemId){
+      const existing=state.items.find(function(item){return item.id===state.editItemId;});
+      data.createdAt=Number(existing&&existing.createdAt)||Date.now();
+      await updateDoc(doc(db,'diningSessions',diningId(),'items',state.editItemId),data);
+    }else{data.createdAt=Date.now();await addDoc(collection(db,'diningSessions',diningId(),'items'),data);}
+    state.editItemId=null;state.selected=new Set();renderActive();
+  }catch(error){showWriteError('儲存餐點失敗',error);}
 }
-function addItem(event){
-  event.preventDefault();
-  const name=document.getElementById('itemName').value.trim();
-  const parsed=parseMoney(document.getElementById('itemAmount').value);
-  const people=Array.from(selectedPeople).filter(function(person){return state.people.some(function(row){return row.name===person;});});
-  if(!state.people.length){alert('請先加入參加者。');return;}
-  if(!name){alert('請輸入食物或飲品名稱。');return;}
-  if(parsed.error||parsed.cents<=0){alert(parsed.error||'金額須大於 HK$0.00。');return;}
-  if(!people.length){alert('請至少選一位餐點負擔人。');return;}
-  state.items.push({id:'item-'+Date.now()+'-'+Math.floor(Math.random()*10000),name:name,amount:parsed.cents,people:people});
-  persist();
-  const form=document.getElementById('itemForm');
-  form.reset();
-  selectedPeople=new Set([people[0]]);
-  renderPeople();renderItems();updateSummary();
-  document.getElementById('itemName').focus();
+function editItem(id){
+  const item=state.items.find(function(row){return row.id===id;});if(!item)return;
+  const input=document.getElementById('itemAmount');if(input)input.value=amountText(item.amount);
+  state.editItemId=id;state.selected=new Set(item.responsible||[]);renderActive();
+  const amount=document.getElementById('itemAmount');if(amount)amount.value=amountText(item.amount);
 }
-function removeItem(id){
-  state.items=state.items.filter(function(item){return item.id!==id;});
-  persist();renderPeople();renderItems();updateSummary();
+function cancelItemEdit(){state.editItemId=null;state.selected=new Set();renderActive();}
+async function removeItem(id){
+  if(!confirm('確定移除這項餐點？'))return;
+  try{await deleteDoc(doc(db,'diningSessions',diningId(),'items',id));}
+  catch(error){showWriteError('移除餐點失敗',error);}
 }
-function resetDemo(){
-  if(!confirm('重設試看內容？你在這部裝置的餐單修改會被清除。'))return;
-  state=cloneDefault();selectedPeople=new Set(state.people.length?[state.people[0].name]:[]);
-  persist();renderAll();
+function copyLink(){
+  const link=window.location.href;
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(link).then(function(){setStatus('已複製餐單連結。');}).catch(function(){window.prompt('請手動複製餐單連結：',link);});}
+  else window.prompt('請手動複製餐單連結：',link);
 }
-renderAll();
+async function openQr(){
+  const dialog=document.getElementById('qrDialog'),img=document.getElementById('qrImage'),loading=document.getElementById('qrLoading'),error=document.getElementById('qrError');
+  dialog.showModal();error.hidden=true;
+  try{
+    if(!qrPromise)qrPromise=import('https://esm.sh/qrcode@1.5.4?bundle');
+    const mod=await qrPromise,make=mod.toString||mod.default&&mod.default.toString;
+    const svg=await make(window.location.href,{type:'svg',errorCorrectionLevel:'M',margin:2,width:240,color:{dark:'#202747',light:'#ffffff'}});
+    state.qrData='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);img.src=state.qrData;img.hidden=false;loading.hidden=true;
+  }catch(err){console.error(err);loading.hidden=true;error.textContent='QR Code 暫時無法載入，請使用複製連結。';error.hidden=false;}
+}
+function closeQr(){const dialog=document.getElementById('qrDialog');if(dialog.open)dialog.close();}
+function copyDiningLink(){copyLink();closeQr();}
+function showWriteError(action,error){
+  console.error(action,error);
+  if(error&&error.code==='permission-denied'){alert(action+'：Firestore Rules 尚未開放餐飲分單資料，請更新 Rules 後再試。');return;}
+  alert(action+'，請檢查網絡後再試。');
+}
+Object.assign(window,{addSetupParticipant,saveSetupRoster,loadSetupRoster,removeSetupParticipant,createDiningSession,addParticipant,removeParticipant,togglePeopleManage,saveCurrentRoster,loadRosterIntoSession,saveSessionName,savePayer,saveAdjustment,selectAllAssignees,clearAssignees,toggleAssignee,saveItem,cancelItemEdit,editItem,removeItem,copyLink,openQr,closeQr,copyDiningLink});
+window.addEventListener('hashchange',boot);
+boot();
 </script>
 </body>
 </html>
