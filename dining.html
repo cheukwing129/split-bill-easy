@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>餐飲分單試看｜埋單有數</title>
+<link rel="icon" type="image/svg+xml" href="./favicon.svg" sizes="any">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://esm.sh" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@santi020k/lumen@3.0.0/styles.css">
+<script type="module">
+import { defineLumenCard } from "https://esm.sh/@santi020k/lumen-elements@3.0.0/components/card?bundle";
+defineLumenCard();
+</script>
+<style>
+:root{color-scheme:light;--ink:#202747;--muted:#68738f;--line:rgba(77,88,134,.14);--green:#16896c;--green-dark:#126c57;--green-soft:#e8f7f1;--purple:#6558e8;--ui-font:Inter,-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif}
+*{box-sizing:border-box}
+html{min-height:100%;background:#f4f5fb}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:var(--ui-font);font-size:16px;line-height:1.5;font-variant-numeric:tabular-nums;background:radial-gradient(ellipse at 8% 7%,rgba(145,132,255,.35) 0,transparent 38rem),radial-gradient(ellipse at 94% 28%,rgba(79,205,183,.3) 0,transparent 40rem),linear-gradient(135deg,#f2efff 0%,#eef2fb 47%,#e9f7f3 100%)}
+lumen-card{display:block}
+button,input,select{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid rgba(22,137,108,.28);outline-offset:2px}
+.shell{width:min(1120px,100%);margin:0 auto;padding:26px clamp(15px,4vw,34px) 54px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:780;letter-spacing:-.01em}
+.brand-mark{display:grid;place-items:center;width:38px;height:38px;border-radius:13px;color:#fff;background:linear-gradient(140deg,#1b8b70,#126653);box-shadow:0 7px 16px rgba(18,108,87,.2);font-size:21px}
+.brand-mark svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.brand small{display:block;color:var(--muted);font-size:12px;font-weight:600;letter-spacing:0}
+.back-link,.reset-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:8px 13px;border:1px solid rgba(86,96,143,.17);border-radius:12px;background:rgba(255,255,255,.72);color:#40506b;text-decoration:none;font-size:14px;font-weight:700}
+.back-link:hover,.reset-btn:hover{background:#fff}
+.hero{position:relative;overflow:hidden;padding:clamp(22px,4vw,36px);margin-bottom:18px;border:1px solid rgba(255,255,255,.3);border-radius:26px;color:#fff;background:linear-gradient(128deg,#153d45 0%,#176b61 55%,#2d9d80 100%);box-shadow:0 22px 56px rgba(17,79,74,.19),inset 0 1px 0 rgba(255,255,255,.18)}
+.hero:after{content:"";position:absolute;width:360px;height:360px;right:-90px;top:-200px;border-radius:50%;background:radial-gradient(circle,rgba(181,255,226,.3),transparent 70%);pointer-events:none}
+.hero-content{position:relative;z-index:1;max-width:740px}
+.eyebrow{margin:0 0 10px;color:rgba(255,255,255,.74);font-size:12px;font-weight:800;letter-spacing:.15em}
+.hero h1{margin:0;color:#fff;font-size:clamp(30px,5vw,43px);line-height:1.12;letter-spacing:-.035em}
+.hero p{max-width:62ch;margin:12px 0 0;color:rgba(255,255,255,.84);font-size:15px;line-height:1.65}
+.preview-tag{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;margin-top:17px;border:1px solid rgba(255,255,255,.23);border-radius:999px;background:rgba(255,255,255,.1);color:#fff;font-size:12px;font-weight:700}
+.preview-tag:before{content:"";width:7px;height:7px;border-radius:50%;background:#9bf2ce;box-shadow:0 0 9px rgba(155,242,206,.65)}
+.card{padding:20px;border:1px solid rgba(255,255,255,.76);border-radius:19px;background:rgba(255,255,255,.69);box-shadow:0 12px 30px rgba(39,48,92,.07),inset 0 1px 0 rgba(255,255,255,.9);backdrop-filter:blur(18px) saturate(145%);-webkit-backdrop-filter:blur(18px) saturate(145%)}
+.meta-card{margin-bottom:18px}
+.meta-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(200px,.55fr);gap:14px}
+label{display:block;margin:0 0 6px;color:#485574;font-size:13px;font-weight:750}
+input[type=text],input[type=number],select{width:100%;min-height:45px;padding:10px 12px;border:1px solid rgba(86,96,143,.19);border-radius:11px;background:rgba(255,255,255,.93);color:var(--ink);font-size:15px}
+input::placeholder{color:#9199ad}
+.people-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:15px}
+.people-label{margin-right:4px;color:#485574;font-size:13px;font-weight:750}
+.person-chip{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border:1px solid rgba(22,137,108,.15);border-radius:999px;background:rgba(232,247,241,.78);color:#285c52;font-size:13px;font-weight:700}
+.avatar{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#d6f0e5;color:#176b56;font-size:11px;font-weight:800}
+.add-person-form{display:flex;gap:7px;max-width:260px;margin-left:auto}
+.add-person-form input{min-height:36px;padding:7px 10px;font-size:13px}
+.add-person-form button,.primary-btn,.secondary-btn,.remove-btn{border:0;border-radius:10px;font-weight:750}
+.add-person-form button{padding:7px 11px;background:#e6f5ef;color:#176b56;font-size:13px}
+.layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(310px,.85fr);gap:18px;align-items:start}
+.stack{display:grid;gap:16px;min-width:0}
+.panel-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:15px}
+.panel-heading h2{margin:0;color:var(--ink);font-size:20px;letter-spacing:-.02em}
+.panel-heading p{margin:5px 0 0;color:var(--muted);font-size:13px;line-height:1.5}
+.count-pill{flex:0 0 auto;padding:5px 9px;border-radius:999px;background:rgba(101,88,232,.08);color:#5d53c2;font-size:12px;font-weight:750}
+.item-form{display:grid;grid-template-columns:minmax(0,1fr) 145px;gap:10px;align-items:end;padding:14px;margin-bottom:14px;border:1px solid rgba(22,137,108,.15);border-radius:15px;background:rgba(245,252,249,.75)}
+.field-full{grid-column:1/-1}
+.item-form input{margin:0}
+.assign-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
+.assign-choice{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid rgba(86,96,143,.16);border-radius:999px;background:rgba(255,255,255,.8);color:#4c5874;font-size:13px;font-weight:650;cursor:pointer}
+.assign-choice:has(input:checked){border-color:rgba(22,137,108,.35);background:#e7f6ef;color:#176b56}
+.assign-choice input{width:15px;height:15px;margin:0;accent-color:var(--green)}
+.helper{margin:7px 0 0;color:var(--muted);font-size:12px;line-height:1.5}
+.primary-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:11px 15px;background:linear-gradient(135deg,#249b7c,#16765f);color:#fff;box-shadow:0 6px 15px rgba(22,137,108,.17);font-size:14px}
+.primary-btn:hover{filter:brightness(1.06)}
+.secondary-btn{min-height:38px;padding:8px 12px;border:1px solid rgba(86,96,143,.16);background:rgba(255,255,255,.76);color:#46536f;font-size:13px}
+.item-list{display:grid;gap:9px}
+.item-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 13px;border:1px solid rgba(86,96,143,.11);border-radius:13px;background:rgba(255,255,255,.64)}
+.item-main{min-width:0}
+.item-name-line{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.item-name{min-width:0;color:#293451;font-size:14px;font-weight:750;overflow-wrap:anywhere}
+.item-price{flex:0 0 auto;color:#293451;font-size:14px;font-weight:800}
+.item-share-note{margin-top:3px;color:var(--muted);font-size:12px}
+.remove-btn{width:34px;height:34px;padding:0;border:1px solid rgba(196,91,102,.13);background:#fff5f5;color:#a84956;font-size:18px}
+.empty-state{padding:24px 14px;border:1px dashed rgba(86,96,143,.22);border-radius:13px;color:var(--muted);text-align:center;font-size:14px}
+.adjust-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.adjust-box{padding:14px;border:1px solid rgba(86,96,143,.12);border-radius:14px;background:rgba(255,255,255,.51)}
+.adjust-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.adjust-title strong{color:#303b5a;font-size:14px}
+.adjust-title span{color:var(--muted);font-size:11px}
+.adjust-input{display:grid;grid-template-columns:minmax(0,1fr) 105px;gap:7px}
+.adjust-input input,.adjust-input select{min-height:40px;padding:8px 9px;font-size:14px}
+.adjust-value{margin-top:8px;color:#485574;font-size:12px}
+.adjust-value b{color:var(--ink);font-size:14px}
+.summary-card{padding:21px;border-color:rgba(22,137,108,.2);background:linear-gradient(155deg,rgba(255,255,255,.88),rgba(238,250,245,.78))}
+.summary-total{padding:15px 16px;margin:2px 0 13px;border-radius:15px;background:linear-gradient(135deg,#155649,#1d826d);color:#fff}
+.summary-total span{display:block;color:rgba(255,255,255,.75);font-size:12px;font-weight:650}
+.summary-total strong{display:block;margin-top:3px;color:#fff;font-size:30px;letter-spacing:-.035em}
+.summary-breakdown{display:grid;gap:8px;padding:0 2px 13px;border-bottom:1px solid var(--line)}
+.breakdown-line{display:flex;justify-content:space-between;gap:12px;color:#58647f;font-size:13px}
+.breakdown-line strong{color:#303b5a;font-weight:750}
+.person-totals{display:grid;gap:8px;margin-top:14px}
+.person-total{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;padding:10px 11px;border:1px solid rgba(86,96,143,.11);border-radius:12px;background:rgba(255,255,255,.61)}
+.person-total-name{display:flex;align-items:center;gap:8px;color:#303b5a;font-size:13px;font-weight:750}
+.person-total-number{text-align:right;color:#293451;font-size:14px;font-weight:800}
+.person-total-detail{grid-column:1/-1;display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:11px}
+.settlement-card h2{margin:0 0 6px;font-size:18px}
+.settlement-lead{margin:0 0 12px;color:var(--muted);font-size:12px;line-height:1.5}
+.payer-line{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 11px;border-radius:12px;background:rgba(232,247,241,.8);color:#315f55;font-size:13px}
+.transfer-list{display:grid;gap:7px;margin-top:8px}
+.transfer-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 11px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.61);font-size:13px}
+.transfer-row strong{color:#273653}
+.zero-state{padding:12px;color:var(--muted);font-size:13px;text-align:center}
+.warning{margin:10px 0 0;padding:10px 12px;border:1px solid rgba(196,121,45,.2);border-radius:11px;background:#fff8ed;color:#7d5227;font-size:12px;line-height:1.5}
+.footer-note{margin:18px 4px 0;color:var(--muted);font-size:12px;line-height:1.55;text-align:center}
+.footer-note b{color:#485574}
+@media(max-width:780px){.layout{grid-template-columns:1fr}.summary-column{order:-1}.summary-card{padding:17px}.hero{border-radius:22px}}
+@media(max-width:540px){.shell{padding-top:16px}.topbar{align-items:flex-start}.back-link{min-height:38px;padding:7px 10px;font-size:12px}.brand-mark{width:34px;height:34px}.brand{font-size:14px}.hero{padding:22px 19px}.meta-grid{grid-template-columns:1fr}.add-person-form{width:100%;max-width:none;margin:4px 0 0}.item-form{grid-template-columns:1fr 115px;padding:11px}.field-full{grid-column:1/-1}.adjust-grid{grid-template-columns:1fr}.card{padding:16px}.person-total-detail{font-size:10px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <div class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 18h17M5 18a7 7 0 0 1 14 0M8.5 9h7M10.5 5.5h3"/></svg></span><span>埋單有數<small>餐飲分單模式</small></span></div>
+    <a class="back-link" href="./index.html" aria-label="返回模式選擇">← <span>選擇其他模式</span></a>
+  </div>
+  <header class="hero">
+    <div class="hero-content">
+      <p class="eyebrow">DINING BILL · ITEM BY ITEM</p>
+      <h1>餐點逐項記，<br>每人埋單有數。</h1>
+      <p>個人點餐和共享食物分開記錄；服務費與折扣會按每人的餐點小計比例分攤，餐單和結算均獨立於聚會分帳。</p>
+      <span class="preview-tag">互動試看版 · 資料只保存在此裝置</span>
+    </div>
+  </header>
+
+  <lumen-card variant="glass" glass="strong" class="card meta-card">
+    <div class="meta-grid">
+      <div><label for="billName">餐單名稱</label><input type="text" id="billName" maxlength="60" oninput="changeBillName(this.value)"></div>
+      <div><label for="payerSelect">整張帳單由誰代付？</label><select id="payerSelect" onchange="changePayer(this.value)"></select></div>
+    </div>
+    <div class="people-row"><span class="people-label">參加者</span><span id="peopleList"></span>
+      <form class="add-person-form" onsubmit="addParticipant(event)"><input type="text" id="newPersonName" maxlength="30" placeholder="新增參加者" aria-label="新增參加者名稱"><button type="submit">加入</button></form>
+    </div>
+  </lumen-card>
+
+  <div class="layout">
+    <div class="stack">
+      <lumen-card variant="glass" glass="strong" class="card">
+        <div class="panel-heading"><div><h2>餐點明細</h2><p>選一人代表個人點餐；選多人代表共享菜式，由所選人士平均分攤。</p></div><span id="itemCount" class="count-pill"></span></div>
+        <form class="item-form" onsubmit="addItem(event)">
+          <div><label for="itemName">食物或飲品</label><input type="text" id="itemName" maxlength="60" placeholder="例如：牛肉飯" required></div>
+          <div><label for="itemAmount">總金額（HK$）</label><input type="number" id="itemAmount" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required></div>
+          <div class="field-full"><label>由誰負擔這項餐點？</label><div id="assigneeList" class="assign-list"></div><p class="helper">份量不同時，將該菜式拆成多項記錄。</p></div>
+          <div class="field-full"><button class="primary-btn" type="submit">＋ 加入餐點</button></div>
+        </form>
+        <div id="itemList" class="item-list"></div>
+      </lumen-card>
+
+      <lumen-card variant="glass" glass="strong" class="card">
+        <div class="panel-heading"><div><h2>服務費與折扣</h2><p>兩者都按各人的餐點小計比例分攤；折扣以餐點小計計算。</p></div></div>
+        <div class="adjust-grid">
+          <div class="adjust-box">
+            <div class="adjust-title"><strong>服務費</strong><span>加入應付總額</span></div>
+            <div class="adjust-input"><input id="serviceValue" type="number" min="0" step="0.01" inputmode="decimal" aria-label="服務費數值" oninput="changeAdjustment('service','value',this.value)"><select id="serviceMode" aria-label="服務費輸入方式" onchange="changeAdjustment('service','mode',this.value)"><option value="percent">百分比</option><option value="amount">實際金額</option></select></div>
+            <div class="adjust-value">分攤服務費：<b id="serviceTotal"></b></div>
+          </div>
+          <div class="adjust-box">
+            <div class="adjust-title"><strong>折扣</strong><span>從應付總額扣除</span></div>
+            <div class="adjust-input"><input id="discountValue" type="number" min="0" step="0.01" inputmode="decimal" aria-label="折扣數值" oninput="changeAdjustment('discount','value',this.value)"><select id="discountMode" aria-label="折扣輸入方式" onchange="changeAdjustment('discount','mode',this.value)"><option value="percent">百分比</option><option value="amount">實際金額</option></select></div>
+            <div class="adjust-value">分攤折扣：<b id="discountTotal"></b></div>
+          </div>
+        </div>
+        <p id="adjustmentWarning" class="warning" hidden></p>
+      </lumen-card>
+    </div>
+
+    <aside class="stack summary-column">
+      <lumen-card variant="glass" glass="strong" class="card summary-card">
+        <div class="panel-heading"><div><h2>每人餐飲金額</h2><p>各人分攤的餐點、服務費和折扣</p></div></div>
+        <div class="summary-total"><span id="billNameSummary">餐飲總額</span><strong id="grandTotal"></strong></div>
+        <div class="summary-breakdown">
+          <div class="breakdown-line"><span>餐點小計</span><strong id="subtotalValue"></strong></div>
+          <div class="breakdown-line"><span>服務費</span><strong id="serviceValueSummary"></strong></div>
+          <div class="breakdown-line"><span>折扣</span><strong id="discountValueSummary"></strong></div>
+        </div>
+        <div id="personTotals" class="person-totals"></div>
+      </lumen-card>
+
+      <lumen-card variant="glass" glass="strong" class="card settlement-card">
+        <div class="panel-heading"><div><h2>代付與應付</h2><p class="settlement-lead">餐飲分單只結算這張餐單，不會併入聚會開支。</p></div></div>
+        <div id="settlementSummary"></div>
+      </lumen-card>
+
+      <div class="row"><span class="helper">例子可任意修改，會自動保存在本機。</span><button type="button" class="reset-btn" onclick="resetDemo()">重設試看</button></div>
+    </aside>
+  </div>
+  <p class="footer-note"><b>互動試看版：</b>新增或修改內容只保存在目前裝置，不會同步給其他人。餐飲模式正式連接共同編輯前，會另行建立獨立餐單資料與分享流程。</p>
+</main>
+
+<script>
+const STORAGE_KEY='split-bill-dining-preview-v1';
+const DEFAULT_STATE={
+  name:'週五晚飯',payer:'A',
+  people:[{name:'A',emoji:'🙂'},{name:'B',emoji:'🐱'},{name:'C',emoji:'🐼'}],
+  items:[
+    {id:'sample-a',name:'牛肉飯',amount:12000,people:['A']},
+    {id:'sample-b',name:'海鮮炒飯',amount:8000,people:['B']},
+    {id:'sample-share',name:'芝士薯條（共享）',amount:9000,people:['A','B','C']}
+  ],
+  service:{mode:'percent',value:'10'},
+  discount:{mode:'percent',value:'5'}
+};
+function cloneDefault(){return JSON.parse(JSON.stringify(DEFAULT_STATE));}
+function loadState(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(!raw)return cloneDefault();
+    const saved=JSON.parse(raw);
+    if(!saved||!Array.isArray(saved.people)||!Array.isArray(saved.items))return cloneDefault();
+    return Object.assign(cloneDefault(),saved);
+  }catch(error){return cloneDefault();}
+}
+let state=loadState();
+let selectedPeople=new Set(state.people.length?[state.people[0].name]:[]);
+function persist(){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
+  catch(error){console.warn('本機儲存無法使用',error);}
+}
+function escapeHtml(value){
+  return String(value==null?'':value).replace(/[&<>"']/g,function(char){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char];
+  });
+}
+function money(cents){
+  const value=Number(cents)||0;
+  return (value<0?'−':'')+'HK$'+(Math.abs(value)/100).toFixed(2);
+}
+function parseMoney(value){
+  const raw=String(value==null?'':value).trim();
+  if(!raw)return {cents:0};
+  const match=/^(\d+)(?:\.(\d{0,2}))?$|^\.(\d{1,2})$/.exec(raw);
+  if(!match)return {error:'請輸入有效金額，最多兩位小數。'};
+  const whole=Number(match[1]||0);
+  const decimal=match[2]===undefined?(match[3]||''):(match[2]||'');
+  const cents=whole*100+Number(decimal.padEnd(2,'0')||0);
+  if(!Number.isSafeInteger(cents))return {error:'金額超出可處理範圍。'};
+  return {cents:cents};
+}
+function parsePercent(value){
+  const raw=String(value==null?'':value).trim();
+  if(!raw)return {cents:0};
+  const match=/^(\d+)(?:\.(\d{0,2}))?$|^\.(\d{1,2})$/.exec(raw);
+  if(!match)return {error:'百分比最多可輸入兩位小數。'};
+  const whole=Number(match[1]||0);
+  const decimal=match[2]===undefined?(match[3]||''):(match[2]||'');
+  const basisPoints=whole*100+Number(decimal.padEnd(2,'0')||0);
+  if(!Number.isSafeInteger(basisPoints)||basisPoints>10000)return {error:'百分比須介乎 0 至 100%。'};
+  return {basisPoints:basisPoints};
+}
+function allocateProportionally(total,weights){
+  const names=Object.keys(weights).filter(function(name){return Number(weights[name])>0;});
+  const result={};Object.keys(weights).forEach(function(name){result[name]=0;});
+  const weightTotal=names.reduce(function(sum,name){return sum+Number(weights[name]);},0);
+  if(!names.length||!total||weightTotal<=0)return result;
+  const totalBig=BigInt(total),weightBig=BigInt(weightTotal);
+  const parts=names.map(function(name,index){
+    const product=totalBig*BigInt(weights[name]);
+    return {name:name,index:index,cents:Number(product/weightBig),remainder:product%weightBig};
+  });
+  let rest=total-parts.reduce(function(sum,row){return sum+row.cents;},0);
+  parts.sort(function(a,b){if(a.remainder===b.remainder)return a.index-b.index;return a.remainder>b.remainder?-1:1;});
+  for(let i=0;i<rest&&i<parts.length;i++)parts[i].cents+=1;
+  parts.forEach(function(row){result[row.name]=row.cents;});
+  return result;
+}
+function readAdjustment(setting,subtotal){
+  const raw=String(setting.value==null?'':setting.value).trim();
+  if(!raw)return {cents:0};
+  if(setting.mode==='percent'){
+    const parsed=parsePercent(raw);
+    if(parsed.error)return parsed;
+    return {cents:Number((BigInt(subtotal)*BigInt(parsed.basisPoints)+5000n)/10000n)};
+  }
+  return parseMoney(raw);
+}
+function calculate(){
+  const base={};state.people.forEach(function(person){base[person.name]=0;});
+  state.items.forEach(function(item){
+    const selected=(item.people||[]).filter(function(name){return Object.prototype.hasOwnProperty.call(base,name);});
+    const shares={};selected.forEach(function(name){shares[name]=1;});
+    const allocation=allocateProportionally(Number(item.amount)||0,shares);
+    selected.forEach(function(name){base[name]+=allocation[name]||0;});
+  });
+  const subtotal=Object.keys(base).reduce(function(sum,name){return sum+base[name];},0);
+  const serviceResult=readAdjustment(state.service||{mode:'percent',value:'0'},subtotal);
+  const discountResult=readAdjustment(state.discount||{mode:'percent',value:'0'},subtotal);
+  const errors=[];
+  if(serviceResult.error)errors.push('服務費：'+serviceResult.error);
+  if(discountResult.error)errors.push('折扣：'+discountResult.error);
+  const serviceTotal=serviceResult.cents||0;
+  const discountTotal=discountResult.cents||0;
+  if(discountTotal>subtotal)errors.push('折扣不能多於餐點小計。');
+  const service=allocateProportionally(serviceTotal,base);
+  const discount=allocateProportionally(discountTotal,base);
+  const due={};
+  state.people.forEach(function(person){due[person.name]=(base[person.name]||0)+(service[person.name]||0)-(discount[person.name]||0);});
+  const grandTotal=subtotal+serviceTotal-discountTotal;
+  return {base:base,subtotal:subtotal,serviceTotal:serviceTotal,discountTotal:discountTotal,service:service,discount:discount,due:due,grandTotal:grandTotal,errors:errors};
+}
+function initials(name){return Array.from(String(name||'?'))[0]||'?';}
+function personByName(name){return state.people.find(function(person){return person.name===name;})||{name:name,emoji:''};}
+function renderPeople(){
+  const peopleHtml=state.people.map(function(person){
+    return '<span class="person-chip"><span class="avatar" aria-hidden="true">'+escapeHtml(person.emoji||initials(person.name))+'</span>'+escapeHtml(person.name)+'</span>';
+  }).join('');
+  document.getElementById('peopleList').innerHTML=peopleHtml||'<span class="helper">尚未加入參加者</span>';
+  document.getElementById('payerSelect').innerHTML=state.people.map(function(person){
+    return '<option value="'+escapeHtml(person.name)+'" '+(state.payer===person.name?'selected':'')+'>'+escapeHtml(person.name)+'</option>';
+  }).join('');
+  const picker=state.people.map(function(person){
+    const checked=selectedPeople.has(person.name)?' checked':'';
+    return '<label class="assign-choice"><input type="checkbox" value="'+escapeHtml(person.name)+'"'+checked+' onchange="toggleAssignee(this)"><span>'+escapeHtml(person.emoji||initials(person.name))+' '+escapeHtml(person.name)+'</span></label>';
+  }).join('');
+  document.getElementById('assigneeList').innerHTML=picker||'<span class="helper">請先加入參加者。</span>';
+  document.getElementById('payerSelect').disabled=!state.people.length;
+  document.getElementById('itemCount').textContent=state.items.length+' 項';
+}
+function renderItems(){
+  const target=document.getElementById('itemList');
+  if(!state.items.length){
+    target.innerHTML='<div class="empty-state">尚未加入餐點。從上方輸入第一項食物或飲品。</div>';
+    return;
+  }
+  target.innerHTML=state.items.map(function(item){
+    const names=(item.people||[]).map(function(name){return escapeHtml(name);});
+    const note=names.length>1?names.join('、')+' · 共享平均分攤':(names[0]||'未指定')+' · 個人點餐';
+    return '<div class="item-row"><div class="item-main"><div class="item-name-line"><span class="item-name">'+escapeHtml(item.name)+'</span><span class="item-price">'+money(item.amount)+'</span></div><div class="item-share-note">'+note+'</div></div><button type="button" class="remove-btn" data-remove="'+escapeHtml(item.id)+'" aria-label="移除 '+escapeHtml(item.name)+'">×</button></div>';
+  }).join('');
+  target.querySelectorAll('[data-remove]').forEach(function(button){
+    button.addEventListener('click',function(){removeItem(button.getAttribute('data-remove'));});
+  });
+}
+function updateSummary(){
+  const result=calculate();
+  document.getElementById('billNameSummary').textContent=state.name||'餐飲總額';
+  document.getElementById('grandTotal').textContent=money(result.grandTotal);
+  document.getElementById('subtotalValue').textContent=money(result.subtotal);
+  document.getElementById('serviceValueSummary').textContent='+'+money(result.serviceTotal);
+  document.getElementById('discountValueSummary').textContent='−'+money(result.discountTotal);
+  document.getElementById('serviceTotal').textContent=money(result.serviceTotal);
+  document.getElementById('discountTotal').textContent=money(result.discountTotal);
+  const warning=document.getElementById('adjustmentWarning');
+  warning.hidden=!result.errors.length;
+  warning.textContent=result.errors.join(' ');
+  const personTotals=document.getElementById('personTotals');
+  if(!state.people.length){
+    personTotals.innerHTML='<div class="empty-state">先加入參加者，再記錄餐點。</div>';
+  }else{
+    personTotals.innerHTML=state.people.map(function(person){
+      const name=person.name;
+      return '<div class="person-total"><div class="person-total-name"><span class="avatar" aria-hidden="true">'+escapeHtml(person.emoji||initials(name))+'</span>'+escapeHtml(name)+'</div><strong class="person-total-number">'+money(result.due[name]||0)+'</strong><div class="person-total-detail"><span>餐點 '+money(result.base[name]||0)+'</span><span>服務 '+money(result.service[name]||0)+' · 折扣 −'+money(result.discount[name]||0)+'</span></div></div>';
+    }).join('');
+  }
+  const settlement=document.getElementById('settlementSummary');
+  if(result.errors.length){
+    settlement.innerHTML='<div class="warning">請先修正服務費或折扣，結算金額暫不適用。</div>';
+  }else if(!state.items.length){
+    settlement.innerHTML='<div class="zero-state">加入餐點後會顯示各人的應付安排。</div>';
+  }else{
+    const payer=state.people.some(function(person){return person.name===state.payer;})?state.payer:(state.people[0]&&state.people[0].name)||'';
+    const collected=state.people.reduce(function(sum,person){return sum+(person.name===payer?0:(result.due[person.name]||0));},0);
+    let rows=state.people.filter(function(person){return person.name!==payer&&(result.due[person.name]||0)>0;}).map(function(person){
+      return '<div class="transfer-row"><span>'+escapeHtml(person.name)+' <span aria-hidden="true">→</span> '+escapeHtml(payer)+'</span><strong>'+money(result.due[person.name])+'</strong></div>';
+    }).join('');
+    if(!rows)rows='<div class="zero-state">目前無需轉帳。</div>';
+    settlement.innerHTML='<div class="payer-line"><span>'+escapeHtml(payer)+' 代付餐飲帳單</span><strong>'+money(result.grandTotal)+'</strong></div><div class="transfer-list">'+rows+'</div><p class="helper">其餘參加者合共應付 '+money(collected)+'；付款人自己的餐點費用已從代付額扣除。</p>';
+  }
+}
+function renderAll(){
+  document.getElementById('billName').value=state.name||'';
+  document.getElementById('serviceMode').value=(state.service&&state.service.mode)||'percent';
+  document.getElementById('serviceValue').value=(state.service&&state.service.value)||'';
+  document.getElementById('discountMode').value=(state.discount&&state.discount.mode)||'percent';
+  document.getElementById('discountValue').value=(state.discount&&state.discount.value)||'';
+  renderPeople();renderItems();updateSummary();
+}
+function changeBillName(value){state.name=value;persist();updateSummary();}
+function changePayer(value){state.payer=value;persist();updateSummary();}
+function changeAdjustment(kind,field,value){
+  state[kind][field]=value;persist();updateSummary();
+}
+function toggleAssignee(input){
+  if(input.checked)selectedPeople.add(input.value);else selectedPeople.delete(input.value);
+}
+function addParticipant(event){
+  event.preventDefault();
+  const input=document.getElementById('newPersonName');
+  const name=(input.value||'').trim();
+  if(!name){input.focus();return;}
+  if(state.people.some(function(person){return person.name.toLowerCase()===name.toLowerCase();})){
+    alert('這個名字已存在。');input.focus();return;
+  }
+  state.people.push({name:name,emoji:''});
+  if(!selectedPeople.size)selectedPeople.add(name);
+  if(!state.payer)state.payer=name;
+  input.value='';persist();renderPeople();updateSummary();
+}
+function addItem(event){
+  event.preventDefault();
+  const name=document.getElementById('itemName').value.trim();
+  const parsed=parseMoney(document.getElementById('itemAmount').value);
+  const people=Array.from(selectedPeople).filter(function(person){return state.people.some(function(row){return row.name===person;});});
+  if(!state.people.length){alert('請先加入參加者。');return;}
+  if(!name){alert('請輸入食物或飲品名稱。');return;}
+  if(parsed.error||parsed.cents<=0){alert(parsed.error||'金額須大於 HK$0.00。');return;}
+  if(!people.length){alert('請至少選一位餐點負擔人。');return;}
+  state.items.push({id:'item-'+Date.now()+'-'+Math.floor(Math.random()*10000),name:name,amount:parsed.cents,people:people});
+  persist();
+  const form=document.getElementById('itemForm');
+  form.reset();
+  selectedPeople=new Set([people[0]]);
+  renderPeople();renderItems();updateSummary();
+  document.getElementById('itemName').focus();
+}
+function removeItem(id){
+  state.items=state.items.filter(function(item){return item.id!==id;});
+  persist();renderPeople();renderItems();updateSummary();
+}
+function resetDemo(){
+  if(!confirm('重設試看內容？你在這部裝置的餐單修改會被清除。'))return;
+  state=cloneDefault();selectedPeople=new Set(state.people.length?[state.people[0].name]:[]);
+  persist();renderAll();
+}
+renderAll();
+</script>
+</body>
+</html>
