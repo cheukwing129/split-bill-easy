@@ -154,7 +154,7 @@ const firebaseConfig={
 const db=getFirestore(initializeApp(firebaseConfig));
 const STORAGE_KEY='split-bill-dining-participants-v1';
 const appEl=document.getElementById('app');
-let state={session:null,items:[],selected:new Set(),editItemId:null,showPeopleManage:false,setupParticipants:loadSavedParticipants(),unsub:[],qrData:''};
+let state={session:null,items:[],selected:new Set(),editItemId:null,itemDraft:'',showPeopleManage:false,setupParticipants:loadSavedParticipants(),unsub:[],qrData:''};
 let qrPromise=null;
 
 function diningId(){const m=location.hash.match(/#\/d\/([^\/?#]+)/);return m?decodeURIComponent(m[1]):null;}
@@ -230,21 +230,64 @@ async function createDiningSession(){
 }
 function showLoading(){appEl.innerHTML='<main class="shell">'+modeHeader()+'<lumen-card variant="glass" glass="strong" class="card"><p class="helper">正在載入餐單…</p></lumen-card></main>';}
 
-function moneyCents(value){
+// Parse only arithmetic; keep exact fractions until the final rounding to cents.
+function expressionHundredths(value,max,percent){
   const raw=String(value==null?'':value).trim();if(!raw)return {empty:true};
-  const m=/^(\d+)(?:\.(\d{0,2}))?$|^\.(\d{1,2})$/.exec(raw);
-  if(!m)return {error:'請輸入有效金額，最多兩位小數。'};
-  const cents=Number(m[1]||0)*100+Number((m[2]===undefined?(m[3]||''):m[2]||'').padEnd(2,'0')||0);
-  if(!Number.isSafeInteger(cents))return {error:'金額超出可處理範圍。'};
-  return {cents:cents};
+  if(raw.length>256)return {error:'算式過長，請縮短至256個字元內。'};
+  const source=raw.replace(/[xX×]/g,'*');let pos=0;
+  const rangeError=percent?'百分比須介乎0至100%。':'金額須介乎 HK$0.00 至 HK$1,000,000.00。';
+  function skip(){while(/\s/.test(source[pos]||'')&&pos<source.length)pos++;}
+  function fail(message){throw new Error(message||'算式未完成或格式不正確，請使用數字及 +、-、x、*、/。');}
+  function primary(){
+    skip();const sign=source[pos];
+    if(sign==='+'||sign==='-'){pos++;const v=primary();return {n:sign==='-'?-v.n:v.n,d:v.d};}
+    if(sign==='('){pos++;const v=sum();skip();if(source[pos]!==')')fail('括號未配對。');pos++;return v;}
+    const match=/^(?:\d+(?:\.\d*)?|\.\d+)/.exec(source.slice(pos));
+    if(!match)fail();pos+=match[0].length;
+    const parts=match[0].split('.'),fraction=parts[1]||'';
+    return {n:BigInt((parts[0]||'0')+fraction),d:10n**BigInt(fraction.length)};
+  }
+  function product(){
+    let left=primary();
+    while(true){
+      skip();const op=source[pos];if(op!=='*'&&op!=='/')return left;
+      pos++;const right=primary();
+      if(op==='/'&&right.n===0n)fail('除數不可為0。');
+      left=op==='*'?{n:left.n*right.n,d:left.d*right.d}:{n:left.n*right.d,d:left.d*right.n};
+      if(left.d<0n){left.n=-left.n;left.d=-left.d;}
+    }
+  }
+  function sum(){
+    let left=product();
+    while(true){
+      skip();const op=source[pos];if(op!=='+'&&op!=='-')return left;
+      pos++;const right=product();
+      left={n:left.n*right.d+(op==='+'?right.n:-right.n)*left.d,d:left.d*right.d};
+    }
+  }
+  try{
+    const result=sum();skip();if(pos!==source.length)fail();
+    if(result.n<0n||result.n*100n>BigInt(max)*result.d)return {error:rangeError};
+    return {hundredths:Number((result.n*200n+result.d)/(result.d*2n))};
+  }catch(error){return {error:error.message};}
+}
+function moneyCents(value){
+  const parsed=expressionHundredths(value,100000000,false);
+  return parsed.error||parsed.empty?parsed:{cents:parsed.hundredths};
 }
 function percentBps(value){
-  const raw=String(value==null?'':value).trim();if(!raw)return {empty:true};
-  const m=/^(\d+)(?:\.(\d{0,2}))?$|^\.(\d{1,2})$/.exec(raw);
-  if(!m)return {error:'百分比最多可輸入兩位小數。'};
-  const valueBps=Number(m[1]||0)*100+Number((m[2]===undefined?(m[3]||''):m[2]||'').padEnd(2,'0')||0);
-  if(!Number.isSafeInteger(valueBps)||valueBps>10000)return {error:'百分比須介乎0至100%。'};
-  return {basisPoints:valueBps};
+  const parsed=expressionHundredths(value,10000,true);
+  return parsed.error||parsed.empty?parsed:{basisPoints:parsed.hundredths};
+}
+function previewAmount(input,kind){
+  if(kind==='item')state.itemDraft=input.value;
+  const target=document.getElementById(kind+'Calculation');if(!target)return;
+  const percent=kind!=='item'&&document.getElementById(kind+'Mode').value==='percent';
+  const parsed=percent?percentBps(input.value):moneyCents(input.value);
+  const error=parsed.error||(kind==='item'&&!parsed.empty&&parsed.cents<=0?'餐點金額須大於 HK$0.00。':'');
+  input.setAttribute('aria-invalid',error?'true':'false');
+  target.textContent=error||(parsed.empty?'可輸入算式，例如 38+42、58x2、120/3（先乘除後加減）。':'計算結果：'+(percent?(parsed.basisPoints/100).toFixed(2)+'%':fmt(parsed.cents))+'（四捨五入至兩位小數）');
+  target.style.color=error?'#a84956':'';
 }
 function allocate(total,weights){
   const names=Object.keys(weights).filter(function(name){return Number(weights[name])>0;});
@@ -299,7 +342,7 @@ function renderActive(){
     (state.showPeopleManage&&!isArchived?renderPeopleManage(people):'')+'</lumen-card>'+
     '<div class="layout"><div class="stack">'+
     '<lumen-card variant="glass" glass="strong" class="card"><div class="panel-heading"><div><h2>餐點金額</h2><p>不需輸入食物名稱，只需輸入金額並選擇負責分攤的人。</p></div><span class="count-pill">'+state.items.length+' 項</span></div>'+
-    (isArchived?'':'<form class="item-form" onsubmit="saveItem(event)"><div><label for="itemAmount">金額（HK$）</label><input id="itemAmount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required></div>'+
+    (isArchived?'':'<form class="item-form" onsubmit="saveItem(event)"><div class="field-full"><label for="itemAmount">金額（HK$）</label><input id="itemAmount" type="text" inputmode="text" maxlength="256" autocomplete="off" spellcheck="false" placeholder="例如 38+42 或 58x2" value="'+esc(state.itemDraft)+'" aria-describedby="itemCalculation" oninput="previewAmount(this,\'item\')" required><p id="itemCalculation" class="helper" role="status" aria-live="polite"></p></div>'+
     '<div class="field-full"><div class="assign-heading"><label>負責人（選多人即平均分攤）</label><div class="assign-actions"><button type="button" class="tiny-btn" onclick="selectAllAssignees()">全選</button><button type="button" class="tiny-btn" onclick="clearAssignees()">清除</button></div></div><div id="assigneeList" class="assign-list">'+renderAssignees(people)+'</div></div>'+
     '<div class="field-full"><button class="primary-btn" type="submit" '+(!people.length?'disabled':'')+'>'+(state.editItemId?'儲存餐點':'加入餐點')+'</button>'+(state.editItemId?'<button type="button" class="secondary-btn" onclick="cancelItemEdit()">取消編輯</button>':'')+'</div></form>')+
     '<div id="itemList" class="item-list">'+renderItems()+'</div></lumen-card>'+
@@ -314,6 +357,7 @@ function renderActive(){
     '<div class="person-totals">'+(people.length?people.map(function(name){return '<div class="person-total"><div class="person-total-name">'+avatar(name)+esc(name)+'</div><strong class="person-total-number">'+fmt(result.due[name]||0)+'</strong><div class="person-total-detail"><span>餐點 '+fmt(result.base[name]||0)+'</span><span>服務 '+fmt(result.service[name]||0)+' · 折扣 −'+fmt(result.discount[name]||0)+'</span></div></div>';}).join(''):'<div class="empty-state">加入參加者後，便可查看每人的分攤金額。</div>')+'</div>'+
     '</lumen-card><lumen-card variant="glass" glass="strong" class="card settlement-card"><div class="panel-heading"><div><h2>代付與應付</h2><p class="settlement-lead">餐飲分單獨立結算，不會併入聚會開支。</p></div></div><div id="settlementSummary">'+renderSettlement(m,result)+'</div></lumen-card></aside></div>'+
     '<p class="footer-note">所有持有餐單連結的人均可共同編輯；參加者名單的本機保存只影響目前瀏覽器。</p></main>';
+  ['item','service','discount'].forEach(function(kind){const input=document.getElementById(kind==='item'?'itemAmount':kind+'Value');if(input)previewAmount(input,kind);});
 }
 function renderPeopleManage(people){
   if(!people.length)return '<div class="people-manage"><p class="helper">目前沒有參加者。</p></div>';
@@ -334,9 +378,9 @@ function renderItems(){
 function renderAdjustmentControl(kind,title,mode,value,disabled){
   const number=mode==='percent'?(Number(value||0)/100).toFixed(2).replace(/\.?0+$/,''):amountText(value);
   return '<div class="adjust-box"><div class="adjust-title"><strong>'+title+'</strong><span>'+(kind==='service'?'加入應付總額':'從應付總額扣除')+'</span></div>'+
-    '<div class="adjust-input"><input type="number" min="0" step="0.01" inputmode="decimal" id="'+kind+'Value" value="'+esc(number)+'" aria-label="'+title+'數值" onchange="saveAdjustment(\''+kind+'\')" '+(disabled?'disabled':'')+'>'+
+    '<div class="adjust-input"><input type="text" inputmode="text" maxlength="256" autocomplete="off" spellcheck="false" id="'+kind+'Value" value="'+esc(number)+'" aria-label="'+title+'數值" aria-describedby="'+kind+'Calculation" oninput="previewAmount(this,\''+kind+'\')" onchange="saveAdjustment(\''+kind+'\')" '+(disabled?'disabled':'')+'>'+
     '<select id="'+kind+'Mode" aria-label="'+title+'輸入方式" onchange="saveAdjustment(\''+kind+'\')" '+(disabled?'disabled':'')+'><option value="percent" '+(mode==='percent'?'selected':'')+'>百分比</option><option value="amount" '+(mode==='amount'?'selected':'')+'>實際金額</option></select></div>'+
-    '<div class="adjust-value">分攤'+title+'：<b>'+fmt(kind==='service'?calculate().serviceTotal:calculate().discountTotal)+'</b></div></div>';
+    '<p id="'+kind+'Calculation" class="helper" role="status" aria-live="polite"></p><div class="adjust-value">分攤'+title+'：<b>'+fmt(kind==='service'?calculate().serviceTotal:calculate().discountTotal)+'</b></div></div>';
 }
 function renderSettlement(m,result){
   if(result.errors.length)return '<div class="warning">請先修正折扣設定，暫不能確認結算。</div>';
@@ -350,7 +394,7 @@ function renderSettlement(m,result){
 
 function renderError(message){appEl.innerHTML='<main class="shell">'+modeHeader()+'<lumen-card variant="glass" glass="strong" class="card"><div class="warning">'+esc(message)+'</div></lumen-card></main>';}
 async function boot(){
-  clearSubscriptions();state.session=null;state.items=[];state.selected=new Set();state.editItemId=null;state.showPeopleManage=false;
+  clearSubscriptions();state.session=null;state.items=[];state.selected=new Set();state.editItemId=null;state.itemDraft='';state.showPeopleManage=false;
   const id=diningId();if(!id){renderHome();return;}
   showLoading();const sessionRef=doc(db,'diningSessions',id);
   state.unsub.push(onSnapshot(sessionRef,function(snapshot){
@@ -427,7 +471,7 @@ async function saveAdjustment(kind){
   const modeEl=document.getElementById(kind+'Mode'),valueEl=document.getElementById(kind+'Value');
   if(!modeEl||!valueEl)return;
   const mode=modeEl.value,parsed=mode==='percent'?percentBps(valueEl.value):moneyCents(valueEl.value);
-  if(parsed.error||parsed.empty){alert(parsed.error||'請輸入數值。');renderActive();return;}
+  if(parsed.error||parsed.empty){alert(parsed.error||'請輸入數值。');previewAmount(valueEl,kind);valueEl.focus();return;}
   const value=mode==='percent'?parsed.basisPoints:parsed.cents;
   if(kind==='discount'&&mode==='amount'&&value>calculate().subtotal){alert('折扣不可多於餐點小計。');renderActive();return;}
   try{await updateDoc(doc(db,'diningSessions',diningId()),{[kind+'Mode']:mode,[kind+'Value']:value});}
@@ -446,16 +490,15 @@ async function saveItem(event){
       data.createdAt=Number(existing&&existing.createdAt)||Date.now();
       await updateDoc(doc(db,'diningSessions',diningId(),'items',state.editItemId),data);
     }else{data.createdAt=Date.now();await addDoc(collection(db,'diningSessions',diningId(),'items'),data);}
-    state.editItemId=null;state.selected=new Set();renderActive();
+    state.editItemId=null;state.itemDraft='';state.selected=new Set();renderActive();
   }catch(error){showWriteError('儲存餐點失敗',error);}
 }
 function editItem(id){
   const item=state.items.find(function(row){return row.id===id;});if(!item)return;
-  const input=document.getElementById('itemAmount');if(input)input.value=amountText(item.amount);
-  state.editItemId=id;state.selected=new Set(item.responsible||[]);renderActive();
-  const amount=document.getElementById('itemAmount');if(amount)amount.value=amountText(item.amount);
+  state.itemDraft=amountText(item.amount);state.editItemId=id;state.selected=new Set(item.responsible||[]);renderActive();
+  const amount=document.getElementById('itemAmount');if(amount)amount.focus();
 }
-function cancelItemEdit(){state.editItemId=null;state.selected=new Set();renderActive();}
+function cancelItemEdit(){state.editItemId=null;state.itemDraft='';state.selected=new Set();renderActive();}
 async function removeItem(id){
   if(!confirm('確定移除這項餐點？'))return;
   try{await deleteDoc(doc(db,'diningSessions',diningId(),'items',id));}
@@ -483,7 +526,7 @@ function showWriteError(action,error){
   if(error&&error.code==='permission-denied'){alert(action+'：Firestore Rules 尚未開放餐飲分單資料，請更新 Rules 後再試。');return;}
   alert(action+'，請檢查網絡後再試。');
 }
-Object.assign(window,{addSetupParticipant,saveSetupRoster,loadSetupRoster,removeSetupParticipant,createDiningSession,addParticipant,removeParticipant,togglePeopleManage,saveCurrentRoster,loadRosterIntoSession,saveSessionName,savePayer,saveAdjustment,selectAllAssignees,clearAssignees,toggleAssignee,saveItem,cancelItemEdit,editItem,removeItem,copyLink,openQr,closeQr,copyDiningLink});
+Object.assign(window,{previewAmount,addSetupParticipant,saveSetupRoster,loadSetupRoster,removeSetupParticipant,createDiningSession,addParticipant,removeParticipant,togglePeopleManage,saveCurrentRoster,loadRosterIntoSession,saveSessionName,savePayer,saveAdjustment,selectAllAssignees,clearAssignees,toggleAssignee,saveItem,cancelItemEdit,editItem,removeItem,copyLink,openQr,closeQr,copyDiningLink});
 window.addEventListener('hashchange',boot);
 boot();
 </script>
