@@ -84,6 +84,9 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .adjust-title span{color:var(--muted);font-size:11px}
 .adjust-input{display:grid;grid-template-columns:minmax(0,1fr) 105px;gap:7px}
 .adjust-input input,.adjust-input select{min-height:40px;padding:8px 9px;font-size:14px}
+.discount-allocation{display:grid;gap:6px;margin-top:11px}
+.discount-allocation label{margin:0}
+.discount-allocation select{min-height:40px;padding:8px 9px;font-size:13px}
 .adjust-value{margin-top:8px;color:#485574;font-size:12px}
 .adjust-value b{color:var(--ink);font-size:14px}
 .summary-card{padding:21px;border-color:rgba(22,137,108,.2);background:linear-gradient(155deg,rgba(255,255,255,.88),rgba(238,250,245,.78))}
@@ -263,10 +266,11 @@ function readAdjustment(mode,value,subtotal){
   if(mode==='percent')return {cents:Number((BigInt(subtotal)*BigInt(value||0)+5000n)/10000n)};
   return {cents:Number(value||0)};
 }
-function calculate(){
+function calculate(itemsOverride){
   const session=state.session,people=(session&&Array.isArray(session.participants)?session.participants:[]);
+  const items=Array.isArray(itemsOverride)?itemsOverride:state.items;
   const base=Object.create(null);people.forEach(function(name){base[name]=0;});
-  state.items.forEach(function(item){
+  items.forEach(function(item){
     const recipients=uniqueNames(item.responsible).filter(function(name){return Object.prototype.hasOwnProperty.call(base,name);});
     const weights=Object.create(null);recipients.forEach(function(name){weights[name]=1;});
     const parts=allocate(Number(item.amount)||0,weights);recipients.forEach(function(name){base[name]+=parts[name]||0;});
@@ -277,7 +281,22 @@ function calculate(){
   const errors=[];
   if(discountResult.cents>subtotal)errors.push('折扣不可多於餐點小計。');
   const service=allocate(serviceResult.cents,base);
-  const discount=allocate(discountResult.cents,base);
+  const discountAllocation=session&&session.discountAllocation||'proportional';
+  let discount;
+  if(discountAllocation==='equal'){
+    const payingPeople=Object.create(null);
+    people.forEach(function(name){if(base[name]>0)payingPeople[name]=1;});
+    discount=allocate(discountResult.cents,payingPeople);
+  }else if(discountAllocation==='person'){
+    discount=Object.create(null);people.forEach(function(name){discount[name]=0;});
+    const recipient=session&&session.discountRecipient;
+    if(discountResult.cents>0&&(!recipient||!Object.prototype.hasOwnProperty.call(base,recipient)||base[recipient]<=0)){
+      errors.push('請選擇有餐點金額的人享有全部折扣。');
+    }else if(recipient&&Object.prototype.hasOwnProperty.call(base,recipient)){
+      discount[recipient]=discountResult.cents;
+      if(discountResult.cents>base[recipient])errors.push('指定對象的餐點小計不足以承受全部折扣，請調低折扣或改選其他人。');
+    }
+  }else discount=allocate(discountResult.cents,base);
   const due=Object.create(null);people.forEach(function(name){due[name]=(base[name]||0)+(service[name]||0)-(discount[name]||0);});
   return{base:base,subtotal:subtotal,serviceTotal:serviceResult.cents,discountTotal:discountResult.cents,service:service,discount:discount,due:due,total:subtotal+serviceResult.cents-discountResult.cents,errors:errors};
 }
@@ -302,7 +321,7 @@ function renderActive(){
     '<div class="field-full"><div class="assign-heading"><label>負責人（選多人即平均分攤）</label><div class="assign-actions"><button type="button" class="tiny-btn" onclick="selectAllAssignees()">全選</button><button type="button" class="tiny-btn" onclick="clearAssignees()">清除</button></div></div><div id="assigneeList" class="assign-list">'+renderAssignees(people)+'</div></div>'+
     '<div class="field-full"><button class="primary-btn" type="submit" '+(!people.length?'disabled':'')+'>'+(state.editItemId?'儲存餐點':'加入餐點')+'</button>'+(state.editItemId?'<button type="button" class="secondary-btn" onclick="cancelItemEdit()">取消編輯</button>':'')+'</div></form>')+
     '<div id="itemList" class="item-list">'+renderItems()+'</div></lumen-card>'+
-    '<lumen-card variant="glass" glass="strong" class="card"><div class="panel-heading"><div><h2>服務費與折扣</h2><p>按每人餐點小計比例分攤；折扣以餐點小計計算。</p></div></div>'+
+    '<lumen-card variant="glass" glass="strong" class="card"><div class="panel-heading"><div><h2>服務費與折扣</h2><p>服務費按各人餐點小計比例分攤；折扣可按比例、按有消費人數均分，或指定一人享有。</p></div></div>'+
     '<div class="adjust-grid">'+renderAdjustmentControl('service','服務費',m.serviceMode,m.serviceValue,isArchived)+renderAdjustmentControl('discount','折扣',m.discountMode,m.discountValue,isArchived)+'</div>'+
     (result.errors.length?'<p class="warning">'+esc(result.errors.join(' '))+'</p>':'')+
     '</lumen-card></div>'+
@@ -322,7 +341,7 @@ function renderPeopleManage(people){
 }
 function renderAssignees(people){
   if(!people.length)return '<span class="helper">先加入參加者。</span>';
-  return people.map(function(name){return '<label class="assign-choice"><input type="checkbox" value="'+esc(name)+'" '+(state.selected.has(name)?'checked':'')+' onchange="toggleAssignee(this)" '+(state.session&&state.session.archived?'disabled':'')+'><span>'+avatar(name)+esc(name)+'</span></label>';}).join('');
+  return people.map(function(name){return '<label class="assign-choice"><input type="checkbox" value="'+esc(name)+'" '+(state.selected.has(name)?'checked':'')+' onchange="toggleAssignee(this)" '+(state.session&&state.session.archived?'disabled':'')+'><span>'+esc(name)+'</span></label>';}).join('');
 }
 function renderItems(){
   if(!state.items.length)return '<div class="empty-state">尚未加入餐點。輸入金額並選擇負責人後，即可開始分攤。</div>';
@@ -334,10 +353,25 @@ function renderItems(){
 }
 function renderAdjustmentControl(kind,title,mode,value,disabled){
   const number=mode==='percent'?(Number(value||0)/100).toFixed(2).replace(/\.?0+$/,''):amountText(value);
+  let distribution='';
+  if(kind==='discount'){
+    const allocation=state.session&&state.session.discountAllocation||'proportional';
+    const recipient=state.session&&state.session.discountRecipient||'';
+    const result=calculate(),people=state.session&&state.session.participants||[];
+    const options=people.map(function(name){
+      const amount=result.base[name]||0,tooSmall=amount<result.discountTotal;
+      const unavailable=amount<=0||tooSmall;
+      const note=amount<=0?'（沒有餐點金額）':(tooSmall?'（餐點小計不足）':'（餐點 '+fmt(amount)+'）');
+      return '<option value="'+esc(name)+'" '+(recipient===name?'selected ':'')+(unavailable?'disabled':'')+'>'+esc(name)+note+'</option>';
+    }).join('');
+    const emptyOption=people.includes(recipient)?'':'<option value="" selected disabled>選擇折扣對象</option>';
+    distribution='<div class="discount-allocation"><label for="discountAllocation">折扣分配方式</label><select id="discountAllocation" aria-label="折扣分配方式" onchange="saveDiscountAllocation(this.value)" '+(disabled?'disabled':'')+'><option value="proportional" '+(allocation==='proportional'?'selected':'')+'>按金額比例分攤（預設）</option><option value="equal" '+(allocation==='equal'?'selected':'')+'>按有餐點金額的人數均分</option><option value="person" '+(allocation==='person'?'selected':'')+'>指定一人享有全部折扣</option></select></div>'+
+      (allocation==='person'?'<div class="discount-allocation"><label for="discountRecipient">折扣對象</label><select id="discountRecipient" aria-label="折扣對象" onchange="saveDiscountRecipient(this.value)" '+(disabled?'disabled':'')+'>'+emptyOption+options+'</select><p class="helper">指定對象的餐點小計須足以抵扣全部折扣；沒有餐點金額的人不列入。</p></div>':'');
+  }
   return '<div class="adjust-box"><div class="adjust-title"><strong>'+title+'</strong><span>'+(kind==='service'?'加入應付總額':'從應付總額扣除')+'</span></div>'+
     '<div class="adjust-input"><input type="text" inputmode="text" maxlength="256" autocomplete="off" spellcheck="false" id="'+kind+'Value" value="'+esc(number)+'" aria-label="'+title+'數值" aria-describedby="'+kind+'Calculation" oninput="previewAmount(this,\''+kind+'\')" onchange="saveAdjustment(\''+kind+'\')" '+(disabled?'disabled':'')+'>'+
     '<select id="'+kind+'Mode" aria-label="'+title+'輸入方式" onchange="saveAdjustment(\''+kind+'\')" '+(disabled?'disabled':'')+'><option value="percent" '+(mode==='percent'?'selected':'')+'>百分比</option><option value="amount" '+(mode==='amount'?'selected':'')+'>實際金額</option></select></div>'+
-    '<p id="'+kind+'Calculation" class="helper" role="status" aria-live="polite"></p><div class="adjust-value">分攤'+title+'：<b>'+fmt(kind==='service'?calculate().serviceTotal:calculate().discountTotal)+'</b></div></div>';
+    distribution+'<p id="'+kind+'Calculation" class="helper" role="status" aria-live="polite"></p><div class="adjust-value">分攤'+title+'：<b>'+fmt(kind==='service'?calculate().serviceTotal:calculate().discountTotal)+'</b></div></div>';
 }
 function renderError(message){appEl.innerHTML='<main class="shell">'+modeHeader()+'<lumen-card variant="glass" glass="strong" class="card"><div class="warning">'+esc(message)+'</div></lumen-card></main>';}
 async function createDirectSession(){
@@ -345,7 +379,7 @@ async function createDirectSession(){
   state.creatingSession=true;showLoading();
   try{
     const ref=doc(collection(db,'diningSessions'));
-    await setDoc(ref,{name:'餐飲分單',participants:DEFAULT_PARTICIPANTS,payer:'A',serviceMode:'percent',serviceValue:0,discountMode:'percent',discountValue:0,archived:false,createdAt:Date.now()});
+    await setDoc(ref,{name:'餐飲分單',participants:DEFAULT_PARTICIPANTS,payer:'A',serviceMode:'percent',serviceValue:0,discountMode:'percent',discountValue:0,discountAllocation:'proportional',discountRecipient:null,archived:false,createdAt:Date.now()});
     history.replaceState(null,'',location.pathname+location.search+'#/d/'+encodeURIComponent(ref.id));
     await boot();
   }catch(error){
@@ -403,7 +437,7 @@ async function clearAllParticipants(){
   try{
     const items=await getDocsFromServer(query(collection(db,'diningSessions',id,'items'),limit(1)));
     if(!items.empty){alert('餐單中仍有餐點，請先按「清空金額」再清空參加者。');return;}
-    await updateDoc(doc(db,'diningSessions',id),{participants:[],payer:null});
+    await updateDoc(doc(db,'diningSessions',id),{participants:[],payer:null,discountAllocation:'proportional',discountRecipient:null});
     if(diningId()===id)state.selected.clear();
   }catch(error){showWriteError('清空參加者失敗',error);}
   finally{state.bulkAction=false;if(diningId()===id)renderActive();}
@@ -424,7 +458,9 @@ async function addParticipant(event){
       if(!replacement&&current.length>=100)throw new Error('max');
       committedParticipants=merged.participants;
       const payer=replacement&&snap.data().payer===replacement.from?name:(snap.data().payer||name);
-      tx.update(ref,{participants:committedParticipants,payer:payer});
+      const updates={participants:committedParticipants,payer:payer};
+      if(replacement&&snap.data().discountAllocation==='person'&&snap.data().discountRecipient===replacement.from)updates.discountRecipient=name;
+      tx.update(ref,updates);
     });
   }catch(error){if(error.message==='duplicate')alert('這個名字已存在。');else if(error.message==='max')alert('參加者最多100人。');else if(error.message==='default-in-use')alert('預設人員「'+(replacement&&replacement.from||'')+'」已有負責的餐點，請先移除或修改相關餐點，再新增姓名取代。');else showWriteError('新增參加者失敗',error);return;}
   if(replacement)state.selected.delete(replacement.from);
@@ -439,7 +475,9 @@ async function removeParticipant(name){
   if(!confirm('確定移除參加者「'+name+'」？'))return;
   const next=people.filter(function(row){return row!==name;});
   const payer=state.session.payer===name?(next[0]||null):state.session.payer;
-  try{await updateDoc(doc(db,'diningSessions',diningId()),{participants:next,payer:payer});}
+  const updates={participants:next,payer:payer};
+  if(state.session.discountAllocation==='person'&&state.session.discountRecipient===name){updates.discountAllocation='proportional';updates.discountRecipient=null;}
+  try{await updateDoc(doc(db,'diningSessions',diningId()),updates);}
   catch(error){showWriteError('移除參加者失敗',error);}
 }
 function togglePeopleManage(){state.showPeopleManage=!state.showPeopleManage;renderActive();}
@@ -465,7 +503,11 @@ async function loadRosterIntoSession(){
       const oldPayer=snap.data().payer;
       const payerReplacement=replacedNames.find(function(row){return row.from===oldPayer;});
       const payer=payerReplacement?payerReplacement.to:oldPayer;
-      tx.update(ref,{participants:committedParticipants,payer:payer||committedParticipants[0]||null});
+      const oldRecipient=snap.data().discountRecipient;
+      const recipientReplacement=replacedNames.find(function(row){return row.from===oldRecipient;});
+      const updates={participants:committedParticipants,payer:payer||committedParticipants[0]||null};
+      if(recipientReplacement)updates.discountRecipient=recipientReplacement.to;
+      tx.update(ref,updates);
     });
     if(state.session&&committedParticipants)state.session.participants=committedParticipants;
     replacedNames.forEach(function(row){if(state.selected.has(row.from)){state.selected.delete(row.from);state.selected.add(row.to);}});
@@ -478,9 +520,35 @@ async function saveAdjustment(kind){
   const mode=modeEl.value,parsed=mode==='percent'?percentBps(valueEl.value):moneyCents(valueEl.value);
   if(parsed.error||parsed.empty){alert(parsed.error||'請輸入數值。');previewAmount(valueEl,kind);valueEl.focus();return;}
   const value=mode==='percent'?parsed.basisPoints:parsed.cents;
-  if(kind==='discount'&&mode==='amount'&&value>calculate().subtotal){alert('折扣不可多於餐點小計。');renderActive();return;}
+  const current=calculate();
+  if(kind==='discount'&&mode==='amount'&&value>current.subtotal){alert('折扣不可多於餐點小計。');renderActive();return;}
+  if(kind==='discount'&&(state.session.discountAllocation||'proportional')==='person'){
+    const proposed=readAdjustment(mode,value,current.subtotal).cents,recipient=state.session.discountRecipient;
+    if(proposed>0&&(!recipient||current.base[recipient]<proposed)){alert('指定對象的餐點小計不足以承受全部折扣，請先改選折扣對象或調低折扣。');renderActive();return;}
+  }
   try{await updateDoc(doc(db,'diningSessions',diningId()),{[kind+'Mode']:mode,[kind+'Value']:value});}
   catch(error){showWriteError('儲存設定失敗',error);}
+}
+async function saveDiscountAllocation(value){
+  if(!['proportional','equal','person'].includes(value)){renderActive();return;}
+  const updates={discountAllocation:value,discountRecipient:null};
+  if(value==='person'){
+    const result=calculate(),people=state.session.participants||[];
+    const current=state.session.discountRecipient;
+    const canUse=function(name){return (result.base[name]||0)>=result.discountTotal&&(result.discountTotal===0||(result.base[name]||0)>0);};
+    const recipient=people.includes(current)&&canUse(current)?current:people.find(canUse);
+    if(!recipient){alert('目前沒有人有足夠餐點小計承受全部折扣。請先加入餐點或調低折扣。');renderActive();return;}
+    updates.discountRecipient=recipient;
+  }
+  try{await updateDoc(doc(db,'diningSessions',diningId()),updates);}
+  catch(error){showWriteError('儲存折扣分配方式失敗',error);renderActive();}
+}
+async function saveDiscountRecipient(value){
+  const result=calculate();
+  if(!(state.session.participants||[]).includes(value)){alert('請選擇餐單中的參加者。');renderActive();return;}
+  if((result.base[value]||0)<result.discountTotal){alert('此人的餐點小計不足以承受全部折扣，請改選其他人或調低折扣。');renderActive();return;}
+  try{await updateDoc(doc(db,'diningSessions',diningId()),{discountRecipient:value});}
+  catch(error){showWriteError('修改折扣對象失敗',error);renderActive();}
 }
 async function saveItem(event){
   event.preventDefault();
@@ -489,6 +557,11 @@ async function saveItem(event){
   if(parsed.error||parsed.empty||parsed.cents<=0){alert(parsed.error||'請輸入大於 HK$0.00 的金額。');return;}
   if(!people.length){alert('請至少選一位負責人；共享餐點可選多位或按「全選」。');return;}
   const data={amount:parsed.cents,responsible:people};
+  const projected=state.items.slice();
+  if(state.editItemId){const index=projected.findIndex(function(item){return item.id===state.editItemId;});if(index>=0)projected[index]=Object.assign({},projected[index],data);}
+  else projected.push(data);
+  const projectedResult=calculate(projected);
+  if(projectedResult.errors.some(function(message){return message.indexOf('指定對象的餐點小計不足')>=0;})){alert('這項變更會令折扣對象的餐點小計不足以承受全部折扣，請先改選折扣對象或調低折扣。');return;}
   try{
     if(state.editItemId){
       const existing=state.items.find(function(item){return item.id===state.editItemId;});
@@ -506,6 +579,9 @@ function editItem(id){
 function cancelItemEdit(){state.editItemId=null;state.itemDraft='';state.selected=new Set();renderActive();}
 async function removeItem(id){
   if(!confirm('確定移除這項餐點？'))return;
+  const projected=state.items.filter(function(item){return item.id!==id;});
+  const projectedResult=calculate(projected);
+  if(projectedResult.errors.some(function(message){return message.indexOf('指定對象的餐點小計不足')>=0;})){alert('移除此餐點會令折扣對象的餐點小計不足以承受全部折扣，請先改選折扣對象或調低折扣。');return;}
   try{await deleteDoc(doc(db,'diningSessions',diningId(),'items',id));}
   catch(error){showWriteError('移除餐點失敗',error);}
 }
@@ -531,7 +607,7 @@ function showWriteError(action,error){
   if(error&&error.code==='permission-denied'){alert(action+'：Firestore Rules 尚未開放餐飲分單資料，請更新 Rules 後再試。');return;}
   alert(action+'，請檢查網絡後再試。');
 }
-Object.assign(window,{clearAmountInput,clearDiningAmounts,clearAllParticipants,previewAmount,addParticipant,removeParticipant,togglePeopleManage,saveCurrentRoster,loadRosterIntoSession,saveAdjustment,selectAllAssignees,clearAssignees,toggleAssignee,saveItem,cancelItemEdit,editItem,removeItem,copyLink,openQr,closeQr,copyDiningLink});
+Object.assign(window,{clearAmountInput,clearDiningAmounts,clearAllParticipants,previewAmount,addParticipant,removeParticipant,togglePeopleManage,saveCurrentRoster,loadRosterIntoSession,saveAdjustment,saveDiscountAllocation,saveDiscountRecipient,selectAllAssignees,clearAssignees,toggleAssignee,saveItem,cancelItemEdit,editItem,removeItem,copyLink,openQr,closeQr,copyDiningLink});
 window.addEventListener('hashchange',boot);
 boot();
 </script>
