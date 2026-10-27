@@ -351,25 +351,39 @@ label{display:block;font-size:14px;font-weight:700;color:var(--app-ink-soft);mar
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
-.mode-home .home-hero{min-height:310px}
-.mode-home .home-hero-copy{max-width:62%}
-.home-mode-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch}
-.home-mode-card{display:flex;flex-direction:column;min-width:0;padding:clamp(19px,3vw,26px);margin:0;border-radius:22px}
-.mode-card-heading{display:flex;align-items:center;gap:13px;margin-bottom:12px}
-.mode-card-icon{display:grid;place-items:center;flex:0 0 46px;width:46px;height:46px;border:1px solid rgba(101,88,232,.14);border-radius:15px;background:var(--app-accent-soft);color:var(--app-accent);}
-.mode-card-icon svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.mode-card-heading h2{font-size:22px;margin:2px 0 0}
-.mode-kicker{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.04em}
-.mode-description{min-height:68px;margin:0 0 8px;color:var(--app-ink-soft);font-size:14px;line-height:1.65}
-.mode-footnote{margin:10px 0 0;color:var(--muted);font-size:12px;line-height:1.45}
-.dining-mode-card{border-color:rgba(21,137,108,.17);background:linear-gradient(145deg,rgba(255,255,255,.83),rgba(236,250,246,.76));}
-.dining-icon{background:#e5f6ef;color:#16896c;border-color:rgba(21,137,108,.17)}
-.dining-preview-note{display:flex;align-items:flex-start;gap:10px;min-height:70px;padding:12px 13px;margin:9px 0 15px;border:1px solid rgba(21,137,108,.15);border-radius:14px;background:rgba(255,255,255,.56);color:var(--app-ink-soft);font-size:13px;line-height:1.5}
-.dining-preview-note b{color:#176b56}
-.preview-dot{flex:0 0 8px;width:8px;height:8px;margin-top:6px;border-radius:50%;background:#36b58e;box-shadow:0 0 0 4px rgba(54,181,142,.12)}
-.dining-submit{background:linear-gradient(135deg,#249b7c,#16765f);box-shadow:0 8px 18px rgba(22,137,108,.2);text-decoration:none}
-.dining-submit:hover:not(:disabled){background:linear-gradient(135deg,#2bab89,#188468);box-shadow:0 10px 22px rgba(22,137,108,.26)}
-@media(max-width:680px){.home-mode-grid{grid-template-columns:1fr}.mode-description{min-height:0}.mode-home .home-hero{min-height:0}.mode-home .home-hero-copy{max-width:100%}.mode-home .hero-glass-card{display:none}}
+/* Mode entry only: meeting routes retain their existing layout and theme. */
+body:has(.entry-home)::before{background:hsl(150 17% 96%)}
+#app:has(>.entry-home){width:min(100%,1000px);padding:32px 32px 64px}
+.entry-home{--canvas:150 17% 96%;--surface:0 0% 100%;--surface-muted:150 18% 97%;--line:150 13% 85%;--ink:160 24% 15%;--ink-soft:160 13% 32%;--ink-muted:155 8% 43%;--brand:160 58% 30%;--brand-solid:160 65% 25%;--brand-soft:150 42% 94%;--on-brand:0 0% 100%;color:hsl(var(--ink));font-size:15px}
+.entry-home .entry-brand>span{flex-shrink:0;white-space:nowrap}
+.entry-home .entry-brand{display:flex;align-items:center;gap:10px;margin-bottom:40px;font-size:17px;font-weight:750;letter-spacing:-.025em}
+.entry-home .entry-brand-mark{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:hsl(var(--brand));color:hsl(var(--on-brand))}
+.entry-home svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.entry-home .entry-intro{margin-bottom:24px}
+.entry-home h1{margin:0 0 8px;font-size:32px;line-height:1.3;font-weight:750;letter-spacing:-.04em}
+.entry-home .entry-intro p{margin:0;color:hsl(var(--ink-muted));font-size:15px}
+.entry-home .entry-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch}
+.entry-home .entry-option{overflow:visible;display:flex;flex-direction:column;min-width:0;gap:0;padding:28px;border:1px solid hsl(var(--line));border-radius:16px;background:hsl(var(--surface));box-shadow:0 2px 5px hsl(var(--ink)/.025)}
+.entry-home .entry-option-dining{border-top:3px solid hsl(var(--brand));padding-top:26px}
+.entry-home .entry-option-meeting{border-top:3px solid hsl(246 50% 60%);padding-top:26px}
+.entry-home .entry-option-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.entry-home .entry-option h2{flex-shrink:0;white-space:nowrap;color:hsl(var(--ink));margin:0;font-size:23px;line-height:1.3;font-weight:750;letter-spacing:-.03em}
+.entry-home .entry-type{display:inline-flex;align-items:center;padding:4px 8px;border-radius:6px;background:hsl(var(--surface-muted));color:hsl(var(--ink-muted));font-size:11px;font-weight:600;white-space:nowrap}
+.entry-home .entry-description{margin:0 0 20px;min-height:48px;color:hsl(var(--ink-soft));font-size:14px;line-height:1.7}
+.entry-home .entry-highlights{display:grid;gap:10px;margin:0 0 24px;padding:0;list-style:none;color:hsl(var(--ink-soft));font-size:13px}
+.entry-home .entry-highlights li{display:flex;align-items:center;gap:8px}
+.entry-home .entry-highlights li::before{content:'✓';color:hsl(var(--brand));font-weight:700}
+.entry-home .entry-shortcut{margin:0 0 20px;color:hsl(var(--ink-muted));font-size:12px;line-height:1.6}
+.entry-home .entry-start{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:48px;margin-top:auto;padding:12px 16px;border:1px solid transparent;border-radius:9px;background:hsl(var(--brand));color:hsl(var(--on-brand));font:inherit;font-size:14px;font-weight:700;text-decoration:none;cursor:pointer}
+.entry-home .entry-start:hover{background:hsl(var(--brand-solid))}
+.entry-home .entry-start-meeting{background:hsl(246 52% 54%)}
+.entry-home .entry-start-meeting:hover{background:hsl(246 52% 47%)}
+.entry-home .entry-meeting-form{margin-top:auto}
+.entry-home .entry-meeting-form label{display:block;margin:0 0 6px;color:hsl(var(--ink-soft));font-size:12px;font-weight:650}
+.entry-home .entry-meeting-form input{width:100%;min-height:46px;margin:0 0 12px;padding:10px 12px;border:1px solid hsl(var(--line));border-radius:8px;background:hsl(var(--surface));color:hsl(var(--ink));font:inherit;font-size:14px;box-shadow:none}
+.entry-home .entry-meeting-form input::placeholder{color:hsl(var(--ink-muted))}
+.entry-home a:focus-visible,.entry-home button:focus-visible,.entry-home input:focus-visible{outline:3px solid hsl(var(--brand)/.5);outline-offset:3px}
+@media(max-width:680px){#app:has(>.entry-home){max-width:520px;padding:20px 16px 40px}.entry-home .entry-brand{margin-bottom:28px}.entry-home h1{font-size:27px}.entry-home .entry-intro{margin-bottom:20px}.entry-home .entry-grid{grid-template-columns:1fr;gap:16px}.entry-home .entry-option{padding:24px}.entry-home .entry-option-dining,.entry-home .entry-option-meeting{padding-top:22px}.entry-home .entry-option h2{font-size:21px}.entry-home .entry-description{min-height:0;margin-bottom:16px}.entry-home .entry-highlights{grid-template-columns:1fr;gap:8px;margin-bottom:16px}.entry-home .entry-shortcut{margin-bottom:16px}}
 
 </style>
 <script type="module">
@@ -943,40 +957,23 @@ function renderLoading(){ document.getElementById('app').innerHTML='<p class="su
 
 function renderHome(){
   document.getElementById('app').innerHTML = [
-    '<main class="home-shell mode-home">',
-      '<header class="home-hero">',
-        '<div class="home-brand"><span class="brand-mark" aria-hidden="true">⇄</span><span>埋單有數</span><span class="brand-badge">SHARED BILL</span></div>',
-        '<div class="home-hero-copy">',
-          '<div class="brand-eyebrow">選擇分帳模式</div>',
-          '<h1 class="home-title">用途不同，<br>帳本分開。</h1>',
-          '<p class="home-lead">共同開支與餐飲點餐各有專屬模式；選擇用途後，各自建立參加者名單、帳目與結算。</p>',
-        '</div>',
-        '<div class="hero-glass-card" aria-hidden="true"><small>兩種獨立模式</small><strong>分開記錄<br>獨立結算</strong><span>各自記錄，各自結算</span></div>',
-      '</header>',
-      '<div class="home-mode-grid">',
-        '<section class="card home-mode-card">',
-          '<div class="mode-card-heading">',
-            '<span class="mode-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h13"/><circle cx="19" cy="12" r="2.4"/></svg></span>',
-            '<div><span class="mode-kicker">活動共同開支</span><h2>聚會分帳</h2></div>',
-          '</div>',
-          '<p class="mode-description">記錄交通、門票、住宿等聚會開支，設定付款人和分攤對象，再查看轉帳安排。</p>',
-          '<label for="mname">聚會名稱</label>',
-          '<input type="text" id="mname" placeholder="例如：週末露營">',
-          '<button class="btn-main home-submit" onclick="createMeeting()"><span>建立聚會分帳</span><span aria-hidden="true">→</span></button>',
-          '<p class="mode-footnote">沿用現有聚會帳本功能</p>',
-        '</section>',
-        '<section class="card home-mode-card dining-mode-card">',
-          '<div class="mode-card-heading">',
-            '<span class="mode-card-icon dining-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="5.3"/><path d="M3 3v5M1.5 5.5h3M21 3v7M21 10v11"/></svg></span>',
-            '<div><span class="mode-kicker">逐項點餐與分攤</span><h2>餐飲分單</h2></div>',
-          '</div>',
-          '<p class="mode-description">逐項記錄個人點餐和共享食物；服務費與折扣按每人的餐點小計比例分攤。</p>',
-          '<div class="dining-preview-note"><span class="preview-dot" aria-hidden="true"></span><span><b>獨立餐單模式</b><br>參加者、餐點資料和結算不會混入聚會分帳。</span></div>',
-          '<a class="btn-main home-submit dining-submit" href="./dining.html"><span>開始餐飲分單</span><span aria-hidden="true">→</span></a>',
-          '<p class="mode-footnote">餐單即時同步；參加者名單可保存在本機</p>',
-        '</section>',
+    '<main class="entry-home">',
+      '<div class="entry-brand"><span class="entry-brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 18h17M5 18a7 7 0 0 1 14 0M8.5 9h7M10.5 5.5h3"/></svg></span><span>埋單有數</span></div>',
+      '<header class="entry-intro"><h1>選擇分帳方式</h1><p>吃一餐，或一起出遊，各有合適的記帳方式。</p></header>',
+      '<div class="entry-grid">',
+        '<lumen-card class="entry-option entry-option-dining" role="region" aria-labelledby="diningEntryTitle">',
+          '<div class="entry-option-head"><h2 id="diningEntryTitle">餐飲分單</h2><span class="entry-type">吃飯・點餐</span></div>',
+          '<p class="entry-description">逐筆輸入金額，選擇由誰分攤，立即看到每人應付。</p>',
+          '<ul class="entry-highlights"><li>個人點餐、多人共享都適用</li><li>服務費、折扣靈活分配</li></ul>',
+          '<p class="entry-shortcut">直接開始；預設 A、B、C、D，可再加入姓名。</p>',
+          '<a class="entry-start" href="./dining.html"><span>開始餐飲分單</span><span aria-hidden="true">→</span></a>',
+        '</lumen-card>',
+        '<lumen-card class="entry-option entry-option-meeting" role="region" aria-labelledby="meetingEntryTitle">',
+          '<div class="entry-option-head"><h2 id="meetingEntryTitle">聚會分帳</h2><span class="entry-type">活動・旅遊</span></div>',
+          '<p class="entry-description">記錄交通、門票、住宿等共同開支，計算代墊及轉帳安排。</p>',
+          '<form class="entry-meeting-form" onsubmit="event.preventDefault();createMeeting()"><label for="mname">聚會名稱</label><input type="text" id="mname" placeholder="例如：週末露營"><button type="submit" class="entry-start entry-start-meeting"><span>建立聚會分帳</span><span aria-hidden="true">→</span></button></form>',
+        '</lumen-card>',
       '</div>',
-      '<p class="small home-note"><span class="home-note-icon" aria-hidden="true">✓</span><span>兩種模式各自建立帳本。聚會分帳可分享連結共同編輯；餐飲分單使用獨立餐單，個人點餐和共享餐點逐項結算。</span></p>',
     '</main>'
   ].join('');
 }
@@ -1959,4 +1956,3 @@ boot();
 </script>
 </body>
 </html>
-

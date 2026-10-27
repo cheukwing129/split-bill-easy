@@ -9,116 +9,153 @@
 <link rel="preconnect" href="https://esm.sh" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@santi020k/lumen@3.0.0/styles.css">
 <style>
-:root{color-scheme:light;--ink:#202747;--muted:#68738f;--line:rgba(77,88,134,.14);--green:#16896c;--green-dark:#126c57;--green-soft:#e8f7f1;--purple:#6558e8;--ui-font:Inter,-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif}
+:root{color-scheme:light;--canvas:150 17% 96%;--surface:0 0% 100%;--surface-muted:150 18% 97%;--surface-strong:150 14% 92%;--line:150 13% 85%;--ink:160 24% 15%;--ink-soft:160 13% 32%;--ink-muted:155 8% 43%;--brand:160 58% 30%;--brand-solid:160 65% 25%;--brand-soft:150 42% 94%;--on-brand:0 0% 100%;--danger:354 57% 39%;--warning:35 65% 30%;--ui-font:Inter,-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif}
 *{box-sizing:border-box}
-html{min-height:100%;background:#f4f5fb}
-body{margin:0;min-height:100vh;color:var(--ink);font-family:var(--ui-font);font-size:16px;line-height:1.5;font-variant-numeric:tabular-nums;background:radial-gradient(ellipse at 8% 7%,rgba(145,132,255,.35) 0,transparent 38rem),radial-gradient(ellipse at 94% 28%,rgba(79,205,183,.3) 0,transparent 40rem),linear-gradient(135deg,#f2efff 0%,#eef2fb 47%,#e9f7f3 100%)}
-lumen-card{display:block}
+html{min-height:100%;scroll-padding-top:24px;background:hsl(var(--canvas))}
+body{margin:0;min-height:100vh;font-family:var(--ui-font);font-size:16px;line-height:1.5;color:hsl(var(--ink));font-variant-numeric:tabular-nums;background:hsl(var(--canvas))}
 button,input,select{font:inherit}
+button,a,input,select,summary{-webkit-tap-highlight-color:transparent}
 button{cursor:pointer}
-button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid rgba(22,137,108,.28);outline-offset:2px}
-.shell{width:min(1120px,100%);margin:0 auto;padding:26px clamp(15px,4vw,34px) 54px}
-.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
-.brand{display:flex;align-items:center;gap:10px;font-weight:780;letter-spacing:-.01em}
-.brand-mark{display:grid;place-items:center;width:38px;height:38px;border-radius:13px;color:#fff;background:linear-gradient(140deg,#1b8b70,#126653);box-shadow:0 7px 16px rgba(18,108,87,.2)}
-.brand-mark svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.brand small{display:block;color:var(--muted);font-size:12px;font-weight:600;letter-spacing:0}
-.back-link,.action-btn,.reset-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:8px 13px;border:1px solid rgba(86,96,143,.17);border-radius:12px;background:rgba(255,255,255,.72);color:#40506b;text-decoration:none;font-size:14px;font-weight:700}
-.back-link:hover,.action-btn:hover,.reset-btn:hover{background:#fff}
-.card{padding:20px;border:1px solid rgba(255,255,255,.76);border-radius:19px;background:rgba(255,255,255,.69);box-shadow:0 12px 30px rgba(39,48,92,.07),inset 0 1px 0 rgba(255,255,255,.9);backdrop-filter:blur(18px) saturate(145%);-webkit-backdrop-filter:blur(18px) saturate(145%)}
-.meta-card{margin-bottom:18px}
-.meta-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(200px,.55fr);gap:14px}
-label{display:block;margin:0 0 6px;color:#485574;font-size:13px;font-weight:750}
-input[type=text],input[type=number],select{width:100%;min-height:45px;padding:10px 12px;border:1px solid rgba(86,96,143,.19);border-radius:11px;background:rgba(255,255,255,.93);color:var(--ink);font-size:15px}
-input::placeholder{color:#9199ad}
-.people-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:15px}
-.people-label{margin-right:4px;color:#485574;font-size:13px;font-weight:750}
-.people-list{display:flex;flex-wrap:wrap;gap:7px}
-.person-chip{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border:1px solid rgba(22,137,108,.15);border-radius:999px;background:rgba(232,247,241,.78);color:#285c52;font-size:13px;font-weight:700}
-.avatar{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#d6f0e5;color:#176b56;font-size:11px;font-weight:800}
-.add-person-form{display:flex;gap:7px;max-width:260px;margin-left:auto}
-.add-person-form input{flex:1;min-width:0;width:auto;min-height:36px;padding:7px 10px;font-size:13px}
-.add-person-form button,.primary-btn,.secondary-btn,.remove-btn,.tiny-btn{border:0;border-radius:10px;font-weight:750}
-.add-person-form button{flex:0 0 auto;min-width:48px;white-space:nowrap;padding:7px 11px;background:#e6f5ef;color:#176b56;font-size:13px}
-.layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(310px,.85fr);gap:18px;align-items:start}
-.stack{display:grid;gap:16px;min-width:0}
-.panel-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:15px}
-.panel-heading h2{margin:0;color:var(--ink);font-size:20px;letter-spacing:-.02em}
-.panel-heading p{margin:5px 0 0;color:var(--muted);font-size:13px;line-height:1.5}
-.count-pill{flex:0 0 auto;padding:5px 9px;border-radius:999px;background:rgba(101,88,232,.08);color:#5d53c2;font-size:12px;font-weight:750}
-.item-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;padding:14px;margin-bottom:14px;border:1px solid rgba(22,137,108,.15);border-radius:15px;background:rgba(245,252,249,.75)}
-.field-full{grid-column:1/-1}
-.item-form input{margin:0}
-.assign-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.assign-actions{display:flex;gap:6px}
-.tiny-btn{min-height:31px;padding:6px 10px;border:1px solid rgba(22,137,108,.15);background:rgba(255,255,255,.75);color:#176b56;font-size:12px}
-.danger-btn{border-color:rgba(196,91,102,.2);background:#fff5f5;color:#a84956}
-.heading-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:7px}
-.amount-entry{display:flex;align-items:center;gap:8px}
-.amount-entry input{min-width:0;flex:1}
-.amount-entry button{flex:0 0 auto}
-button:disabled{opacity:.5;cursor:not-allowed}
-.assign-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
-.assign-choice{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid rgba(86,96,143,.16);border-radius:999px;background:rgba(255,255,255,.8);color:#4c5874;font-size:13px;font-weight:650;cursor:pointer}
-.assign-choice:has(input:checked){border-color:rgba(22,137,108,.35);background:#e7f6ef;color:#176b56}
-.assign-choice input{width:15px;height:15px;margin:0;accent-color:var(--green)}
-.helper{margin:7px 0 0;color:var(--muted);font-size:12px;line-height:1.5}
-.primary-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:11px 15px;background:linear-gradient(135deg,#249b7c,#16765f);color:#fff;box-shadow:0 6px 15px rgba(22,137,108,.17);font-size:14px}
-.primary-btn:hover:not(:disabled){filter:brightness(1.06)}
-.primary-btn:disabled{opacity:.5;cursor:not-allowed}
-.secondary-btn{min-height:38px;padding:8px 12px;border:1px solid rgba(86,96,143,.16);background:rgba(255,255,255,.76);color:#46536f;font-size:13px}
-.item-list{display:grid;gap:9px}
-.item-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 13px;border:1px solid rgba(86,96,143,.11);border-radius:13px;background:rgba(255,255,255,.64)}
+button:disabled{opacity:.45;cursor:not-allowed}
+a{color:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid hsl(var(--brand)/.5);outline-offset:3px}
+lumen-card{display:block}
+h1,h2,h3,p{margin:0}
+.shell{width:min(1168px,100%);margin:auto;padding:24px 32px 48px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}
+.brand-group,.brand,.header-actions{display:flex;align-items:center;gap:12px}
+.brand{text-decoration:none;font-size:15px;font-weight:750;white-space:nowrap}
+.brand-mark{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:hsl(var(--brand));color:hsl(var(--on-brand))}
+.brand-mark svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.brand-divider{height:22px;border-left:1px solid hsl(var(--line))}
+.topbar h1{font-size:22px;letter-spacing:-.035em;font-weight:780;white-space:nowrap}
+.header-actions{gap:8px}
+.action-btn,.secondary-btn,.tiny-btn,.text-btn,.primary-btn,.remove-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:8px 12px;border:1px solid hsl(var(--line));border-radius:8px;background:hsl(var(--surface));color:hsl(var(--ink-soft));font-size:13px;font-weight:700;text-decoration:none;line-height:1.4}
+.action-btn:hover,.secondary-btn:hover,.tiny-btn:hover{border-color:hsl(var(--brand)/.45);background:hsl(var(--brand-soft));color:hsl(var(--brand))}
+.text-btn{padding:6px 8px;border-color:transparent;background:transparent;color:hsl(var(--brand))}
+.text-btn:hover{background:hsl(var(--brand-soft))}
+.primary-btn{min-height:48px;border-color:transparent;background:hsl(var(--brand));color:hsl(var(--on-brand));font-size:15px}
+.primary-btn:hover:not(:disabled){background:hsl(var(--brand-solid))}
+.danger-btn{color:hsl(var(--danger))}
+.danger-btn:hover{border-color:hsl(var(--danger)/.25);background:hsl(var(--danger)/.06);color:hsl(var(--danger))}
+.card{overflow:visible;min-width:0;padding:24px;border:1px solid hsl(var(--line)/.75);border-radius:16px;background:hsl(var(--surface));box-shadow:0 2px 5px hsl(var(--ink)/.025)}
+.workspace-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,.8fr);grid-template-areas:"entry receipt" "adjust receipt" "history receipt";grid-template-rows:auto auto 1fr;gap:16px 24px;align-items:start}
+.entry-panel{grid-area:entry}
+.entry-heading,.section-heading,.assign-heading,.person-total,.receipt-heading,.breakdown-line{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.entry-heading{margin-bottom:20px}
+.entry-heading h2,.receipt-heading h2{flex-shrink:0;white-space:nowrap}
+h2{font-size:17px;font-weight:750;letter-spacing:-.02em}
+.editing-tag,.count-pill{font-size:12px;font-weight:650;color:hsl(var(--ink-muted));white-space:nowrap}
+label{display:block;font-size:13px;font-weight:650;color:hsl(var(--ink-soft))}
+input[type=text],select{width:100%;min-width:0;min-height:44px;padding:10px 12px;border:1px solid hsl(var(--line));border-radius:8px;background:hsl(var(--surface));color:hsl(var(--ink));font-size:15px}
+input::placeholder{color:hsl(var(--ink-muted))}
+.amount-label{margin-bottom:8px}
+.amount-entry{display:flex;align-items:center;gap:8px;min-height:76px;padding:8px 12px;border:1.5px solid hsl(var(--brand)/.55);border-radius:12px;background:hsl(var(--surface))}
+.amount-entry:focus-within{border-color:hsl(var(--brand));box-shadow:0 0 0 3px hsl(var(--brand)/.1)}
+.currency-prefix{flex:0 0 auto;align-self:center;color:hsl(var(--ink-muted));font-size:18px;font-weight:650}
+.amount-entry input{flex:1;width:0;min-height:52px;padding:0 4px;border:0;border-radius:0;background:transparent;font-size:32px;line-height:1.2;letter-spacing:-.035em;font-weight:650}
+.amount-entry input:focus-visible{outline:none}
+.amount-entry input::placeholder{font-size:20px;font-weight:450;letter-spacing:0}
+.amount-entry .text-btn{flex:0 0 auto;padding-inline:6px;color:hsl(var(--ink-muted));font-size:12px}
+.helper{color:hsl(var(--ink-muted));font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+.amount-feedback{min-height:24px;margin-top:8px}
+.assignee-field{min-width:0;margin:16px 0 0;padding:16px 0 0;border:0;border-top:1px solid hsl(var(--line)/.65)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.assign-label{color:hsl(var(--ink));font-size:14px;font-weight:700}
+.assign-heading{clear:both;flex-wrap:wrap;row-gap:0;margin-bottom:8px}
+.assign-heading .assign-label{display:flex;align-items:center;gap:8px}
+.assign-actions{display:flex;align-items:center;gap:4px}
+.assign-actions .text-btn{min-height:36px;font-size:12px}
+.assign-list{display:flex;flex-wrap:wrap;gap:8px}
+.assign-choice{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;max-width:100%;margin:0;padding:9px 14px;border:1px solid hsl(var(--line));border-radius:9px;background:hsl(var(--surface));color:hsl(var(--ink-soft));font-size:15px;font-weight:600;cursor:pointer;overflow-wrap:anywhere}
+.assign-choice input{width:16px;height:16px;margin:0;accent-color:hsl(var(--brand));flex:0 0 auto}
+.assign-choice:has(input:checked){border-color:hsl(var(--brand));background:hsl(var(--brand-soft));color:hsl(var(--brand-solid))}
+.assign-choice:focus-within{outline:3px solid hsl(var(--brand)/.3);outline-offset:2px}
+.share-preview{min-height:20px;margin-top:8px}
+.entry-actions{display:flex;gap:8px;margin-top:16px}
+.entry-actions .primary-btn{flex:1}
+.manage-panel{margin-top:12px;padding:16px;border:1px solid hsl(var(--line)/.7);border-radius:10px;background:hsl(var(--surface-muted))}
+.manage-panel h3{margin-bottom:12px;font-size:14px}
+.add-person-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin:0 0 8px}
+.add-person-form input{width:100%}
+.add-person-form button{flex:0 0 auto}
+.people-manage{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;max-height:224px;margin:12px 0;overflow:auto}
+.people-manage-row{display:grid;grid-template-columns:minmax(0,1fr) 40px;align-items:center;gap:4px;min-width:0;max-width:100%;padding:0 0 0 10px;border:1px solid hsl(var(--line));border-radius:8px;background:hsl(var(--surface));font-size:13px;overflow-wrap:anywhere}
+.people-manage-row button{min-width:40px;min-height:40px;padding:6px;border:0;background:transparent;color:hsl(var(--ink-muted))}
+.local-tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.local-tools button{font-size:12px}
+.roster-note{margin-top:8px}
+.people-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.person-chip{padding:6px 12px;border:1px solid hsl(var(--line));border-radius:8px;font-size:14px}
+.adjustments{grid-area:adjust;min-width:0;border:1px solid hsl(var(--line)/.75);border-radius:12px;background:hsl(var(--surface))}
+.adjustments summary{display:flex;align-items:center;gap:12px;min-height:60px;padding:16px 20px;cursor:pointer;list-style:none}
+.adjustments summary::-webkit-details-marker{display:none}
+.adjustments summary>strong{flex:0 0 auto;font-size:14px}
+.adjust-summary{flex:1;text-align:right;color:hsl(var(--ink-muted));font-size:12px;overflow-wrap:anywhere}
+.chevron{flex:0 0 auto;display:inline-block;color:hsl(var(--ink-muted));transition:transform .15s;font-size:16px}
+.adjustments[open] .chevron{transform:rotate(180deg)}
+.adjustments[open] summary{border-bottom:1px solid hsl(var(--line)/.6)}
+.adjust-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:20px}
+.adjust-box{min-width:0}
+.adjust-box+.adjust-box{padding-left:20px;border-left:1px solid hsl(var(--line)/.65)}
+.adjust-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.adjust-title label{color:hsl(var(--ink));font-size:14px;font-weight:700}
+.adjust-title span{color:hsl(var(--ink-muted));font-size:12px}
+.adjust-input{display:grid;grid-template-columns:minmax(0,1fr) 100px;gap:6px}
+.adjust-input input,.adjust-input select{padding-inline:8px;font-size:14px}
+.discount-allocation{display:grid;gap:6px;margin-top:12px}
+.discount-allocation label{font-size:12px}
+.discount-allocation select{font-size:13px;padding-inline:8px}
+.adjust-feedback{min-height:18px;margin-top:6px}
+.history-panel{grid-area:history;min-width:0;padding:8px 0 0}
+.section-heading{flex-wrap:wrap;padding:0 4px 8px}
+.section-heading h2{font-size:15px}
+.item-list{border-top:1px solid hsl(var(--line));border-bottom:1px solid hsl(var(--line))}
+.item-row{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 4px}
+.item-row+.item-row{border-top:1px solid hsl(var(--line)/.6)}
+.item-index{align-self:start;padding-top:3px;color:hsl(var(--ink-muted));font-size:12px}
 .item-main{min-width:0}
-.item-name-line{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-.item-name{min-width:0;color:#293451;font-size:14px;font-weight:750;overflow-wrap:anywhere}
-.item-price{flex:0 0 auto;color:#293451;font-size:14px;font-weight:800}
-.item-share-note{margin-top:3px;color:var(--muted);font-size:12px}
-.item-actions{display:flex;gap:5px}
-.remove-btn{width:34px;height:34px;padding:0;border:1px solid rgba(196,91,102,.13);background:#fff5f5;color:#a84956;font-size:18px}
-.empty-state{padding:24px 14px;border:1px dashed rgba(86,96,143,.22);border-radius:13px;color:var(--muted);text-align:center;font-size:14px}
-.adjust-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.adjust-box{padding:14px;border:1px solid rgba(86,96,143,.12);border-radius:14px;background:rgba(255,255,255,.51)}
-.adjust-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
-.adjust-title strong{color:#303b5a;font-size:14px}
-.adjust-title span{color:var(--muted);font-size:11px}
-.adjust-input{display:grid;grid-template-columns:minmax(0,1fr) 105px;gap:7px}
-.adjust-input input,.adjust-input select{min-height:40px;padding:8px 9px;font-size:14px}
-.discount-allocation{display:grid;gap:6px;margin-top:11px}
-.discount-allocation label{margin:0}
-.discount-allocation select{min-height:40px;padding:8px 9px;font-size:13px}
-.adjust-value{margin-top:8px;color:#485574;font-size:12px}
-.adjust-value b{color:var(--ink);font-size:14px}
-.summary-card{padding:21px;border-color:rgba(22,137,108,.2);background:linear-gradient(155deg,rgba(255,255,255,.88),rgba(238,250,245,.78))}
-.summary-total{padding:15px 16px;margin:2px 0 13px;border-radius:15px;background:linear-gradient(135deg,#155649,#1d826d);color:#fff}
-.summary-total span{display:block;color:rgba(255,255,255,.75);font-size:12px;font-weight:650}
-.summary-total strong{display:block;margin-top:3px;color:#fff;font-size:30px;letter-spacing:-.035em}
-.summary-breakdown{display:grid;gap:8px;padding:0 2px 13px;border-bottom:1px solid var(--line)}
-.breakdown-line{display:flex;justify-content:space-between;gap:12px;color:#58647f;font-size:13px}
-.breakdown-line strong{color:#303b5a;font-weight:750}
-.person-totals{display:grid;gap:8px;margin-top:14px}
-.person-total{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;padding:10px 11px;border:1px solid rgba(86,96,143,.11);border-radius:12px;background:rgba(255,255,255,.61)}
-.person-total-name{display:flex;align-items:center;gap:8px;color:#303b5a;font-size:13px;font-weight:750}
-.person-total-number{text-align:right;color:#293451;font-size:14px;font-weight:800}
-.person-total-detail{grid-column:1/-1;display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:11px}
-.zero-state{padding:12px;color:var(--muted);font-size:13px;text-align:center}
-.warning{margin:10px 0 0;padding:10px 12px;border:1px solid rgba(196,121,45,.2);border-radius:11px;background:#fff8ed;color:#7d5227;font-size:12px;line-height:1.5}
-.notice{padding:12px 14px;margin:0 0 14px;border:1px solid rgba(101,88,232,.13);border-radius:13px;background:rgba(255,255,255,.5);color:#52607a;font-size:13px;line-height:1.55}
-.footer-note{margin:18px 4px 0;color:var(--muted);font-size:12px;line-height:1.55;text-align:center}
-.footer-note b{color:#485574}
-.status{min-height:1.4em;margin:8px 0 0;color:var(--muted);font-size:12px}
-.local-tools{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:10px}
-.people-manage{display:grid;gap:7px;margin-top:12px}
-.people-manage-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.55)}
-.qr-dialog{width:min(420px,calc(100vw - 28px));max-height:calc(100vh - 32px);margin:auto;padding:0;overflow:auto;border:1px solid rgba(255,255,255,.78);border-radius:22px;background:rgba(255,255,255,.98);color:var(--ink);box-shadow:0 26px 80px rgba(23,30,65,.28)}
-.qr-dialog::backdrop{background:rgba(24,29,57,.5);backdrop-filter:blur(5px)}
-.qr-content{padding:24px}
+.item-price{font-size:16px;font-weight:720}
+.item-share-note{margin-top:3px;color:hsl(var(--ink-muted));font-size:12px;overflow-wrap:anywhere}
+.item-actions{display:flex;gap:4px}
+.item-actions .text-btn{font-size:12px}
+.remove-btn{min-width:40px;width:40px;height:40px;padding:0;border-color:transparent;background:transparent;color:hsl(var(--ink-muted));font-size:20px;font-weight:400}
+.remove-btn:hover{background:hsl(var(--danger)/.06);color:hsl(var(--danger))}
+.empty-state{padding:24px 8px;color:hsl(var(--ink-muted));font-size:13px;text-align:center}
+.receipt{grid-area:receipt;position:sticky;top:24px;padding:28px;background:hsl(var(--surface));border-top:3px solid hsl(var(--brand));scroll-margin-top:20px}
+.receipt-heading{margin-bottom:24px}
+.receipt-heading h2{font-size:17px}
+.receipt-heading span{font-size:12px;color:hsl(var(--ink-muted))}
+.receipt-total{padding-bottom:20px;border-bottom:1px solid hsl(var(--line)/.7)}
+.receipt-total>span{display:block;color:hsl(var(--ink-muted));font-size:12px}
+.receipt-total strong{display:block;margin-top:4px;font-size:clamp(30px,3.3vw,42px);line-height:1.25;letter-spacing:-.04em;font-weight:730;overflow-wrap:anywhere}
+.receipt-total strong small{margin-right:5px;font-size:16px;font-weight:550;letter-spacing:0}
+.summary-breakdown{display:grid;gap:8px;margin:16px 0 20px}
+.breakdown-line{color:hsl(var(--ink-muted));font-size:13px}
+.breakdown-line strong{color:hsl(var(--ink-soft));font-weight:550}
+.person-totals{border-top:1px dashed hsl(var(--line));padding-top:4px}
+.person-total{flex-wrap:wrap;padding:16px 0;row-gap:6px}
+.person-total+.person-total{border-top:1px solid hsl(var(--line)/.6)}
+.person-total-name{min-width:0;flex:1;font-size:15px;font-weight:700;overflow-wrap:anywhere}
+.person-total-number{font-size:21px;font-weight:750;letter-spacing:-.035em;white-space:nowrap}
+.person-total-detail{flex-basis:100%;color:hsl(var(--ink-muted));font-size:11px;line-height:1.6;overflow-wrap:anywhere}
+.person-total.is-empty .person-total-name,.person-total.is-empty .person-total-number{color:hsl(var(--ink-muted));font-weight:500}
+.receipt-note{margin-top:8px;color:hsl(var(--ink-muted));font-size:11px}
+.mobile-overview{display:none}
+.status{min-height:18px;margin-top:12px;font-size:12px;color:hsl(var(--brand));overflow-wrap:anywhere}
+.status:empty{display:none}
+.warning{margin:0 0 16px;padding:12px 14px;border:1px solid hsl(var(--warning)/.25);border-radius:8px;background:hsl(var(--warning)/.07);color:hsl(var(--warning));font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+.qr-dialog{width:min(400px,calc(100vw - 32px));max-height:calc(100dvh - 32px);margin:auto;padding:24px;border:1px solid hsl(var(--line));border-radius:16px;background:hsl(var(--surface));color:hsl(var(--ink))}
+.qr-dialog::backdrop{background:hsl(var(--ink)/.45)}
 .qr-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-.qr-frame{display:grid;place-items:center;min-height:260px;margin:16px auto;padding:14px;border:1px solid var(--line);border-radius:18px;background:#fff}
-.qr-frame img{display:block;width:min(100%,240px);height:auto;image-rendering:pixelated}
+.qr-head h2{margin-bottom:4px}
+.qr-frame{display:grid;place-items:center;min-height:260px;margin:16px 0;padding:12px;border:1px solid hsl(var(--line));border-radius:12px;background:hsl(var(--surface))}
+.qr-frame img{display:block;width:min(100%,240px);height:auto}
+.qr-frame img[hidden]{display:none}
 .share-qr-copy{width:100%}
-@media(max-width:780px){.layout{grid-template-columns:1fr}.summary-column{order:-1}.summary-card{padding:17px}}
-@media(max-width:540px){.shell{padding-top:16px}.topbar{align-items:flex-start}.back-link,.action-btn{min-height:38px;padding:7px 10px;font-size:12px}.brand-mark{width:34px;height:34px}.brand{font-size:14px}.meta-grid{grid-template-columns:1fr}.add-person-form{width:100%;max-width:none;margin:4px 0 0}.item-form{grid-template-columns:1fr 115px;padding:11px}.field-full{grid-column:1/-1}.adjust-grid{grid-template-columns:1fr}.card{padding:16px}.person-total-detail{font-size:10px}.local-tools>*{flex:1}}
+@media(max-width:960px){.shell{padding-inline:24px}.workspace-grid{gap:16px;grid-template-columns:minmax(0,1fr) minmax(290px,.8fr)}.card{padding:20px}.receipt{padding:24px}.adjust-grid{grid-template-columns:1fr}.adjust-box+.adjust-box{padding:16px 0 0;border-left:0;border-top:1px solid hsl(var(--line)/.65)}}
+@media(max-width:720px){.shell{max-width:560px;padding:16px 16px 32px}.topbar{gap:8px;margin-bottom:16px}.brand-group{gap:10px}.brand-name{display:none}.brand-divider{display:none}.topbar h1{font-size:20px}.header-actions{gap:6px}.action-btn{min-height:40px;padding-inline:10px;font-size:12px}.workspace-grid{grid-template-columns:minmax(0,1fr);grid-template-areas:"entry" "adjust" "receipt" "history";grid-template-rows:auto;gap:12px}.card{padding:20px;border-radius:14px}.receipt{position:static;border-top-width:3px}.mobile-overview{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;padding:10px 4px;color:hsl(var(--ink-soft));font-size:13px}.mobile-overview strong{margin-left:6px;color:hsl(var(--ink));font-size:17px}.mobile-overview a{min-height:36px;display:inline-flex;align-items:center;color:hsl(var(--brand));font-weight:650;font-size:12px}.entry-heading{margin-bottom:16px}.amount-entry{min-height:72px}.amount-entry input{font-size:30px}.entry-actions .primary-btn{min-height:48px}.assign-heading{gap:4px}.assign-actions{gap:0}.assign-actions .text-btn{padding-inline:6px}.receipt-total strong{font-size:36px}.receipt-heading{margin-bottom:20px}.adjustments summary{padding:14px 16px;gap:8px}.adjust-summary{font-size:11px}.adjust-grid{padding:16px;gap:16px}.history-panel{padding-top:8px}.item-row{gap:8px;grid-template-columns:24px minmax(0,1fr) auto}.person-total-number{font-size:22px}.brand-mark{width:32px;height:32px}.status{margin-top:8px}}
+@media(max-width:360px){.shell{padding-inline:12px}.topbar h1{font-size:18px}.card{padding:16px}.action-btn{padding-inline:8px}.assign-actions .text-btn{font-size:11px;padding-inline:5px}.amount-entry input::placeholder{font-size:17px}.adjustments summary{flex-wrap:wrap}.adjust-summary{flex-basis:calc(100% - 32px);order:3;text-align:left}.chevron{margin-left:auto}.person-total-number{font-size:20px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
 </style>
 </head>
@@ -150,7 +187,7 @@ const db=getFirestore(initializeApp(firebaseConfig));
 const STORAGE_KEY='split-bill-dining-participants-v1';
 const DEFAULT_PARTICIPANTS=['A','B','C','D'];
 const appEl=document.getElementById('app');
-let state={session:null,items:[],selected:new Set(),editItemId:null,itemDraft:'',bulkAction:false,showPeopleManage:false,creatingSession:false,unsub:[],qrData:''};
+let state={session:null,items:[],selected:new Set(),editItemId:null,itemDraft:'',bulkAction:false,showPeopleManage:false,showAdjustments:false,participantDraft:'',statusMessage:'',creatingSession:false,unsub:[],qrData:''};
 let qrPromise=null;
 
 function diningId(){const m=location.hash.match(/#\/d\/([^\/?#]+)/);return m?decodeURIComponent(m[1]):null;}
@@ -171,8 +208,9 @@ function loadSavedParticipants(){
   try{return uniqueNames(JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'));}catch(error){return [];}
 }
 function setStatus(message){
+  state.statusMessage=message||'';
   const el=document.getElementById('status');
-  if(el)el.textContent=message||'';
+  if(el)el.textContent=state.statusMessage;
 }
 function mergeParticipantNames(currentValues,addedValues){
   const next=uniqueNames(currentValues);
@@ -187,7 +225,8 @@ function mergeParticipantNames(currentValues,addedValues){
   return {participants:next,replaced:replaced,unadded:unadded};
 }
 function modeHeader(){
-  return '<div class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 18h17M5 18a7 7 0 0 1 14 0M8.5 9h7M10.5 5.5h3"/></svg></span><span>埋單有數<small>餐飲分單模式</small></span></div><a class="back-link" href="./index.html">← 選擇其他模式</a></div>';
+  return '<header class="topbar"><div class="brand-group"><a class="brand" href="./index.html" aria-label="返回埋單有數主頁"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 18h17M5 18a7 7 0 0 1 14 0M8.5 9h7M10.5 5.5h3"/></svg></span><span class="brand-name">埋單有數</span></a><span class="brand-divider" aria-hidden="true"></span><h1>餐飲分單</h1></div>'+
+    (state.session?'<nav class="header-actions" aria-label="分享餐單"><button type="button" class="action-btn" onclick="copyLink()">複製連結</button><button type="button" class="action-btn" onclick="openQr()" aria-label="顯示餐單 QR Code">QR Code</button></nav>':'')+'</header>';
 }
 function showLoading(){appEl.innerHTML='<main class="shell">'+modeHeader()+'<lumen-card variant="glass" glass="strong" class="card"><p class="helper">正在載入餐單…</p></lumen-card></main>';}
 
@@ -247,9 +286,19 @@ function previewAmount(input,kind){
   const parsed=percent?percentBps(input.value):moneyCents(input.value);
   const error=parsed.error||(kind==='item'&&!parsed.empty&&parsed.cents<=0?'餐點金額須大於 HK$0.00。':'');
   input.setAttribute('aria-invalid',error?'true':'false');
-  target.textContent=error||(parsed.empty?'可輸入算式，例如 38+42、58x2、120/3（先乘除後加減）。':'計算結果：'+(percent?(parsed.basisPoints/100).toFixed(2)+'%':fmt(parsed.cents))+'（四捨五入至兩位小數）');
-  target.style.color=error?'#a84956':'';
+  target.textContent=error||(parsed.empty?(kind==='item'?'支援 +、−、x、*、/ 及括號，先乘除後加減。':'請輸入數值。'):'＝ '+(percent?(parsed.basisPoints/100).toFixed(2)+'%':fmt(parsed.cents)));
+  target.style.color=error?'hsl(var(--danger))':'';
+  if(kind==='item')updateSelectionFeedback();
 }
+function updateSelectionFeedback(){
+  const people=(state.session&&state.session.participants||[]).filter(function(name){return state.selected.has(name);});
+  const preview=document.getElementById('sharePreview');
+  if(!preview)return;
+  const input=document.getElementById('itemAmount'),parsed=moneyCents(input&&input.value);
+  preview.textContent=!people.length?'選一人自行負責，或選多人平均分攤。':people.length===1?'由 '+people[0]+' 負責。':!parsed.error&&!parsed.empty&&parsed.cents>0?people.length+' 人平均分攤，每人約 '+fmt(Math.round(parsed.cents/people.length))+'。':people.length+' 人平均分攤。';
+}
+function rememberSection(open){state.showAdjustments=open;}
+function rememberParticipantDraft(value){state.participantDraft=value;}
 function allocate(total,weights){
   const names=Object.keys(weights).filter(function(name){return Number(weights[name])>0;});
   const out=Object.create(null);Object.keys(weights).forEach(function(name){out[name]=0;});
@@ -301,54 +350,68 @@ function calculate(itemsOverride){
   return{base:base,subtotal:subtotal,serviceTotal:serviceResult.cents,discountTotal:discountResult.cents,service:service,discount:discount,due:due,total:subtotal+serviceResult.cents-discountResult.cents,errors:errors};
 }
 
-function avatar(name){return '<span class="avatar" aria-hidden="true">'+esc(Array.from(name||'?')[0]||'?')+'</span>';}
+function adjustmentSummary(m){
+  const parts=[];
+  if(m.serviceValue)parts.push('服務費 '+(m.serviceMode==='percent'?(m.serviceValue/100)+'%':fmt(m.serviceValue)));
+  if(m.discountValue)parts.push('折扣 '+(m.discountMode==='percent'?(m.discountValue/100)+'%':fmt(m.discountValue)));
+  return parts.join(' · ')||'未加服務費或折扣';
+}
 function renderActive(){
   const m=state.session;if(!m)return;
-  const people=Array.isArray(m.participants)?m.participants:[];
-  const result=calculate();
-  const isArchived=!!m.archived;
+  const people=Array.isArray(m.participants)?m.participants:[],result=calculate(),isArchived=!!m.archived;
+  const active=document.activeElement,focusId=active&&typeof appEl.contains==='function'&&appEl.contains(active)?active.id:'';
+  const selection=active&&typeof active.selectionStart==='number'?[active.selectionStart,active.selectionEnd]:null;
+  const adjustmentDraft=/^(service|discount)Value$/.test(focusId)?active.value:null;
+  const total=result.errors.length?'待修正':fmt(result.total);
   appEl.innerHTML='<main class="shell">'+modeHeader()+
-    (isArchived?'<div class="warning">此餐單已封存，只能查看。</div>':'')+
-    '<lumen-card variant="glass" glass="strong" class="card meta-card"><div class="people-row" style="margin-top:0"><span class="people-label">參加者 · '+people.length+' 人</span><div class="people-list">'+people.map(function(name){return '<span class="person-chip">'+avatar(name)+esc(name)+'</span>';}).join('')+'</div>'+
-    (isArchived?'':'<form class="add-person-form" onsubmit="addParticipant(event)"><input id="newParticipant" type="text" maxlength="30" placeholder="新增參加者" aria-label="新增參加者名稱"><button type="submit">加入</button></form>')+
-    '</div>'+
-    (!isArchived?'<p class="helper">預設有 A、B、C、D；新增姓名會依序取代預設人員。</p>':'')+
-    (isArchived?'':'<div class="local-tools"><button type="button" class="secondary-btn" onclick="saveCurrentRoster()">儲存本機名單</button><button type="button" class="secondary-btn" onclick="loadRosterIntoSession()">載入並加入名單</button><button type="button" class="secondary-btn" onclick="togglePeopleManage()">'+(state.showPeopleManage?'完成名單管理':'管理名單')+'</button><button type="button" class="secondary-btn danger-btn" onclick="clearAllParticipants()" '+(!people.length||state.bulkAction?'disabled':'')+'>清空所有參加者</button><span id="status" class="status"></span></div>')+
-    (state.showPeopleManage&&!isArchived?renderPeopleManage(people):'')+'</lumen-card>'+
-    '<div class="layout"><div class="stack">'+
-    '<lumen-card variant="glass" glass="strong" class="card"><div class="panel-heading"><div><h2>餐點金額</h2><p>不需輸入食物名稱，只需輸入金額並選擇負責分攤的人。</p></div><div class="heading-actions"><span class="count-pill">'+state.items.length+' 項</span>'+(isArchived?'':'<button type="button" class="tiny-btn danger-btn" onclick="clearDiningAmounts()" '+(state.bulkAction||(!state.items.length&&!m.serviceValue&&!m.discountValue)?'disabled':'')+'>清空金額</button>')+'</div></div>'+
-    (isArchived?'':'<form class="item-form" onsubmit="saveItem(event)"><div class="field-full"><label for="itemAmount">金額（HK$）</label><div class="amount-entry"><input id="itemAmount" type="text" inputmode="text" maxlength="256" autocomplete="off" spellcheck="false" placeholder="例如 38+42 或 58x2" value="'+esc(state.itemDraft)+'" aria-describedby="itemCalculation" oninput="previewAmount(this,\'item\')" required><button type="button" class="tiny-btn" onclick="clearAmountInput()">清空輸入</button></div><p id="itemCalculation" class="helper" role="status" aria-live="polite"></p></div>'+
-    '<div class="field-full"><div class="assign-heading"><label>負責人（選多人即平均分攤）</label><div class="assign-actions"><button type="button" class="tiny-btn" onclick="selectAllAssignees()">全選</button><button type="button" class="tiny-btn" onclick="clearAssignees()">清除</button></div></div><div id="assigneeList" class="assign-list">'+renderAssignees(people)+'</div></div>'+
-    '<div class="field-full"><button class="primary-btn" type="submit" '+(!people.length?'disabled':'')+'>'+(state.editItemId?'儲存餐點':'加入餐點')+'</button>'+(state.editItemId?'<button type="button" class="secondary-btn" onclick="cancelItemEdit()">取消編輯</button>':'')+'</div></form>')+
-    '<div id="itemList" class="item-list">'+renderItems()+'</div></lumen-card>'+
-    '<lumen-card variant="glass" glass="strong" class="card"><div class="panel-heading"><div><h2>服務費與折扣</h2><p>服務費按各人餐點小計比例分攤；折扣可按比例、按有消費人數均分，或指定一人享有。</p></div></div>'+
-    '<div class="adjust-grid">'+renderAdjustmentControl('service','服務費',m.serviceMode,m.serviceValue,isArchived)+renderAdjustmentControl('discount','折扣',m.discountMode,m.discountValue,isArchived)+'</div>'+
-    (result.errors.length?'<p class="warning">'+esc(result.errors.join(' '))+'</p>':'')+
-    '</lumen-card></div>'+
-    '<aside class="stack summary-column"><lumen-card variant="glass" glass="strong" class="card summary-card">'+
-    '<div class="panel-heading"><div><h2>每人餐飲金額</h2><p>餐點、服務費及折扣即時試算</p></div></div>'+
-    '<div class="summary-total"><span>'+esc(m.name||'餐飲總額')+'</span><strong>'+fmt(result.total)+'</strong></div>'+
-    '<div class="summary-breakdown"><div class="breakdown-line"><span>餐點小計</span><strong>'+fmt(result.subtotal)+'</strong></div><div class="breakdown-line"><span>服務費</span><strong>+'+fmt(result.serviceTotal)+'</strong></div><div class="breakdown-line"><span>折扣</span><strong>−'+fmt(result.discountTotal)+'</strong></div></div>'+
-    '<div class="person-totals">'+(people.length?people.map(function(name){return '<div class="person-total"><div class="person-total-name">'+avatar(name)+esc(name)+'</div><strong class="person-total-number">'+fmt(result.due[name]||0)+'</strong><div class="person-total-detail"><span>餐點 '+fmt(result.base[name]||0)+'</span><span>服務 '+fmt(result.service[name]||0)+' · 折扣 −'+fmt(result.discount[name]||0)+'</span></div></div>';}).join(''):'<div class="empty-state">加入參加者後，便可查看每人的分攤金額。</div>')+'</div>'+
-    '</lumen-card></aside></div>'+
-    '<p class="footer-note">所有持有餐單連結的人均可共同編輯；參加者名單的本機保存只影響目前瀏覽器。</p></main>';
+    (isArchived?'<p class="warning" role="status">此餐單已封存，只能查看。</p>':'')+
+    '<div class="mobile-overview"><span>合計<strong>'+esc(total)+'</strong></span><a href="#personSummary">查看每人應付 ↓</a></div>'+
+    '<div class="workspace-grid">'+
+    '<lumen-card class="card entry-panel" role="region" aria-labelledby="entryTitle">'+
+    (isArchived?'<h2 id="entryTitle">參加者</h2><div class="people-list">'+people.map(function(name){return '<span class="person-chip">'+esc(name)+'</span>';}).join('')+'</div>':
+    '<div class="entry-heading"><h2 id="entryTitle">'+(state.editItemId?'修改餐點金額':'記一筆金額')+'</h2>'+(state.editItemId?'<span class="editing-tag">編輯中</span>':'<span class="count-pill">HKD 港幣</span>')+'</div>'+
+    '<form class="item-form" onsubmit="saveItem(event)"><label class="amount-label" for="itemAmount">餐點金額</label><div class="amount-entry"><span class="currency-prefix" aria-hidden="true">$</span><input id="itemAmount" type="text" inputmode="text" maxlength="256" autocomplete="off" spellcheck="false" placeholder="例如 58x2+20" value="'+esc(state.itemDraft)+'" aria-describedby="itemCalculation" oninput="previewAmount(this,\'item\')" required><button type="button" class="text-btn" onclick="clearAmountInput()" aria-label="清空金額輸入">清空</button></div><p id="itemCalculation" class="helper amount-feedback" role="status" aria-live="polite"></p>'+
+    '<fieldset class="assignee-field"><legend class="sr-only">由誰分攤？</legend><div class="assign-heading"><span class="assign-label">由誰分攤？</span><div class="assign-actions"><button type="button" class="text-btn" onclick="selectAllAssignees()">全選</button><button type="button" class="text-btn" onclick="clearAssignees()">取消全選</button><button id="manageNamesToggle" type="button" class="text-btn" aria-expanded="'+state.showPeopleManage+'" aria-controls="peopleManager" onclick="togglePeopleManage()">'+(state.showPeopleManage?'完成管理':'新增／管理')+'</button></div></div><div id="assigneeList" class="assign-list">'+renderAssignees(people)+'</div><p id="sharePreview" class="helper share-preview" role="status" aria-live="polite"></p></fieldset>'+
+    '<div class="entry-actions"><button class="primary-btn" type="submit" '+(!people.length?'disabled':'')+'>'+(state.editItemId?'儲存修改':'加入金額')+'</button>'+(state.editItemId?'<button type="button" class="secondary-btn" onclick="cancelItemEdit()">取消</button>':'')+'</div></form>'+
+    (state.showPeopleManage?renderPeopleManage(people):''))+
+    '<p id="status" class="status" role="status" aria-live="polite">'+esc(state.statusMessage)+'</p></lumen-card>'+
+    '<details id="adjustmentsPanel" class="adjustments" '+(state.showAdjustments||result.errors.length?'open':'')+' ontoggle="rememberSection(this.open)"><summary><strong>服務費與折扣</strong><span class="adjust-summary">'+esc(adjustmentSummary(m))+'</span><span class="chevron" aria-hidden="true">⌄</span></summary><div class="adjust-grid">'+renderAdjustmentControl('service','服務費',m.serviceMode,m.serviceValue,isArchived)+renderAdjustmentControl('discount','折扣',m.discountMode,m.discountValue,isArchived)+'</div></details>'+
+    renderReceipt(people,result)+
+    '<section class="history-panel" aria-labelledby="historyTitle"><div class="section-heading"><h2 id="historyTitle">已記錄的餐點 <span class="count-pill">'+state.items.length+' 筆</span></h2>'+(isArchived?'':'<button type="button" class="text-btn danger-btn" onclick="clearDiningAmounts()" '+(state.bulkAction||(!state.items.length&&!m.serviceValue&&!m.discountValue)?'disabled':'')+'>清空金額</button>')+'</div><div id="itemList" class="item-list">'+renderItems()+'</div></section>'+
+    '</div></main>';
+  if(adjustmentDraft!==null&&document.getElementById(focusId))document.getElementById(focusId).value=adjustmentDraft;
   ['item','service','discount'].forEach(function(kind){const input=document.getElementById(kind==='item'?'itemAmount':kind+'Value');if(input)previewAmount(input,kind);});
-  if(state.bulkAction)appEl.querySelectorAll('button,input,select').forEach(function(control){control.disabled=true;});
+  if(state.bulkAction)appEl.querySelectorAll('button,input,select,summary').forEach(function(control){if(control.tagName==='SUMMARY')control.setAttribute('aria-disabled','true');else control.disabled=true;});
+  if(focusId&&!state.bulkAction){const input=document.getElementById(focusId);if(input){input.focus({preventScroll:true});if(selection&&typeof input.setSelectionRange==='function')input.setSelectionRange(selection[0],selection[1]);}}
+}
+function renderReceipt(people,result){
+  const invalid=result.errors.length>0;
+  return '<aside id="personSummary" class="card receipt" aria-labelledby="summaryTitle"><div class="receipt-heading"><h2 id="summaryTitle">每人應付</h2><span>'+people.length+' 人</span></div><div class="receipt-total"><span>帳單合計 · '+state.items.length+' 筆餐點</span><strong>'+(invalid?'待修正':'<small>HK$</small>'+amountText(result.total))+'</strong></div>'+
+    (invalid?'<p class="warning" role="alert">'+esc(result.errors.join(' '))+'</p>':'')+
+    '<div class="summary-breakdown"><div class="breakdown-line"><span>餐點小計</span><strong>'+fmt(result.subtotal)+'</strong></div>'+(result.serviceTotal?'<div class="breakdown-line"><span>服務費</span><strong>+'+fmt(result.serviceTotal)+'</strong></div>':'')+(result.discountTotal?'<div class="breakdown-line"><span>折扣</span><strong>−'+fmt(result.discountTotal)+'</strong></div>':'')+'</div>'+
+    '<div class="person-totals">'+(people.length?people.map(function(name){
+      const detail=['餐點 '+fmt(result.base[name]||0)];
+      if(result.service[name])detail.push('服務費 +'+fmt(result.service[name]));
+      if(result.discount[name])detail.push('折扣 −'+fmt(result.discount[name]));
+      return '<div class="person-total'+(result.base[name]?'':' is-empty')+'"><span class="person-total-name">'+esc(name)+'</span><strong class="person-total-number">'+(invalid?'—':fmt(result.due[name]||0))+'</strong><span class="person-total-detail">'+(result.base[name]?detail.join(' · '):'未有餐點')+'</span></div>';
+    }).join(''):'<p class="empty-state">加入參加者後即可分攤金額。</p>')+'</div>'+
+    '<p class="receipt-note">金額以分計算，平均分攤時個別金額可能相差 HK$0.01。</p></aside>';
 }
 function renderPeopleManage(people){
-  if(!people.length)return '<div class="people-manage"><p class="helper">目前沒有參加者。</p></div>';
-  return '<div class="people-manage">'+people.map(function(name){return '<div class="people-manage-row"><span>'+avatar(name)+esc(name)+'</span><button type="button" class="tiny-btn" onclick="removeParticipant('+jsArg(name)+')">移除</button></div>';}).join('')+'</div>';
+  return '<section id="peopleManager" class="manage-panel" aria-labelledby="peopleManagerTitle"><h3 id="peopleManagerTitle">管理參加者</h3><form class="add-person-form" onsubmit="addParticipant(event)"><input id="newParticipant" type="text" maxlength="30" placeholder="輸入姓名" aria-label="新增參加者姓名" value="'+esc(state.participantDraft)+'" oninput="rememberParticipantDraft(this.value)"><button class="secondary-btn" type="submit">加入</button></form>'+
+    (people.some(function(name){return DEFAULT_PARTICIPANTS.includes(name);})?'<p class="helper">新增姓名會依序取代預設的 A、B、C、D。</p>':'')+
+    '<div class="people-manage">'+(people.length?people.map(function(name){return '<div class="people-manage-row"><span>'+esc(name)+'</span><button type="button" aria-label="移除參加者 '+esc(name)+'" onclick="removeParticipant('+jsArg(name)+')">×</button></div>';}).join(''):'<p class="helper">目前沒有參加者。</p>')+'</div><div class="local-tools"><button type="button" class="secondary-btn" onclick="saveCurrentRoster()">儲存名單</button><button type="button" class="secondary-btn" onclick="loadRosterIntoSession()">載入名單</button><button type="button" class="text-btn danger-btn" onclick="clearAllParticipants()" '+(!people.length||state.bulkAction?'disabled':'')+'>清空所有參加者</button></div><p class="helper roster-note">名單儲存在目前瀏覽器。</p></section>';
 }
 function renderAssignees(people){
-  if(!people.length)return '<span class="helper">先加入參加者。</span>';
+  if(!people.length)return '<span class="helper">按「新增／管理」加入參加者。</span>';
   return people.map(function(name){return '<label class="assign-choice"><input type="checkbox" value="'+esc(name)+'" '+(state.selected.has(name)?'checked':'')+' onchange="toggleAssignee(this)" '+(state.session&&state.session.archived?'disabled':'')+'><span>'+esc(name)+'</span></label>';}).join('');
 }
 function renderItems(){
-  if(!state.items.length)return '<div class="empty-state">尚未加入餐點。輸入金額並選擇負責人後，即可開始分攤。</div>';
+  if(!state.items.length)return '<div class="empty-state">尚未記錄餐點。</div>';
   return state.items.map(function(item,index){
     const names=uniqueNames(item.responsible);
-    return '<div class="item-row"><div class="item-main"><div class="item-name-line"><span class="item-name">餐點 '+(index+1)+'</span><span class="item-price">'+fmt(item.amount)+'</span></div><div class="item-share-note">'+(names.length?esc(names.join('、'))+(names.length>1?' · 平均分攤':' · 個人負責'):'未指定負責人')+'</div></div>'+
-      (state.session.archived?'':'<div class="item-actions"><button type="button" class="tiny-btn" aria-label="編輯餐點 '+(index+1)+'" onclick="editItem('+jsArg(item.id)+')">編輯</button><button type="button" class="remove-btn" aria-label="移除餐點 '+(index+1)+'" onclick="removeItem('+jsArg(item.id)+')">×</button></div>')+'</div>';
+    return '<div class="item-row"><span class="item-index">'+String(index+1).padStart(2,'0')+'</span><div class="item-main"><span class="item-price">'+fmt(item.amount)+'</span><div class="item-share-note">'+(names.length?esc(names.join('、')):'未指定負責人')+'</div></div>'+
+      (state.session.archived?'':'<div class="item-actions"><button type="button" class="text-btn" aria-label="編輯餐點 '+(index+1)+'" onclick="editItem('+jsArg(item.id)+')">編輯</button><button type="button" class="remove-btn" aria-label="移除餐點 '+(index+1)+'" onclick="removeItem('+jsArg(item.id)+')">×</button></div>')+'</div>';
   }).join('');
 }
 function renderAdjustmentControl(kind,title,mode,value,disabled){
@@ -368,10 +431,10 @@ function renderAdjustmentControl(kind,title,mode,value,disabled){
     distribution='<div class="discount-allocation"><label for="discountAllocation">折扣分配方式</label><select id="discountAllocation" aria-label="折扣分配方式" onchange="saveDiscountAllocation(this.value)" '+(disabled?'disabled':'')+'><option value="proportional" '+(allocation==='proportional'?'selected':'')+'>按金額比例分攤（預設）</option><option value="equal" '+(allocation==='equal'?'selected':'')+'>按有餐點金額的人數均分</option><option value="person" '+(allocation==='person'?'selected':'')+'>指定一人享有全部折扣</option></select></div>'+
       (allocation==='person'?'<div class="discount-allocation"><label for="discountRecipient">折扣對象</label><select id="discountRecipient" aria-label="折扣對象" onchange="saveDiscountRecipient(this.value)" '+(disabled?'disabled':'')+'>'+emptyOption+options+'</select><p class="helper">指定對象的餐點小計須足以抵扣全部折扣；沒有餐點金額的人不列入。</p></div>':'');
   }
-  return '<div class="adjust-box"><div class="adjust-title"><strong>'+title+'</strong><span>'+(kind==='service'?'加入應付總額':'從應付總額扣除')+'</span></div>'+
+  return '<div class="adjust-box"><div class="adjust-title"><label for="'+kind+'Value">'+title+'</label><span>'+fmt(kind==='service'?calculate().serviceTotal:calculate().discountTotal)+'</span></div>'+
     '<div class="adjust-input"><input type="text" inputmode="text" maxlength="256" autocomplete="off" spellcheck="false" id="'+kind+'Value" value="'+esc(number)+'" aria-label="'+title+'數值" aria-describedby="'+kind+'Calculation" oninput="previewAmount(this,\''+kind+'\')" onchange="saveAdjustment(\''+kind+'\')" '+(disabled?'disabled':'')+'>'+
     '<select id="'+kind+'Mode" aria-label="'+title+'輸入方式" onchange="saveAdjustment(\''+kind+'\')" '+(disabled?'disabled':'')+'><option value="percent" '+(mode==='percent'?'selected':'')+'>百分比</option><option value="amount" '+(mode==='amount'?'selected':'')+'>實際金額</option></select></div>'+
-    distribution+'<p id="'+kind+'Calculation" class="helper" role="status" aria-live="polite"></p><div class="adjust-value">分攤'+title+'：<b>'+fmt(kind==='service'?calculate().serviceTotal:calculate().discountTotal)+'</b></div></div>';
+    distribution+'<p id="'+kind+'Calculation" class="helper adjust-feedback" role="status" aria-live="polite"></p></div>';
 }
 function renderError(message){appEl.innerHTML='<main class="shell">'+modeHeader()+'<lumen-card variant="glass" glass="strong" class="card"><div class="warning">'+esc(message)+'</div></lumen-card></main>';}
 async function createDirectSession(){
@@ -388,7 +451,7 @@ async function createDirectSession(){
   }finally{state.creatingSession=false;}
 }
 async function boot(){
-  clearSubscriptions();state.session=null;state.items=[];state.selected=new Set();state.editItemId=null;state.itemDraft='';state.showPeopleManage=false;
+  clearSubscriptions();state.session=null;state.items=[];state.selected=new Set();state.editItemId=null;state.itemDraft='';state.showPeopleManage=false;state.showAdjustments=false;state.participantDraft='';state.statusMessage='';
   const id=diningId();if(!id){await createDirectSession();return;}
   showLoading();const sessionRef=doc(db,'diningSessions',id);
   state.unsub.push(onSnapshot(sessionRef,function(snapshot){
@@ -404,7 +467,7 @@ async function boot(){
   },function(error){console.error(error);renderError(error.code==='permission-denied'?'Firestore Rules 尚未開放餐飲分單餐點資料，請先更新資料庫 Rules。':'載入餐點失敗，請檢查網絡後再試。');}));
 }
 function clearSubscriptions(){state.unsub.forEach(function(unsub){unsub();});state.unsub=[];}
-function toggleAssignee(input){if(input.checked)state.selected.add(input.value);else state.selected.delete(input.value);}
+function toggleAssignee(input){if(input.checked)state.selected.add(input.value);else state.selected.delete(input.value);updateSelectionFeedback();}
 function selectAllAssignees(){state.selected=new Set(state.session.participants||[]);renderActive();}
 function clearAssignees(){state.selected.clear();renderActive();}
 function clearAmountInput(){
@@ -463,6 +526,7 @@ async function addParticipant(event){
       tx.update(ref,updates);
     });
   }catch(error){if(error.message==='duplicate')alert('這個名字已存在。');else if(error.message==='max')alert('參加者最多100人。');else if(error.message==='default-in-use')alert('預設人員「'+(replacement&&replacement.from||'')+'」已有負責的餐點，請先移除或修改相關餐點，再新增姓名取代。');else showWriteError('新增參加者失敗',error);return;}
+  state.participantDraft='';
   if(replacement)state.selected.delete(replacement.from);
   state.selected.add(name);
   if(state.session&&committedParticipants)state.session.participants=committedParticipants;
@@ -480,7 +544,7 @@ async function removeParticipant(name){
   try{await updateDoc(doc(db,'diningSessions',diningId()),updates);}
   catch(error){showWriteError('移除參加者失敗',error);}
 }
-function togglePeopleManage(){state.showPeopleManage=!state.showPeopleManage;renderActive();}
+function togglePeopleManage(){state.showPeopleManage=!state.showPeopleManage;renderActive();const target=document.getElementById(state.showPeopleManage?'newParticipant':'manageNamesToggle');if(target)target.focus();}
 async function saveCurrentRoster(){
   const people=uniqueNames(state.session&&state.session.participants);
   if(!people.length){setStatus('目前沒有參加者可儲存。');return;}
@@ -569,6 +633,7 @@ async function saveItem(event){
       await updateDoc(doc(db,'diningSessions',diningId(),'items',state.editItemId),data);
     }else{data.createdAt=Date.now();await addDoc(collection(db,'diningSessions',diningId(),'items'),data);}
     state.editItemId=null;state.itemDraft='';state.selected=new Set();renderActive();
+    const nextAmount=document.getElementById('itemAmount');if(nextAmount)nextAmount.focus({preventScroll:true});
   }catch(error){showWriteError('儲存餐點失敗',error);}
 }
 function editItem(id){
@@ -607,10 +672,9 @@ function showWriteError(action,error){
   if(error&&error.code==='permission-denied'){alert(action+'：Firestore Rules 尚未開放餐飲分單資料，請更新 Rules 後再試。');return;}
   alert(action+'，請檢查網絡後再試。');
 }
-Object.assign(window,{clearAmountInput,clearDiningAmounts,clearAllParticipants,previewAmount,addParticipant,removeParticipant,togglePeopleManage,saveCurrentRoster,loadRosterIntoSession,saveAdjustment,saveDiscountAllocation,saveDiscountRecipient,selectAllAssignees,clearAssignees,toggleAssignee,saveItem,cancelItemEdit,editItem,removeItem,copyLink,openQr,closeQr,copyDiningLink});
+Object.assign(window,{rememberSection,rememberParticipantDraft,clearAmountInput,clearDiningAmounts,clearAllParticipants,previewAmount,addParticipant,removeParticipant,togglePeopleManage,saveCurrentRoster,loadRosterIntoSession,saveAdjustment,saveDiscountAllocation,saveDiscountRecipient,selectAllAssignees,clearAssignees,toggleAssignee,saveItem,cancelItemEdit,editItem,removeItem,copyLink,openQr,closeQr,copyDiningLink});
 window.addEventListener('hashchange',boot);
 boot();
 </script>
 </body>
 </html>
-
