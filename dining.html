@@ -25,14 +25,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
 .brand small{display:block;color:var(--muted);font-size:12px;font-weight:600;letter-spacing:0}
 .back-link,.action-btn,.reset-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:8px 13px;border:1px solid rgba(86,96,143,.17);border-radius:12px;background:rgba(255,255,255,.72);color:#40506b;text-decoration:none;font-size:14px;font-weight:700}
 .back-link:hover,.action-btn:hover,.reset-btn:hover{background:#fff}
-.hero{position:relative;overflow:hidden;padding:clamp(22px,4vw,36px);margin-bottom:18px;border:1px solid rgba(255,255,255,.3);border-radius:26px;color:#fff;background:linear-gradient(128deg,#153d45 0%,#176b61 55%,#2d9d80 100%);box-shadow:0 22px 56px rgba(17,79,74,.19),inset 0 1px 0 rgba(255,255,255,.18)}
-.hero:after{content:"";position:absolute;width:360px;height:360px;right:-90px;top:-200px;border-radius:50%;background:radial-gradient(circle,rgba(181,255,226,.3),transparent 70%);pointer-events:none}
-.hero-content{position:relative;z-index:1;max-width:740px}
-.eyebrow{margin:0 0 10px;color:rgba(255,255,255,.74);font-size:12px;font-weight:800;letter-spacing:.15em}
-.hero h1{margin:0;color:#fff;font-size:clamp(30px,5vw,43px);line-height:1.12;letter-spacing:-.035em}
-.hero p{max-width:62ch;margin:12px 0 0;color:rgba(255,255,255,.84);font-size:15px;line-height:1.65}
-.live-tag{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;margin-top:17px;border:1px solid rgba(255,255,255,.23);border-radius:999px;background:rgba(255,255,255,.1);color:#fff;font-size:12px;font-weight:700}
-.live-tag:before{content:"";width:7px;height:7px;border-radius:50%;background:#9bf2ce;box-shadow:0 0 9px rgba(155,242,206,.65)}
 .card{padding:20px;border:1px solid rgba(255,255,255,.76);border-radius:19px;background:rgba(255,255,255,.69);box-shadow:0 12px 30px rgba(39,48,92,.07),inset 0 1px 0 rgba(255,255,255,.9);backdrop-filter:blur(18px) saturate(145%);-webkit-backdrop-filter:blur(18px) saturate(145%)}
 .meta-card{margin-bottom:18px}
 .meta-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(200px,.55fr);gap:14px}
@@ -106,12 +98,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .person-total-name{display:flex;align-items:center;gap:8px;color:#303b5a;font-size:13px;font-weight:750}
 .person-total-number{text-align:right;color:#293451;font-size:14px;font-weight:800}
 .person-total-detail{grid-column:1/-1;display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:11px}
-.settlement-card h2{margin:0 0 6px;font-size:18px}
-.settlement-lead{margin:0 0 12px;color:var(--muted);font-size:12px;line-height:1.5}
-.payer-line{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 11px;border-radius:12px;background:rgba(232,247,241,.8);color:#315f55;font-size:13px}
-.transfer-list{display:grid;gap:7px;margin-top:8px}
-.transfer-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 11px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.61);font-size:13px}
-.transfer-row strong{color:#273653}
 .zero-state{padding:12px;color:var(--muted);font-size:13px;text-align:center}
 .warning{margin:10px 0 0;padding:10px 12px;border:1px solid rgba(196,121,45,.2);border-radius:11px;background:#fff8ed;color:#7d5227;font-size:12px;line-height:1.5}
 .notice{padding:12px 14px;margin:0 0 14px;border:1px solid rgba(101,88,232,.13);border-radius:13px;background:rgba(255,255,255,.5);color:#52607a;font-size:13px;line-height:1.55}
@@ -128,8 +114,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .qr-frame{display:grid;place-items:center;min-height:260px;margin:16px auto;padding:14px;border:1px solid var(--line);border-radius:18px;background:#fff}
 .qr-frame img{display:block;width:min(100%,240px);height:auto;image-rendering:pixelated}
 .share-qr-copy{width:100%}
-@media(max-width:780px){.layout{grid-template-columns:1fr}.summary-column{order:-1}.summary-card{padding:17px}.hero{border-radius:22px}}
-@media(max-width:540px){.shell{padding-top:16px}.topbar{align-items:flex-start}.back-link,.action-btn{min-height:38px;padding:7px 10px;font-size:12px}.brand-mark{width:34px;height:34px}.brand{font-size:14px}.hero{padding:22px 19px}.meta-grid{grid-template-columns:1fr}.add-person-form{width:100%;max-width:none;margin:4px 0 0}.item-form{grid-template-columns:1fr 115px;padding:11px}.field-full{grid-column:1/-1}.adjust-grid{grid-template-columns:1fr}.card{padding:16px}.person-total-detail{font-size:10px}.local-tools>*{flex:1}}
+@media(max-width:780px){.layout{grid-template-columns:1fr}.summary-column{order:-1}.summary-card{padding:17px}}
+@media(max-width:540px){.shell{padding-top:16px}.topbar{align-items:flex-start}.back-link,.action-btn{min-height:38px;padding:7px 10px;font-size:12px}.brand-mark{width:34px;height:34px}.brand{font-size:14px}.meta-grid{grid-template-columns:1fr}.add-person-form{width:100%;max-width:none;margin:4px 0 0}.item-form{grid-template-columns:1fr 115px;padding:11px}.field-full{grid-column:1/-1}.adjust-grid{grid-template-columns:1fr}.card{padding:16px}.person-total-detail{font-size:10px}.local-tools>*{flex:1}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
 </style>
 </head>
@@ -159,8 +145,9 @@ const firebaseConfig={
 };
 const db=getFirestore(initializeApp(firebaseConfig));
 const STORAGE_KEY='split-bill-dining-participants-v1';
+const DEFAULT_PARTICIPANTS=['A','B','C','D'];
 const appEl=document.getElementById('app');
-let state={session:null,items:[],selected:new Set(),editItemId:null,itemDraft:'',bulkAction:false,showPeopleManage:false,setupParticipants:loadSavedParticipants(),unsub:[],qrData:''};
+let state={session:null,items:[],selected:new Set(),editItemId:null,itemDraft:'',bulkAction:false,showPeopleManage:false,creatingSession:false,unsub:[],qrData:''};
 let qrPromise=null;
 
 function diningId(){const m=location.hash.match(/#\/d\/([^\/?#]+)/);return m?decodeURIComponent(m[1]):null;}
@@ -180,64 +167,24 @@ function uniqueNames(values){
 function loadSavedParticipants(){
   try{return uniqueNames(JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'));}catch(error){return [];}
 }
-function saveRoster(names){
-  const clean=uniqueNames(names);
-  if(!clean.length){alert('目前沒有參加者可儲存。');return false;}
-  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(clean));setStatus('已儲存 '+clean.length+' 位參加者至此瀏覽器。');return true;}
-  catch(error){alert('無法在此瀏覽器儲存名單。');return false;}
-}
 function setStatus(message){
   const el=document.getElementById('status');
   if(el)el.textContent=message||'';
 }
+function mergeParticipantNames(currentValues,addedValues){
+  const next=uniqueNames(currentValues);
+  const replaced=[],unadded=[];
+  uniqueNames(addedValues).forEach(function(name){
+    if(next.some(function(existing){return existing.toLocaleLowerCase()===name.toLocaleLowerCase();}))return;
+    const defaultIndex=next.findIndex(function(existing){return DEFAULT_PARTICIPANTS.includes(existing);});
+    if(defaultIndex>=0){replaced.push({from:next[defaultIndex],to:name});next[defaultIndex]=name;}
+    else if(next.length<100)next.push(name);
+    else unadded.push(name);
+  });
+  return {participants:next,replaced:replaced,unadded:unadded};
+}
 function modeHeader(){
-  return '<div class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 18h17M5 18a7 7 0 0 1 14 0M8.5 9h7M10.5 5.5h3"/></svg></span><span>埋單有數<small>餐飲分單模式</small></span></div><a class="back-link" href="./index.html">← 選擇其他模式</a></div>'+
-    '<header class="hero"><div class="hero-content"><p class="eyebrow">DINING BILL · ITEM BY ITEM</p><h1>餐點逐項記，<br>每人埋單有數。</h1><p>記錄每項金額和分攤對象，共享菜式可選多人平均分；服務費和折扣按各人餐點小計比例分配。</p><span class="live-tag">餐單獨立儲存 · 可分享連結共同編輯</span></div></header>';
-}
-function renderHome(){
-  state.setupParticipants=loadSavedParticipants();
-  const names=state.setupParticipants;
-  appEl.innerHTML='<main class="shell">'+modeHeader()+
-    '<lumen-card variant="glass" glass="strong" class="card"><div class="panel-heading"><div><h2>建立餐單</h2><p>建立後會產生獨立連結，參加者可開啟同一張餐單共同編輯。</p></div></div>'+
-    '<div class="meta-grid"><div><label for="sessionName">餐單名稱</label><input id="sessionName" type="text" maxlength="100" placeholder="例如：週五晚飯"></div><div><label>資料同步</label><div class="notice">餐單資料會即時同步；本機儲存的參加者名單只在此瀏覽器使用。</div></div></div>'+
-    '<div class="people-row"><span class="people-label">參加者</span><div id="setupPeople" class="people-list"></div>'+
-    '<form class="add-person-form" onsubmit="addSetupParticipant(event)"><input id="setupPersonName" type="text" maxlength="30" placeholder="新增參加者" aria-label="新增參加者名稱"><button type="submit">加入</button></form></div>'+
-    '<div class="local-tools"><button type="button" class="secondary-btn" onclick="saveSetupRoster()">儲存本機名單</button><button type="button" class="secondary-btn" onclick="loadSetupRoster()">載入本機名單</button><button id="clearSetupPeople" type="button" class="secondary-btn danger-btn" onclick="clearSetupParticipants()">清空所有參加者</button><span id="status" class="status"></span></div>'+
-    '<div class="row" style="margin-top:16px"><span class="helper">參加者可建立後再補上。</span><button type="button" class="primary-btn" onclick="createDiningSession()">建立餐單</button></div>'+
-    '</lumen-card></main>';
-  renderSetupPeople();
-}
-function renderSetupPeople(){
-  const target=document.getElementById('setupPeople');if(!target)return;
-  const names=state.setupParticipants;
-  target.innerHTML=names.length?names.map(function(name){return '<span class="person-chip"><span class="avatar" aria-hidden="true">'+esc(Array.from(name)[0]||'?')+'</span>'+esc(name)+'<button type="button" class="tiny-btn" aria-label="移除 '+esc(name)+'" onclick="removeSetupParticipant('+jsArg(name)+')">×</button></span>';}).join(''):'<span class="helper">尚未加入參加者</span>';
-  const clearButton=document.getElementById('clearSetupPeople');if(clearButton)clearButton.disabled=!names.length;
-}
-function addSetupParticipant(event){
-  event.preventDefault();const input=document.getElementById('setupPersonName');const name=(input.value||'').trim();
-  if(!name){input.focus();return;}if(name.length>30){alert('參加者名稱不可超過30個字。');return;}
-  if(state.setupParticipants.some(function(row){return row.toLocaleLowerCase()===name.toLocaleLowerCase();})){alert('這個名字已存在。');input.focus();return;}
-  state.setupParticipants.push(name);input.value='';renderSetupPeople();input.focus();
-}
-function removeSetupParticipant(name){state.setupParticipants=state.setupParticipants.filter(function(row){return row!==name;});renderSetupPeople();}
-function clearSetupParticipants(){
-  if(!state.setupParticipants.length||!confirm('確定清空所有參加者？已儲存的本機名單會保留。'))return;
-  state.setupParticipants=[];renderSetupPeople();setStatus('已清空所有參加者。');
-}
-function saveSetupRoster(){saveRoster(state.setupParticipants);}
-function loadSetupRoster(){
-  const saved=loadSavedParticipants();if(!saved.length){setStatus('此瀏覽器尚未儲存參加者名單。');return;}
-  state.setupParticipants=saved;renderSetupPeople();setStatus('已載入 '+saved.length+' 位參加者。');
-}
-async function createDiningSession(){
-  const input=document.getElementById('sessionName'),name=(input.value||'').trim()||'未命名餐單';
-  const participants=uniqueNames(state.setupParticipants);
-  if(participants.length>100){alert('參加者最多100人。');return;}
-  try{
-    const ref=doc(collection(db,'diningSessions'));
-    await setDoc(ref,{name:name,participants:participants,payer:participants[0]||null,serviceMode:'percent',serviceValue:0,discountMode:'percent',discountValue:0,archived:false,createdAt:Date.now()});
-    location.hash='#/d/'+encodeURIComponent(ref.id);
-  }catch(error){showWriteError('建立餐單失敗',error);}
+  return '<div class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 18h17M5 18a7 7 0 0 1 14 0M8.5 9h7M10.5 5.5h3"/></svg></span><span>埋單有數<small>餐飲分單模式</small></span></div><a class="back-link" href="./index.html">← 選擇其他模式</a></div>';
 }
 function showLoading(){appEl.innerHTML='<main class="shell">'+modeHeader()+'<lumen-card variant="glass" glass="strong" class="card"><p class="helper">正在載入餐單…</p></lumen-card></main>';}
 
@@ -343,12 +290,10 @@ function renderActive(){
   const isArchived=!!m.archived;
   appEl.innerHTML='<main class="shell">'+modeHeader()+
     (isArchived?'<div class="warning">此餐單已封存，只能查看。</div>':'')+
-    '<lumen-card variant="glass" glass="strong" class="card meta-card"><div class="meta-grid">'+
-    '<div><label for="activeName">餐單名稱</label><input id="activeName" type="text" maxlength="100" value="'+esc(m.name||'')+'" onchange="saveSessionName(this.value)" '+(isArchived?'disabled':'')+'></div>'+
-    '<div><label for="payerSelect">整張帳單由誰代付？</label><select id="payerSelect" onchange="savePayer(this.value)" '+(isArchived?'disabled':'')+'>'+people.map(function(name){return '<option value="'+esc(name)+'" '+(m.payer===name?'selected':'')+'>'+esc(name)+'</option>';}).join('')+'</select></div></div>'+
-    '<div class="people-row"><span class="people-label">參加者 · '+people.length+' 人</span><div class="people-list">'+people.map(function(name){return '<span class="person-chip">'+avatar(name)+esc(name)+'</span>';}).join('')+'</div>'+
+    '<lumen-card variant="glass" glass="strong" class="card meta-card"><div class="people-row" style="margin-top:0"><span class="people-label">參加者 · '+people.length+' 人</span><div class="people-list">'+people.map(function(name){return '<span class="person-chip">'+avatar(name)+esc(name)+'</span>';}).join('')+'</div>'+
     (isArchived?'':'<form class="add-person-form" onsubmit="addParticipant(event)"><input id="newParticipant" type="text" maxlength="30" placeholder="新增參加者" aria-label="新增參加者名稱"><button type="submit">加入</button></form>')+
     '</div>'+
+    (!isArchived?'<p class="helper">預設有 A、B、C、D；新增姓名會依序取代預設人員。</p>':'')+
     (isArchived?'':'<div class="local-tools"><button type="button" class="secondary-btn" onclick="saveCurrentRoster()">儲存本機名單</button><button type="button" class="secondary-btn" onclick="loadRosterIntoSession()">載入並加入名單</button><button type="button" class="secondary-btn" onclick="togglePeopleManage()">'+(state.showPeopleManage?'完成名單管理':'管理名單')+'</button><button type="button" class="secondary-btn danger-btn" onclick="clearAllParticipants()" '+(!people.length||state.bulkAction?'disabled':'')+'>清空所有參加者</button><span id="status" class="status"></span></div>')+
     (state.showPeopleManage&&!isArchived?renderPeopleManage(people):'')+'</lumen-card>'+
     '<div class="layout"><div class="stack">'+
@@ -366,7 +311,7 @@ function renderActive(){
     '<div class="summary-total"><span>'+esc(m.name||'餐飲總額')+'</span><strong>'+fmt(result.total)+'</strong></div>'+
     '<div class="summary-breakdown"><div class="breakdown-line"><span>餐點小計</span><strong>'+fmt(result.subtotal)+'</strong></div><div class="breakdown-line"><span>服務費</span><strong>+'+fmt(result.serviceTotal)+'</strong></div><div class="breakdown-line"><span>折扣</span><strong>−'+fmt(result.discountTotal)+'</strong></div></div>'+
     '<div class="person-totals">'+(people.length?people.map(function(name){return '<div class="person-total"><div class="person-total-name">'+avatar(name)+esc(name)+'</div><strong class="person-total-number">'+fmt(result.due[name]||0)+'</strong><div class="person-total-detail"><span>餐點 '+fmt(result.base[name]||0)+'</span><span>服務 '+fmt(result.service[name]||0)+' · 折扣 −'+fmt(result.discount[name]||0)+'</span></div></div>';}).join(''):'<div class="empty-state">加入參加者後，便可查看每人的分攤金額。</div>')+'</div>'+
-    '</lumen-card><lumen-card variant="glass" glass="strong" class="card settlement-card"><div class="panel-heading"><div><h2>代付與應付</h2><p class="settlement-lead">餐飲分單獨立結算，不會併入聚會開支。</p></div></div><div id="settlementSummary">'+renderSettlement(m,result)+'</div></lumen-card></aside></div>'+
+    '</lumen-card></aside></div>'+
     '<p class="footer-note">所有持有餐單連結的人均可共同編輯；參加者名單的本機保存只影響目前瀏覽器。</p></main>';
   ['item','service','discount'].forEach(function(kind){const input=document.getElementById(kind==='item'?'itemAmount':kind+'Value');if(input)previewAmount(input,kind);});
   if(state.bulkAction)appEl.querySelectorAll('button,input,select').forEach(function(control){control.disabled=true;});
@@ -394,20 +339,23 @@ function renderAdjustmentControl(kind,title,mode,value,disabled){
     '<select id="'+kind+'Mode" aria-label="'+title+'輸入方式" onchange="saveAdjustment(\''+kind+'\')" '+(disabled?'disabled':'')+'><option value="percent" '+(mode==='percent'?'selected':'')+'>百分比</option><option value="amount" '+(mode==='amount'?'selected':'')+'>實際金額</option></select></div>'+
     '<p id="'+kind+'Calculation" class="helper" role="status" aria-live="polite"></p><div class="adjust-value">分攤'+title+'：<b>'+fmt(kind==='service'?calculate().serviceTotal:calculate().discountTotal)+'</b></div></div>';
 }
-function renderSettlement(m,result){
-  if(result.errors.length)return '<div class="warning">請先修正折扣設定，暫不能確認結算。</div>';
-  if(!state.items.length)return '<div class="zero-state">加入餐點後會顯示各人的應付安排。</div>';
-  const people=m.participants||[],payer=people.includes(m.payer)?m.payer:(people[0]||'');
-  if(!payer)return '<div class="zero-state">加入參加者並選定代付人後，會顯示轉帳安排。</div>';
-  const lines=people.filter(function(name){return name!==payer&&(result.due[name]||0)>0;}).map(function(name){return '<div class="transfer-row"><span>'+esc(name)+' → '+esc(payer)+'</span><strong>'+fmt(result.due[name])+'</strong></div>';}).join('');
-  const amount=people.reduce(function(sum,name){return sum+(name===payer?0:(result.due[name]||0));},0);
-  return '<div class="payer-line"><span>'+esc(payer)+' 代付餐飲帳單</span><strong>'+fmt(result.total)+'</strong></div><div class="transfer-list">'+(lines||'<div class="zero-state">目前無需轉帳。</div>')+'</div><p class="helper">其餘參加者合共應付 '+fmt(amount)+'；付款人的餐點費用已從代付額扣除。</p>';
-}
-
 function renderError(message){appEl.innerHTML='<main class="shell">'+modeHeader()+'<lumen-card variant="glass" glass="strong" class="card"><div class="warning">'+esc(message)+'</div></lumen-card></main>';}
+async function createDirectSession(){
+  if(state.creatingSession)return;
+  state.creatingSession=true;showLoading();
+  try{
+    const ref=doc(collection(db,'diningSessions'));
+    await setDoc(ref,{name:'餐飲分單',participants:DEFAULT_PARTICIPANTS,payer:'A',serviceMode:'percent',serviceValue:0,discountMode:'percent',discountValue:0,archived:false,createdAt:Date.now()});
+    history.replaceState(null,'',location.pathname+location.search+'#/d/'+encodeURIComponent(ref.id));
+    await boot();
+  }catch(error){
+    console.error('開啟餐飲分單失敗',error);
+    renderError(error&&error.code==='permission-denied'?'Firestore Rules 尚未開放餐飲分單，請先更新資料庫 Rules。':'無法開啟餐飲分單，請檢查網絡後再試。');
+  }finally{state.creatingSession=false;}
+}
 async function boot(){
   clearSubscriptions();state.session=null;state.items=[];state.selected=new Set();state.editItemId=null;state.itemDraft='';state.showPeopleManage=false;
-  const id=diningId();if(!id){renderHome();return;}
+  const id=diningId();if(!id){await createDirectSession();return;}
   showLoading();const sessionRef=doc(db,'diningSessions',id);
   state.unsub.push(onSnapshot(sessionRef,function(snapshot){
     if(!snapshot.exists()){state.session=false;renderError('找不到這張餐單，請檢查分享連結。');return;}
@@ -450,7 +398,7 @@ async function clearDiningAmounts(){
 async function clearAllParticipants(){
   if(!state.session||state.session.archived||state.bulkAction||!state.session.participants.length)return;
   if(state.items.length){alert('請先按「清空金額」移除所有餐點，再清空參加者，以免留下無人分攤的餐點。');return;}
-  if(!confirm('確定清空這張餐單的所有參加者及代付人？已儲存的本機名單會保留。此操作不能復原。'))return;
+  if(!confirm('確定清空這張餐單的所有參加者？已儲存的本機名單會保留。此操作不能復原。'))return;
   const id=diningId();state.bulkAction=true;renderActive();
   try{
     const items=await getDocsFromServer(query(collection(db,'diningSessions',id,'items'),limit(1)));
@@ -463,18 +411,26 @@ async function clearAllParticipants(){
 async function addParticipant(event){
   event.preventDefault();const input=document.getElementById('newParticipant'),name=(input.value||'').trim();
   if(!name){input.focus();return;}if(name.length>30){alert('參加者名稱不可超過30個字。');return;}
+  let committedParticipants=null,replacement=null;
   try{
     await runTransaction(db,async function(tx){
       const ref=doc(db,'diningSessions',diningId()),snap=await tx.get(ref);
       if(!snap.exists())throw new Error('missing');
       const current=uniqueNames(snap.data().participants);
       if(current.some(function(row){return row.toLocaleLowerCase()===name.toLocaleLowerCase();}))throw new Error('duplicate');
-      if(current.length>=100)throw new Error('max');
-      const next=current.concat([name]);
-      tx.update(ref,{participants:next,payer:snap.data().payer||name});
+      const merged=mergeParticipantNames(current,[name]);
+      replacement=merged.replaced[0]||null;
+      if(replacement&&state.items.some(function(item){return (item.responsible||[]).includes(replacement.from);}))throw new Error('default-in-use');
+      if(!replacement&&current.length>=100)throw new Error('max');
+      committedParticipants=merged.participants;
+      const payer=replacement&&snap.data().payer===replacement.from?name:(snap.data().payer||name);
+      tx.update(ref,{participants:committedParticipants,payer:payer});
     });
-  }catch(error){if(error.message==='duplicate')alert('這個名字已存在。');else if(error.message==='max')alert('參加者最多100人。');else showWriteError('新增參加者失敗',error);return;}
-  state.selected=new Set(state.selected);state.selected.add(name);
+  }catch(error){if(error.message==='duplicate')alert('這個名字已存在。');else if(error.message==='max')alert('參加者最多100人。');else if(error.message==='default-in-use')alert('預設人員「'+(replacement&&replacement.from||'')+'」已有負責的餐點，請先移除或修改相關餐點，再新增姓名取代。');else showWriteError('新增參加者失敗',error);return;}
+  if(replacement)state.selected.delete(replacement.from);
+  state.selected.add(name);
+  if(state.session&&committedParticipants)state.session.participants=committedParticipants;
+  renderActive();
 }
 async function removeParticipant(name){
   if(state.items.some(function(item){return (item.responsible||[]).includes(name);})) {alert('這位參加者已有負責的餐點，請先移除或更改相關餐點分攤。');return;}
@@ -495,24 +451,26 @@ async function saveCurrentRoster(){
 }
 async function loadRosterIntoSession(){
   const saved=loadSavedParticipants();if(!saved.length){setStatus('此瀏覽器尚未儲存參加者名單。');return;}
+  let committedParticipants=null,replacedNames=[];
   try{
     await runTransaction(db,async function(tx){
       const ref=doc(db,'diningSessions',diningId()),snap=await tx.get(ref);
       if(!snap.exists())throw new Error('missing');
-      const current=uniqueNames(snap.data().participants),next=uniqueNames(current.concat(saved));
-      if(next.length>100)throw new Error('max');
-      tx.update(ref,{participants:next,payer:snap.data().payer||next[0]||null});
+      const current=uniqueNames(snap.data().participants),merged=mergeParticipantNames(current,saved);
+      replacedNames=merged.replaced;
+      const inUse=replacedNames.find(function(row){return state.items.some(function(item){return (item.responsible||[]).includes(row.from);});});
+      if(inUse)throw new Error('default-in-use:'+inUse.from);
+      if(merged.unadded.length)throw new Error('max');
+      committedParticipants=merged.participants;
+      const oldPayer=snap.data().payer;
+      const payerReplacement=replacedNames.find(function(row){return row.from===oldPayer;});
+      const payer=payerReplacement?payerReplacement.to:oldPayer;
+      tx.update(ref,{participants:committedParticipants,payer:payer||committedParticipants[0]||null});
     });
-    setStatus('已把本機名單中尚未加入的人員加入餐單。');
-  }catch(error){if(error.message==='max')setStatus('載入後人數會超過100人。');else showWriteError('載入名單失敗',error);}
-}
-async function saveSessionName(value){
-  const name=(value||'').trim();if(!name){alert('餐單名稱不可留空。');renderActive();return;}
-  try{await updateDoc(doc(db,'diningSessions',diningId()),{name:name.slice(0,100)});}catch(error){showWriteError('修改餐單名稱失敗',error);}
-}
-async function savePayer(value){
-  if(!(state.session.participants||[]).includes(value)){alert('請選擇餐單中的參加者。');return;}
-  try{await updateDoc(doc(db,'diningSessions',diningId()),{payer:value});}catch(error){showWriteError('修改代付人失敗',error);}
+    if(state.session&&committedParticipants)state.session.participants=committedParticipants;
+    replacedNames.forEach(function(row){if(state.selected.has(row.from)){state.selected.delete(row.from);state.selected.add(row.to);}});
+    renderActive();setStatus('已依序取代預設人員，並加入本機名單。');
+  }catch(error){if(error.message==='max')setStatus('載入後人數會超過100人。');else if(error.message.startsWith('default-in-use:'))alert('預設人員「'+error.message.split(':')[1]+'」已有負責的餐點，請先移除或修改相關餐點，再載入名單。');else showWriteError('載入名單失敗',error);}
 }
 async function saveAdjustment(kind){
   const modeEl=document.getElementById(kind+'Mode'),valueEl=document.getElementById(kind+'Value');
@@ -573,9 +531,10 @@ function showWriteError(action,error){
   if(error&&error.code==='permission-denied'){alert(action+'：Firestore Rules 尚未開放餐飲分單資料，請更新 Rules 後再試。');return;}
   alert(action+'，請檢查網絡後再試。');
 }
-Object.assign(window,{clearAmountInput,clearDiningAmounts,clearAllParticipants,clearSetupParticipants,previewAmount,addSetupParticipant,saveSetupRoster,loadSetupRoster,removeSetupParticipant,createDiningSession,addParticipant,removeParticipant,togglePeopleManage,saveCurrentRoster,loadRosterIntoSession,saveSessionName,savePayer,saveAdjustment,selectAllAssignees,clearAssignees,toggleAssignee,saveItem,cancelItemEdit,editItem,removeItem,copyLink,openQr,closeQr,copyDiningLink});
+Object.assign(window,{clearAmountInput,clearDiningAmounts,clearAllParticipants,previewAmount,addParticipant,removeParticipant,togglePeopleManage,saveCurrentRoster,loadRosterIntoSession,saveAdjustment,selectAllAssignees,clearAssignees,toggleAssignee,saveItem,cancelItemEdit,editItem,removeItem,copyLink,openQr,closeQr,copyDiningLink});
 window.addEventListener('hashchange',boot);
 boot();
 </script>
 </body>
 </html>
+
