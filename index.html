@@ -350,6 +350,27 @@ label{display:block;font-size:14px;font-weight:700;color:var(--app-ink-soft);mar
   .tabs{width:100%}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+.mode-home .home-hero{min-height:310px}
+.mode-home .home-hero-copy{max-width:62%}
+.home-mode-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch}
+.home-mode-card{display:flex;flex-direction:column;min-width:0;padding:clamp(19px,3vw,26px);margin:0;border-radius:22px}
+.mode-card-heading{display:flex;align-items:center;gap:13px;margin-bottom:12px}
+.mode-card-icon{display:grid;place-items:center;flex:0 0 46px;width:46px;height:46px;border:1px solid rgba(101,88,232,.14);border-radius:15px;background:var(--app-accent-soft);color:var(--app-accent);}
+.mode-card-icon svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.mode-card-heading h2{font-size:22px;margin:2px 0 0}
+.mode-kicker{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.04em}
+.mode-description{min-height:68px;margin:0 0 8px;color:var(--app-ink-soft);font-size:14px;line-height:1.65}
+.mode-footnote{margin:10px 0 0;color:var(--muted);font-size:12px;line-height:1.45}
+.dining-mode-card{border-color:rgba(21,137,108,.17);background:linear-gradient(145deg,rgba(255,255,255,.83),rgba(236,250,246,.76));}
+.dining-icon{background:#e5f6ef;color:#16896c;border-color:rgba(21,137,108,.17)}
+.dining-preview-note{display:flex;align-items:flex-start;gap:10px;min-height:70px;padding:12px 13px;margin:9px 0 15px;border:1px solid rgba(21,137,108,.15);border-radius:14px;background:rgba(255,255,255,.56);color:var(--app-ink-soft);font-size:13px;line-height:1.5}
+.dining-preview-note b{color:#176b56}
+.preview-dot{flex:0 0 8px;width:8px;height:8px;margin-top:6px;border-radius:50%;background:#36b58e;box-shadow:0 0 0 4px rgba(54,181,142,.12)}
+.dining-submit{background:linear-gradient(135deg,#249b7c,#16765f);box-shadow:0 8px 18px rgba(22,137,108,.2);text-decoration:none}
+.dining-submit:hover:not(:disabled){background:linear-gradient(135deg,#2bab89,#188468);box-shadow:0 10px 22px rgba(22,137,108,.26)}
+@media(max-width:680px){.home-mode-grid{grid-template-columns:1fr}.mode-description{min-height:0}.mode-home .home-hero{min-height:0}.mode-home .home-hero-copy{max-width:100%}.mode-home .hero-glass-card{display:none}}
+
 </style>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
@@ -921,40 +942,43 @@ async function boot(){
 function renderLoading(){ document.getElementById('app').innerHTML='<p class="sub">載入聚會資料…</p>'; }
 
 function renderHome(){
-  document.getElementById('app').innerHTML = `
-    <main class="home-shell">
-      <header class="home-hero">
-        <div class="home-brand">
-          <span class="brand-mark" aria-hidden="true">⇄</span>
-          <span>埋單有數</span>
-          <span class="brand-badge">SHARED BILL</span>
-        </div>
-        <div class="home-hero-copy">
-          <div class="brand-eyebrow">聚會分帳 · 共同編輯</div>
-          <h1 class="home-title">聚會花費，<br>分得明白。</h1>
-          <p class="home-lead">每人記下自己代墊的項目，埋單有數會整理分攤與轉帳。打開專屬連結，大家即可一起更新。</p>
-        </div>
-        <div class="hero-glass-card" aria-hidden="true">
-          <small>一目了然的聚會帳本</small>
-          <strong>記帳 · 分攤 · 結算</strong>
-          <span>即時共同編輯</span>
-        </div>
-      </header>
-      <section class="card home-card" aria-labelledby="create-heading">
-        <div class="card-heading">
-          <span class="card-heading-icon" aria-hidden="true">＋</span>
-          <div class="card-heading-copy">
-            <strong id="create-heading">建立新聚會</strong>
-            <span class="small">開啟一個專屬帳本，與朋友共同記錄</span>
-          </div>
-        </div>
-        <label for="mname">聚會名稱</label>
-        <input type="text" id="mname" placeholder="例如：週末露營">
-        <button class="btn-main home-submit" onclick="createMeeting()"><span>建立新聚會</span><span aria-hidden="true">→</span></button>
-      </section>
-      <p class="small home-note"><span class="home-note-icon" aria-hidden="true">✓</span><span>毋須登入。分享專屬連結後，任何持有連結的人都可以查看及共同編輯。</span></p>
-    </main>
-  `;
+  document.getElementById('app').innerHTML = [
+    '<main class="home-shell mode-home">',
+      '<header class="home-hero">',
+        '<div class="home-brand"><span class="brand-mark" aria-hidden="true">⇄</span><span>埋單有數</span><span class="brand-badge">SHARED BILL</span></div>',
+        '<div class="home-hero-copy">',
+          '<div class="brand-eyebrow">選擇分帳模式</div>',
+          '<h1 class="home-title">用途不同，<br>帳本分開。</h1>',
+          '<p class="home-lead">共同開支與餐飲點餐各有專屬模式；選擇用途後，各自建立參加者名單、帳目與結算。</p>',
+        '</div>',
+        '<div class="hero-glass-card" aria-hidden="true"><small>兩種獨立模式</small><strong>分開記錄<br>獨立結算</strong><span>各自記錄，各自結算</span></div>',
+      '</header>',
+      '<div class="home-mode-grid">',
+        '<section class="card home-mode-card">',
+          '<div class="mode-card-heading">',
+            '<span class="mode-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h13"/><circle cx="19" cy="12" r="2.4"/></svg></span>',
+            '<div><span class="mode-kicker">活動共同開支</span><h2>聚會分帳</h2></div>',
+          '</div>',
+          '<p class="mode-description">記錄交通、門票、住宿等聚會開支，設定付款人和分攤對象，再查看轉帳安排。</p>',
+          '<label for="mname">聚會名稱</label>',
+          '<input type="text" id="mname" placeholder="例如：週末露營">',
+          '<button class="btn-main home-submit" onclick="createMeeting()"><span>建立聚會分帳</span><span aria-hidden="true">→</span></button>',
+          '<p class="mode-footnote">沿用現有聚會帳本功能</p>',
+        '</section>',
+        '<section class="card home-mode-card dining-mode-card">',
+          '<div class="mode-card-heading">',
+            '<span class="mode-card-icon dining-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="5.3"/><path d="M3 3v5M1.5 5.5h3M21 3v7M21 10v11"/></svg></span>',
+            '<div><span class="mode-kicker">逐項點餐與分攤</span><h2>餐飲分單</h2></div>',
+          '</div>',
+          '<p class="mode-description">逐項記錄個人點餐和共享食物；服務費與折扣按每人的餐點小計比例分攤。</p>',
+          '<div class="dining-preview-note"><span class="preview-dot" aria-hidden="true"></span><span><b>獨立餐單模式</b><br>參加者、餐點資料和結算不會混入聚會分帳。</span></div>',
+          '<a class="btn-main home-submit dining-submit" href="./dining.html"><span>查看餐飲分單試看</span><span aria-hidden="true">→</span></a>',
+          '<p class="mode-footnote">互動試看資料只保存在此裝置</p>',
+        '</section>',
+      '</div>',
+      '<p class="small home-note"><span class="home-note-icon" aria-hidden="true">✓</span><span>兩種模式各自建立帳本。聚會分帳可分享連結共同編輯；餐飲分單目前為互動試看。</span></p>',
+    '</main>'
+  ].join('');
 }
 async function createMeeting(){
   const name = document.getElementById('mname').value.trim() || '未命名聚會';
@@ -1935,3 +1959,4 @@ boot();
 </script>
 </body>
 </html>
+
